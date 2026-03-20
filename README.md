@@ -3,7 +3,7 @@ SkillSync is an internship matching system designed for IT students, connecting 
 
 **Project Component:** Admin Internship Management & Suggestion Module  
 **Developer:** Tharuki Osadara 
-**Unit:** IT3010 | Network Design and Management (NDM)  
+**Unit:** IT3040 | IT Project Management (ITPM)  
 **Milestone:** Progress 1 (35% Functionality Demo)
 
 ---
@@ -12,7 +12,7 @@ SkillSync is an internship matching system designed for IT students, connecting 
 SkillSync is a MERN-stack application designed to bridge the gap between IT students and industry opportunities. My specific module focuses on the **Admin ecosystem**, allowing administrators to manage internship postings and leveraging a **Skill-Based Matching Engine** to suggest the best candidates for each role.
 
 ## 🚀 Progress 1 Features (35% Completed)
-For the Sunday Viva, the following backend and structural components are fully functional:
+the following backend and structural components are fully functional:
 
 ### 1. User Management (Common Module)
 - **Role-Based Schema:** Differentiates between `Student` and `Admin`.
