@@ -3,6 +3,7 @@ SkillSync is an internship matching system designed for IT students, connecting 
 
 **Project Component:** Admin Internship Management & Suggestion Module  
 **Developer:** Tharuki Osadara 
+
 **Unit:** IT3040 | IT Project Management (ITPM)  
 **Milestone:** Progress 1 (35% Functionality Demo)
 
