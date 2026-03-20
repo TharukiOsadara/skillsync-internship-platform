@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './InternshipResultsPage.css';
+import { useNavigate } from 'react-router-dom';
 
 function InternshipResultsPage() {
+  const navigate = useNavigate();
   const internshipsData = [
     {
       id: 1,
@@ -287,30 +289,41 @@ function InternshipResultsPage() {
   };
 
   return (
-    <div className="results-page">
-      <div className="container">
-        <div className="results-header">
-          <a href="/" className="back-link" onClick={handleBackToSearch}>
-            ← Back to Search
-          </a>
+  <div className="results-page">
+    <div className="container">
+      <div className="results-header">
+        <a href="/" className="back-link" onClick={handleBackToSearch}>
+          ← Back to Search
+        </a>
 
-          <h1 className="results-title">Internship Opportunities</h1>
+        <h1 className="results-title">Internship Opportunities</h1>
+
+        <div className="results-sub-row">
           <div className="search-summary">{summaryText}</div>
-        </div>
 
-        <div className="filter-bar">
-          <div className="sort-group">
-            <label>Sort by:</label>
-            <select
-              className="sort-select"
-              value={currentSort}
-              onChange={(e) => setCurrentSort(e.target.value)}
-            >
-              <option value="newest">✨ Newest First</option>
-              <option value="closing">⚠️ Closing Soon</option>
-              <option value="title">📝 Title A-Z</option>
-            </select>
-          </div>
+          <button
+            className="saved-btn"
+            onClick={() => navigate('/saved')}
+          >
+            ❤️ Saved
+          </button>
+        </div>
+      </div>
+
+      <div className="filter-bar">
+        <div className="sort-group">
+          <label>Sort by:</label>
+          <select
+            className="sort-select"
+            value={currentSort}
+            onChange={(e) => setCurrentSort(e.target.value)}
+          >
+            <option value="newest">✨ Newest First</option>
+            <option value="closing">⚠️ Closing Soon</option>
+            <option value="title">📝 Title A-Z</option>
+          </select>
+        </div>
+    
 
           <div className="results-count">
             {filteredAndSortedInternships.length} internship
