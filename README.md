@@ -1,6 +1,5 @@
-# skillsync-internship-platform
+# SkillSync:Internship Matching Platform
 SkillSync is an internship matching system designed for IT students, connecting academic skills with real-world industry opportunities.
-# SkillSync: AI-Powered Internship Matching Platform
 
 **Project Component:** Admin Internship Management & Suggestion Module  
 **Developer:** [Your Name]  
