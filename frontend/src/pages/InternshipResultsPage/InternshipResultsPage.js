@@ -385,12 +385,10 @@ function InternshipResultsPage() {
                   </div>
 
                   <button
-                    className="apply-btn"
-                    onClick={() =>
-                      applyForInternship(internship.title, internship.company)
-                    }
+                     className="apply-btn"
+                     onClick={() => navigate(`/details/${internship.id}`)}
                   >
-                    Apply Now
+                     View Details
                   </button>
                 </div>
               );
