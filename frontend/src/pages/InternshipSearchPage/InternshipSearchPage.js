@@ -94,6 +94,26 @@ function InternshipSearchPage() {
 const handleSearchSubmit = (e) => {
   e.preventDefault();
 
+   if (searchData.location && searchData.location.length < 3) {
+    showToast("⚠️ Location must be at least 3 characters", true);
+    return;
+  }
+   if (searchData.role && searchData.role.length < 2) {
+  showToast("⚠️ Role must be at least 2 characters", true);
+  return;
+  }
+
+  if (
+    !searchData.location.trim() &&
+    !searchData.role.trim() &&
+    !searchData.duration &&
+    !searchData.mode &&
+    !searchData.time
+  ) {
+    showToast('❗ Please fill at least one field to search', true);
+    return;
+  }
+
   const query = new URLSearchParams({
     location: searchData.location,
     role: searchData.role,
@@ -148,7 +168,7 @@ const handleSearchSubmit = (e) => {
               <div className="avatar">{userAvatar}</div>
               <div className="user-info">
                 <h4>{userName}</h4>
-                <p>🎓 CS · University of Moratuwa</p>
+                <p>🎓 CS · SLIIT</p>
               </div>
               <span className="chevron">⌄</span>
             </div>

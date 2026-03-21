@@ -265,8 +265,18 @@ function InternshipResultsPage() {
     localStorage.setItem('bookmarkedInternships', JSON.stringify(updatedBookmarks));
   };
 
-  const applyForInternship = (title, company) => {
-    showToast(`📝 Applied to ${title} at ${company}! Check your email for confirmation.`);
+  const applyForInternship = (id, title, company) => {
+  let applied = JSON.parse(localStorage.getItem('appliedInternships') || '[]');
+
+  if (applied.includes(id)) {
+    showToast("⚠️ You already applied to this internship!");
+    return;
+  }
+
+  applied.push(id);
+  localStorage.setItem('appliedInternships', JSON.stringify(applied));
+
+  showToast(`📝 Applied to ${title} at ${company}!`);
   };
 
   const handleResetFilters = () => {
@@ -346,6 +356,8 @@ function InternshipResultsPage() {
               const isBookmarked = savedBookmarks.includes(internship.id);
               const daysRemaining = getDaysRemaining(internship.deadline);
               const isUrgent = internship.closingSoon;
+              const applied = JSON.parse(localStorage.getItem('appliedInternships') || '[]');
+              const isApplied = applied.includes(internship.id);
 
               return (
                 <div className="internship-card" key={internship.id}>
@@ -383,13 +395,31 @@ function InternshipResultsPage() {
                       ⏳ Application deadline: {formatDate(internship.deadline)} ({daysRemaining})
                     </span>
                   </div>
+                  
+                  <div className="card-actions">
+  <button
+    className="details-btn"
+    onClick={() => navigate(`/details/${internship.id}`)}
+  >
+    🔍 View Details
+  </button>
 
-                  <button
-                     className="apply-btn"
-                     onClick={() => navigate(`/details/${internship.id}`)}
-                  >
-                     View Details
-                  </button>
+  <button
+    className="apply-btn"
+    onClick={() =>
+      applyForInternship(internship.id, internship.title, internship.company)
+    }
+    disabled={isApplied}
+  >
+    {isApplied ? (
+  <span className="applied-text">
+    <span className="tick-circle">✓</span> Applied
+  </span>
+) : (
+  "🚀 Apply Now"
+)}
+  </button>
+</div>
                 </div>
               );
             })}
