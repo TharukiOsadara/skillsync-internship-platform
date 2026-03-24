@@ -1,10 +1,69 @@
 const User = require('../Models/UserModel');
+const jwt = require('jsonwebtoken');
+
+const hasLetter = (value = '') => /[A-Za-z]/.test(String(value));
+const startsWithDigit = (value = '') => /^\d/.test(String(value).trim());
+const digitsOnly = (value = '') => String(value).replace(/\D/g, '');
+
+const getAuthUser = async (req) => {
+    const authHeader = req.headers.authorization || '';
+    if (!authHeader.startsWith('Bearer ')) return null;
+
+    const token = authHeader.split(' ')[1];
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET || 'skillsync_dev_secret');
+        if (!payload?.id) return null;
+        return await User.findById(payload.id).select('+password');
+    } catch (err) {
+        return null;
+    }
+};
+
+const requireAdmin = async (req, res) => {
+    const authUser = await getAuthUser(req);
+    if (!authUser || authUser.role !== 'Admin') {
+        res.status(403).json({ success: false, message: 'Admin access required.' });
+        return null;
+    }
+    return authUser;
+};
+
+const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience }) => {
+    if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
+        return 'All required fields must be filled.';
+    }
+
+    if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
+
+    const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRx.test(String(gmail))) {
+        return 'Gmail must start with a letter and be a valid email.';
+    }
+
+    if (!hasLetter(address)) return 'Address cannot be only numbers.';
+    if (skills && !hasLetter(skills)) return 'Skills cannot be only numbers.';
+    if (!hasLetter(education)) return 'Education cannot be only numbers.';
+    if (!hasLetter(experience)) return 'Experience cannot be only numbers.';
+
+    const phoneDigits = digitsOnly(phoneNo);
+    if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
+
+    if (Number(age) < 16 || Number(age) > 60) return 'Age must be between 16 and 60.';
+    if (password.length < 6) return 'Password must be at least 6 characters.';
+
+    return null;
+};
 
 // @desc    Register a new user (Student or Admin)
 // @route   POST /api/users/register
 const registerUser = async (req, res) => {
     try {
         const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+
+        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        if (validationError) {
+            return res.status(400).json({ success: false, message: validationError });
+        }
 
         // Check if user already exists
         const userExists = await User.findOne({ gmail });
@@ -18,33 +77,68 @@ const registerUser = async (req, res) => {
             password, // Note: In a real app, hash this with bcrypt first!
             age,
             address,
-            phoneNo,
+            phoneNo: digitsOnly(phoneNo),
             role,
             skills,
             education,
             experience
         });
 
-        return res.status(201).json({ success: true, data: user });
+        const payload = { id: user._id, role: user.role, gmail: user.gmail };
+        const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+
+        return res.status(201).json({ success: true, user, token });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Login user
+// @route   POST /users/login
+const loginUser = async (req, res) => {
+    try {
+        const { gmail, password } = req.body;
+        if (!gmail || !password) {
+            return res.status(400).json({ success: false, message: 'gmail and password are required' });
+        }
+
+        const user = await User.findOne({ gmail }).select('+password');
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        // Passwords are currently stored in plain text in this project.
+        if (user.password !== password) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        user.lastLoginAt = new Date();
+        await user.save();
+
+        const payload = { id: user._id, role: user.role, gmail: user.gmail };
+        const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+
+        const userObj = user.toObject();
+        delete userObj.password;
+
+        return res.status(200).json({ success: true, user: userObj, token });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
     }
 };
 
 // @desc    Get all users (Useful for Admin to see students)
 // @route   GET /api/users
 const getUsers = async (req, res) => {
-    let Users;
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
     try {
-        const users = await User.find();
+        const users = await User.find().select('+password').sort({ createdAt: -1 });
         return res.status(200).json({ users });
     } catch (err) {
         console.log(err);
         return res.status(400).json({ success: false, message: err.message });
-    }
-    // not found 
-    if (!users) {
-        return res.status(404).json({ message: 'User not found' });
     }
 };
 
@@ -67,8 +161,14 @@ const getUserById = async (req, res) => {
 const addUsers = async (req, res) => {
     const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
     let user;
+
+    const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
+    }
+
     try {
-        user = new User({fullName, gmail, password, age, address,phoneNo, role, skills, education, experience});
+        user = new User({fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience});
         await user.save();
         console.log("User added successfully:", user);
     } catch (err) {
@@ -82,11 +182,28 @@ const addUsers = async (req, res) => {
 };
 //update user
 const updateUser = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
     const id = req.params.id;
-    const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+    const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience, adminPassword } = req.body;
     let user;
+
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
+    const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+    if (validationError) {
+        return res.status(400).json({ success: false, message: validationError });
+    }
+
     try {
-        user = await User.findByIdAndUpdate(req.params.id, { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience }, { new: true });
+        user = await User.findByIdAndUpdate(req.params.id, { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, updatedAt: new Date() }, { new: true, runValidators: true });
         if (!user) {
             return res.status(404).json({ message: 'User cannot Update' });
         }
@@ -97,9 +214,25 @@ const updateUser = async (req, res) => {
 };
 //delete user
 const deleteUser = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
+    const { adminPassword } = req.body || {};
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
     const id = req.params.id;
     let user;
     try {
+        if (String(adminUser._id) === String(id)) {
+            return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
+        }
+
         user = await User.findByIdAndDelete(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -110,11 +243,40 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// @desc    Reveal a user's password (admin only, with admin password confirmation)
+// @route   POST /users/:id/view-password
+const viewUserPassword = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
+    const { adminPassword } = req.body || {};
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
+    try {
+        const targetUser = await User.findById(req.params.id).select('+password');
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        return res.status(200).json({ success: true, password: targetUser.password });
+    } catch (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
 exports.registerUser = registerUser;
+exports.loginUser = loginUser;
 exports.getUsers = getUsers;
 exports.getUserById = getUserById;
 exports.addUsers = addUsers;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.viewUserPassword = viewUserPassword;
 
 
