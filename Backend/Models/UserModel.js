@@ -10,8 +10,8 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
         match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please add a valid gmail'
+            /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+            'Gmail must start with a letter and be valid'
         ]
     },
     password: {
@@ -29,8 +29,9 @@ const UserSchema = new mongoose.Schema({
         required: true,
     },
     phoneNo: {
-        type:Number,
+        type: String,
         required: true,
+        match: [/^\d{10}$/, 'Phone number must be exactly 10 digits']
     },
     role: {
         type: String,
@@ -40,7 +41,7 @@ const UserSchema = new mongoose.Schema({
     // For your matching engine, we store skills here
     skills: {
         type: String, 
-        default: []
+        default: ''
     },
     education: {
         type: String,
@@ -57,6 +58,10 @@ const UserSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    lastLoginAt: {
+        type: Date,
+        default: null
     }
 });
 
