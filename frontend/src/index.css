@@ -1,0 +1,148 @@
+/* Changed font: DM Sans — professional, clean, modern sans-serif for web apps */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* FIX: prevent horizontal overflow that causes page expand */
+    overflow-x: hidden;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #020617;
+    /* Using DM Sans — professional tech/SaaS font used by Notion, Linear, etc. */
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  input, button, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+  }
+  input:focus {
+    border-color: #22D3EE !important;
+    box-shadow: 0 0 0 3px rgba(34,211,238,0.15) !important;
+    outline: none;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #0B1220; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+}
+
+@layer utilities {
+  /* ── FIX: navy colors explicitly defined so JIT never misses them ── */
+  .bg-navy-950 { background-color: #020617; }
+  .bg-navy-900 { background-color: #0F172A; }
+  .bg-navy-800 { background-color: #1E293B; }
+  .bg-navy-700 { background-color: #334155; }
+  .border-navy-950 { border-color: #0B1220; }
+  .border-navy-800 { border-color: #1E293B; }
+  .border-navy-700 { border-color: #334155; }
+  .hover\:bg-navy-800:hover { background-color: #1E293B; }
+
+  .shadow-cyan {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+  }
+  .bg-grid {
+    background-image: linear-gradient(rgba(34,211,238,0.04) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(34,211,238,0.04) 1px,transparent 1px);
+    background-size: 40px 40px;
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #22D3EE, #06B6D4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-cyan {
+    background: linear-gradient(135deg, #22D3EE, #06B6D4);
+    color: #0B1220;
+    font-weight: 800;
+    border-radius: 0.625rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-cyan:hover { opacity: 0.9; }
+  .btn-outline {
+    background: #0F172A;
+    color: #94A3B8;
+    font-weight: 700;
+    border-radius: 0.625rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #334155;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-outline:hover { border-color: #22D3EE; color: #22D3EE; }
+  .card {
+    background: #0F172A;
+    border: 1px solid #1E293B;
+    border-radius: 1rem;
+  }
+  .input-field {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 0.625rem;
+    padding: 0.75rem 1rem;
+    color: #F8FAFC;
+    font-size: 0.875rem;
+    width: 100%;
+    transition: border-color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .skill-tag {
+    background: rgba(34,211,238,0.1);
+    border: 1px solid rgba(34,211,238,0.2);
+    color: #22D3EE;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .badge-active {
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ADE80;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .badge-expired {
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #F87171;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.875rem;
+    border-radius: 0.625rem;
+    color: #94A3B8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: #1E293B; color: #F8FAFC; }
+  .nav-item.active {
+    background: rgba(34,211,238,0.1);
+    color: #22D3EE;
+    border: 1px solid rgba(34,211,238,0.15);
+  }
+}
