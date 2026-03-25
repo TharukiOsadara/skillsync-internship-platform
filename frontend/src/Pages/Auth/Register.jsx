@@ -4,6 +4,13 @@ import { saveAuth } from "../../Utils/auth";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 
+const Ico = ({ size = 14, stroke = "currentColor", children }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "" });
@@ -86,17 +93,46 @@ export default function Register() {
             <h2 className="text-2xl font-extrabold text-slate-200 mb-1">Create your account</h2>
             <p className="text-slate-400 text-sm mb-6">Join thousands of students finding internships</p>
 
-            {error && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">⚠️ {error}</div>}
-            {success && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4">✅ {success}</div>}
+            {error && (
+              <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4 flex items-center gap-2">
+                <Ico size={14} stroke="#f87171"><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Ico>
+                <span>{error}</span>
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4 flex items-center gap-2">
+                <Ico size={14} stroke="#4ade80"><circle cx="12" cy="12" r="9" /><polyline points="8 12 11 15 16 9" /></Ico>
+                <span>{success}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {/* Role */}
               <div className="grid grid-cols-2 gap-3">
                 {["Student", "Admin"].map(r => (
+                  (() => {
+                    const isActive = form.role === r;
+                    const activeCls = r === "Student"
+                      ? "bg-cyan-400/10 border-cyan-400 text-cyan-400"
+                      : "bg-purple-400/10 border-purple-400 text-purple-400";
+                    const iconStroke = isActive
+                      ? (r === "Student" ? "#22d3ee" : "#a78bfa")
+                      : "#94a3b8";
+
+                    return (
                   <button key={r} type="button" onClick={() => setForm({ ...form, role: r })}
-                    className={`py-2.5 rounded-xl text-sm font-bold border cursor-pointer transition-all ${form.role === r ? "bg-cyan-400/10 border-cyan-400 text-cyan-400" : "bg-navy-800 border-navy-700 text-slate-400 hover:border-slate-500"}`}>
-                    {r === "Student" ? "🎓" : "🛡️"} {r}
+                    className={`py-2.5 rounded-xl text-sm font-bold border cursor-pointer transition-all ${isActive ? activeCls : "bg-navy-800 border-navy-700 text-slate-400 hover:border-slate-500"}`}>
+                    <span className="inline-flex items-center gap-2 justify-center">
+                      {r === "Student" ? (
+                        <Ico size={14} stroke={iconStroke}><path d="M22 10L12 5 2 10l10 5 10-5z" /><path d="M6 12v4.5C6 18.5 8.7 20 12 20s6-1.5 6-3.5V12" /></Ico>
+                      ) : (
+                        <Ico size={14} stroke={iconStroke}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></Ico>
+                      )}
+                      <span>{r}</span>
+                    </span>
                   </button>
+                    );
+                  })()
                 ))}
               </div>
 

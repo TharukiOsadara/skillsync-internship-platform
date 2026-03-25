@@ -4,6 +4,13 @@ import { saveAuth } from "../../Utils/auth";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 
+const Ico = ({ size = 14, stroke = "currentColor", children }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ gmail: "", password: "" });
@@ -52,8 +59,9 @@ export default function Login() {
             <p className="text-slate-400 text-sm mb-7">Sign in with your email and password</p>
 
             {error && (
-              <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-5">
-                ⚠️ {error}
+              <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-5 flex items-center gap-2">
+                <Ico size={14} stroke="#f87171"><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Ico>
+                <span>{error}</span>
               </div>
             )}
 
@@ -73,9 +81,20 @@ export default function Login() {
 
             {/* Role hints */}
             <div className="grid grid-cols-2 gap-3 mt-5">
-              {[{ icon: "🛡️", role: "Admin", desc: "Manage internships & matching" }, { icon: "🎓", role: "Student", desc: "View matched internships" }].map(r => (
+              {[
+                {
+                  role: "Admin",
+                  desc: "Manage internships & matching",
+                  icon: <Ico size={16} stroke="#a78bfa"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></Ico>,
+                },
+                {
+                  role: "Student",
+                  desc: "View matched internships",
+                  icon: <Ico size={16} stroke="#22d3ee"><path d="M22 10L12 5 2 10l10 5 10-5z" /><path d="M6 12v4.5C6 18.5 8.7 20 12 20s6-1.5 6-3.5V12" /></Ico>,
+                },
+              ].map(r => (
                 <div key={r.role} className="bg-navy-800 border border-navy-700 rounded-xl p-3 flex items-center gap-2">
-                  <span className="text-lg">{r.icon}</span>
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-800/70">{r.icon}</span>
                   <div>
                     <p className="text-slate-200 text-xs font-bold m-0">{r.role}</p>
                     <p className="text-slate-400 text-[10px] m-0">{r.desc}</p>

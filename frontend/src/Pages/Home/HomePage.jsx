@@ -18,15 +18,69 @@ const pill = {
   textTransform: "uppercase",
 };
 
+const FeatureIcon = ({ stroke = "#22D3EE", children }) => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+    stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
+const RoleIcon = ({ stroke = "#22D3EE", children }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+    stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
 const FEATURES = [
-  {  bg: "rgba(34,211,238,0.1)",   title: "Get matched to the right internship",  desc: "Stop scrolling through irrelevant listings. You see only the internships that actually fit your skills — ranked from best match to lowest." },
-  {  bg: "rgba(74,222,128,0.1)",   title: "Save hours of searching",              desc: "No more manually comparing job descriptions. SkillSync does the comparison for you instantly the moment you log in." },
-  {  bg: "rgba(99,179,237,0.1)",   title: "Know exactly how well you fit",        desc: "Every internship shows a match percentage against your profile so you can confidently prioritize where to apply first." },
-  {  bg: "rgba(251,191,36,0.1)",   title: "Never miss a deadline",                desc: "Expired listings are clearly flagged in red so you always know which opportunities are still open and worth your time." },
-  {  bg: "rgba(167,139,250,0.1)",  title: "Your data stays private",              desc: "Your profile and skills are stored securely. Only you can see your matches — other students cannot see your profile or applications." },
-  {  bg: "rgba(248,113,113,0.1)",  title: "Build your profile once, match forever", desc: "Set up your skills and education one time. Every new internship posted is automatically checked against your profile — no repeat effort." },
-  {  bg: "rgba(96,211,186,0.1)",   title: "See only verified, active listings",   desc: "Admins review and post all internships. Duplicates are blocked automatically so you never see the same listing twice." },
-  {  bg: "rgba(34,211,238,0.1)",   title: "Start applying in minutes",            desc: "Register, add your skills, and your personalised internship list is ready immediately. No waiting, no approval process." },
+  {
+    bg: "rgba(34,211,238,0.1)",
+    title: "Get matched to the right internship",
+    desc: "Stop scrolling through irrelevant listings. You see only the internships that actually fit your skills — ranked from best match to lowest.",
+    icon: <FeatureIcon stroke="#22D3EE"><path d="M21 21l-4.35-4.35" /><circle cx="11" cy="11" r="7" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(74,222,128,0.1)",
+    title: "Save hours of searching",
+    desc: "No more manually comparing job descriptions. SkillSync does the comparison for you instantly the moment you log in.",
+    icon: <FeatureIcon stroke="#4ADE80"><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(99,179,237,0.1)",
+    title: "Know exactly how well you fit",
+    desc: "Every internship shows a match percentage against your profile so you can confidently prioritize where to apply first.",
+    icon: <FeatureIcon stroke="#63B3ED"><path d="M4 20h16" /><path d="M7 20V10" /><path d="M12 20V6" /><path d="M17 20V13" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(251,191,36,0.1)",
+    title: "Never miss a deadline",
+    desc: "Expired listings are clearly flagged in red so you always know which opportunities are still open and worth your time.",
+    icon: <FeatureIcon stroke="#FBBF24"><circle cx="12" cy="12" r="9" /><polyline points="12 8 12 12 15 12" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(167,139,250,0.1)",
+    title: "Your data stays private",
+    desc: "Your profile and skills are stored securely. Only you can see your matches — other students cannot see your profile or applications.",
+    icon: <FeatureIcon stroke="#A78BFA"><rect x="4" y="11" width="16" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(248,113,113,0.1)",
+    title: "Build your profile once, match forever",
+    desc: "Set up your skills and education one time. Every new internship posted is automatically checked against your profile — no repeat effort.",
+    icon: <FeatureIcon stroke="#F87171"><path d="M12 3v18" /><path d="M3 12h18" /><circle cx="12" cy="12" r="9" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(96,211,186,0.1)",
+    title: "See only verified, active listings",
+    desc: "Admins review and post all internships. Duplicates are blocked automatically so you never see the same listing twice.",
+    icon: <FeatureIcon stroke="#60D3BA"><polyline points="20 6 9 17 4 12" /></FeatureIcon>,
+  },
+  {
+    bg: "rgba(34,211,238,0.1)",
+    title: "Start applying in minutes",
+    desc: "Register, add your skills, and your personalised internship list is ready immediately. No waiting, no approval process.",
+    icon: <FeatureIcon stroke="#22D3EE"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="14 3 14 9 20 9" /><line x1="12" y1="13" x2="12" y2="17" /><line x1="10" y1="15" x2="14" y2="15" /></FeatureIcon>,
+  },
 ];
 
 const STEPS = [
@@ -145,9 +199,9 @@ export default function HomePage() {
             </div>
 
             <h1 style={{ fontSize: "clamp(40px,5vw,58px)", fontWeight: 800, color: "#F1F5F9", lineHeight: 1.05, letterSpacing: "-1.5px", marginBottom: "18px" }}>
-              Find your{" "}
+              Find Your{" "}
               <span style={{ background: "linear-gradient(135deg,#22D3EE,#06B6D4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                perfect match
+                Perfect Match
               </span>
               <br />in Sri Lanka
             </h1>
@@ -270,7 +324,7 @@ export default function HomePage() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={pill}>What You Get</div>
           <h2 style={{ fontSize: "34px", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", marginBottom: "10px" }}>
-            Why students choose SkillSync
+            Why Students Choose SkillSync
           </h2>
           <p style={{ color: "#64748B", fontSize: "13px", marginBottom: "36px", maxWidth: "480px", lineHeight: "1.7" }}>
             We built SkillSync around one goal — getting you to the right internship faster, with less effort and more confidence.
@@ -278,11 +332,19 @@ export default function HomePage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px" }}>
             {FEATURES.map((f, i) => (
               <div key={i}
-                style={{ background: "#0A1628", border: "1px solid #1E293B", borderRadius: "14px", padding: "22px", transition: "border-color 0.2s", cursor: "default" }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)")}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = "#1E293B")}
+                style={{ background: "#0A1628", border: "1px solid #1E293B", borderRadius: "14px", padding: "22px", transition: "border-color 0.2s, transform 0.2s, box-shadow 0.2s", cursor: "default" }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 12px 24px rgba(34,211,238,0.12)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "#1E293B";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               >
-                <div style={{ width: "38px", height: "38px", background: f.bg, borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", marginBottom: "12px" }}>{f.icon}</div>
+                <div style={{ width: "38px", height: "38px", background: `linear-gradient(135deg, ${f.bg}, rgba(255,255,255,0.03))`, border: "1px solid rgba(34,211,238,0.28)", boxShadow: "0 8px 18px rgba(34,211,238,0.14)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", marginBottom: "12px" }}>{f.icon}</div>
                 <div style={{ fontSize: "12px", fontWeight: 700, color: "#F1F5F9", marginBottom: "6px" }}>{f.title}</div>
                 <div style={{ fontSize: "11px", color: "#64748B", lineHeight: "1.65" }}>{f.desc}</div>
               </div>
@@ -339,7 +401,12 @@ export default function HomePage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "16px", maxWidth: "700px" }}>
             {/* Student */}
             <div style={{ background: "linear-gradient(135deg,rgba(34,211,238,0.06),rgba(6,182,212,0.02))", border: "1px solid rgba(34,211,238,0.2)", borderRadius: "18px", padding: "28px" }}>
-              <div style={{ width: "44px", height: "44px", background: "rgba(34,211,238,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "14px" }}>🎓</div>
+              <div style={{ width: "44px", height: "44px", background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.35)", boxShadow: "0 10px 20px rgba(34,211,238,0.15)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
+                <RoleIcon stroke="#22D3EE">
+                  <path d="M22 10L12 5 2 10l10 5 10-5z" />
+                  <path d="M6 12v4.5C6 18.5 8.7 20 12 20s6-1.5 6-3.5V12" />
+                </RoleIcon>
+              </div>
               <h3 style={{ color: "#F1F5F9", fontSize: "17px", fontWeight: 800, marginBottom: "6px" }}>Student</h3>
               <p style={{ color: "#64748B", fontSize: "11px", marginBottom: "14px", lineHeight: "1.65" }}>Find internships that match your exact skill set with zero effort.</p>
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 18px", display: "flex", flexDirection: "column", gap: "7px" }}>
@@ -357,7 +424,11 @@ export default function HomePage() {
             </div>
             {/* Admin */}
             <div style={{ background: "linear-gradient(135deg,rgba(167,139,250,0.06),rgba(124,58,237,0.02))", border: "1px solid rgba(167,139,250,0.2)", borderRadius: "18px", padding: "28px" }}>
-              <div style={{ width: "44px", height: "44px", background: "rgba(167,139,250,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "14px" }}>🛡️</div>
+              <div style={{ width: "44px", height: "44px", background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.35)", boxShadow: "0 10px 20px rgba(167,139,250,0.16)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "14px" }}>
+                <RoleIcon stroke="#A78BFA">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </RoleIcon>
+              </div>
               <h3 style={{ color: "#F1F5F9", fontSize: "17px", fontWeight: 800, marginBottom: "6px" }}>Admin</h3>
               <p style={{ color: "#64748B", fontSize: "11px", marginBottom: "14px", lineHeight: "1.65" }}>Post and manage internship opportunities for all students on the platform.</p>
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 18px", display: "flex", flexDirection: "column", gap: "7px" }}>
