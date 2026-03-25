@@ -1,5 +1,6 @@
 const Internship = require('../Models/InternshipModel');
 const User = require('../Models/UserModel');
+const Application = require('../Models/ApplicationModel');
 
 const hasLetter = (value = '') => /[A-Za-z]/.test(String(value));
 const startsWithDigit = (value = '') => /^\d/.test(String(value).trim());
@@ -141,9 +142,81 @@ const getStats = async (req, res) => {
     }
 };
 
+// @desc    Student applies to an internship
+// @route   POST /internships/:id/apply
+const applyToInternship = async (req, res) => {
+    try {
+        if (!req.user || req.user.role !== 'Student') {
+            return res.status(403).json({ success: false, message: 'Only students can apply.' });
+        }
+
+        const internship = await Internship.findById(req.params.id);
+        if (!internship) {
+            return res.status(404).json({ success: false, message: 'Internship not found.' });
+        }
+
+        if (new Date(internship.deadline) < new Date()) {
+            return res.status(400).json({ success: false, message: 'This internship has expired.' });
+        }
+
+        const note = String(req.body?.note || '').trim();
+
+        const application = await Application.create({
+            internshipId: internship._id,
+            studentId: req.user._id,
+            studentName: req.user.fullName,
+            studentEmail: req.user.gmail,
+            internshipTitle: internship.title,
+            company: internship.company,
+            note,
+        });
+
+        return res.status(201).json({ success: true, application });
+    } catch (err) {
+        if (err && err.code === 11000) {
+            return res.status(400).json({ success: false, message: 'You have already applied for this internship.' });
+        }
+        return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Admin sees recent applications
+// @route   GET /internships/applications
+const getApplications = async (req, res) => {
+    try {
+        const applications = await Application.find().sort({ createdAt: -1 }).limit(100);
+        const unreadCount = applications.filter((a) => !a.isReadByAdmin).length;
+        return res.status(200).json({ success: true, applications, unreadCount });
+    } catch (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
+// @desc    Admin marks application message as read
+// @route   PATCH /internships/applications/:id/read
+const markApplicationRead = async (req, res) => {
+    try {
+        const updated = await Application.findByIdAndUpdate(
+            req.params.id,
+            { isReadByAdmin: true },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ success: false, message: 'Application message not found.' });
+        }
+        return res.status(200).json({ success: true, application: updated });
+    } catch (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
 exports.getInternships  = getInternships;
 exports.addInternship   = addInternship;
 exports.updateInternship = updateInternship;
 exports.deleteInternship = deleteInternship;
 exports.getSuggestions  = getSuggestions;
 exports.getStats        = getStats;
+exports.applyToInternship = applyToInternship;
+exports.getApplications = getApplications;
+exports.markApplicationRead = markApplicationRead;
