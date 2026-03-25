@@ -3,6 +3,40 @@ import { Link, useNavigate } from "react-router-dom";
 import AdminSidebar from "../../Components/AdminSidebar";
 import { getUser, authHeaders } from "../../Utils/auth";
 
+// ── Tech language badge helper ───────────────────────────────────────────────
+const TECH_STYLES = {
+  react:      {bg:"rgba(34,211,238,0.1)",  border:"rgba(34,211,238,0.2)",  color:"#22D3EE",  label:"React"},
+  javascript: {bg:"rgba(251,191,36,0.1)",  border:"rgba(251,191,36,0.25)", color:"#FCD34D",  label:"JavaScript"},
+  js:         {bg:"rgba(251,191,36,0.1)",  border:"rgba(251,191,36,0.25)", color:"#FCD34D",  label:"JS"},
+  python:     {bg:"rgba(59,130,246,0.1)",  border:"rgba(59,130,246,0.25)", color:"#60A5FA",  label:"Python"},
+  node:       {bg:"rgba(74,222,128,0.1)",  border:"rgba(74,222,128,0.2)",  color:"#4ADE80",  label:"Node.js"},
+  "node.js":  {bg:"rgba(74,222,128,0.1)",  border:"rgba(74,222,128,0.2)",  color:"#4ADE80",  label:"Node.js"},
+  mongodb:    {bg:"rgba(74,222,128,0.1)",  border:"rgba(74,222,128,0.2)",  color:"#4ADE80",  label:"MongoDB"},
+  docker:     {bg:"rgba(96,165,250,0.1)",  border:"rgba(96,165,250,0.2)",  color:"#93C5FD",  label:"Docker"},
+  java:       {bg:"rgba(251,146,60,0.1)",  border:"rgba(251,146,60,0.2)",  color:"#FB923C",  label:"Java"},
+  flutter:    {bg:"rgba(99,179,237,0.1)",  border:"rgba(99,179,237,0.2)",  color:"#63B3ED",  label:"Flutter"},
+  kubernetes: {bg:"rgba(96,165,250,0.1)",  border:"rgba(96,165,250,0.2)",  color:"#93C5FD",  label:"Kubernetes"},
+  aws:        {bg:"rgba(251,146,60,0.1)",  border:"rgba(251,146,60,0.2)",  color:"#FB923C",  label:"AWS"},
+  django:     {bg:"rgba(74,222,128,0.1)",  border:"rgba(74,222,128,0.2)",  color:"#4ADE80",  label:"Django"},
+  ml:         {bg:"rgba(167,139,250,0.1)", border:"rgba(167,139,250,0.2)", color:"#A78BFA",  label:"ML"},
+  mysql:      {bg:"rgba(59,130,246,0.1)",  border:"rgba(59,130,246,0.25)", color:"#60A5FA",  label:"MySQL"},
+  css:        {bg:"rgba(96,165,250,0.1)",  border:"rgba(96,165,250,0.2)",  color:"#93C5FD",  label:"CSS"},
+  html:       {bg:"rgba(251,146,60,0.1)",  border:"rgba(251,146,60,0.2)",  color:"#FB923C",  label:"HTML"},
+  typescript: {bg:"rgba(59,130,246,0.1)",  border:"rgba(59,130,246,0.25)", color:"#60A5FA",  label:"TypeScript"},
+  express:    {bg:"rgba(74,222,128,0.1)",  border:"rgba(74,222,128,0.2)",  color:"#4ADE80",  label:"Express"},
+  redux:      {bg:"rgba(167,139,250,0.1)", border:"rgba(167,139,250,0.2)", color:"#A78BFA",  label:"Redux"},
+  firebase:   {bg:"rgba(251,146,60,0.1)",  border:"rgba(251,146,60,0.2)",  color:"#FB923C",  label:"Firebase"},
+};
+function TechBadge({skill}){
+  const key=skill.trim().toLowerCase().replace(/\s+/g,"");
+  const s=TECH_STYLES[key]||{bg:"rgba(34,211,238,0.08)",border:"rgba(34,211,238,0.15)",color:"#22D3EE",label:skill.trim()};
+  return(
+    <span style={{display:"inline-flex",alignItems:"center",gap:"3px",padding:"2px 7px",borderRadius:"99px",fontSize:"9px",fontWeight:700,background:s.bg,border:`1px solid ${s.border}`,color:s.color,margin:"1px"}}>
+      {s.label}
+    </span>
+  );
+}
+
 export default function ManageInternships() {
   const navigate = useNavigate();
   const [internships, setInternships] = useState([]);
@@ -101,45 +135,54 @@ export default function ManageInternships() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto" style={{ minWidth: 0 }}>
-        {/* Top bar */}
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate(-1)} className="text-slate-400 hover:text-cyan-400 transition-colors text-2xl">←</button>
+        {/* Page header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+            <button onClick={()=>navigate(-1)}
+              style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
+              onMouseEnter={e=>(e.currentTarget.style.color="#22D3EE")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#64748B")}>←</button>
+            <div style={{width:"44px",height:"44px",flexShrink:0,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </div>
             <div>
-              <h1 className="text-3xl font-extrabold text-slate-200 m-0">Manage Internships</h1>
-              <p className="text-slate-400 text-sm mt-1">
-                {internships.length} total · {internships.filter(i => new Date(i.deadline) >= now).length} active ·
-                <span className="text-red-400"> {internships.filter(i => new Date(i.deadline) < now).length} expired</span>
+              <h1 style={{fontSize:"28px",fontWeight:800,color:"#F1F5F9",margin:0}}>Manage Internships</h1>
+              <p style={{color:"#64748B",fontSize:"13px",margin:"3px 0 0"}}>
+                {internships.length} total · {internships.filter(i=>new Date(i.deadline)>=now).length} active ·{" "}
+                <span style={{color:"#F87171"}}>{internships.filter(i=>new Date(i.deadline)<now).length} expired</span>
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/admin/add-internship" className="btn-cyan text-sm no-underline px-4 py-2">+ Add New</Link>
-          </div>
+          <Link to="/admin/add-internship" style={{display:"inline-flex",alignItems:"center",gap:"6px",background:"linear-gradient(135deg,#22D3EE,#06B6D4)",color:"#060D1A",fontSize:"12px",fontWeight:800,padding:"9px 18px",borderRadius:"10px",textDecoration:"none"}}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New
+          </Link>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex items-center gap-3 mb-3">
-          {["All", "Active", "Expired"].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className="px-4 py-1.5 rounded-full text-xs font-bold border cursor-pointer transition-all"
-              style={filter === f
-                ? { background: "rgba(34,211,238,0.1)", borderColor: "#22D3EE", color: "#22D3EE" }
-                : { background: "#1E293B", borderColor: "#334155", color: "#94A3B8" }
-              }
-            >
-              {f === "Expired" ? " " : f === "Active" ? " " : ""}{f}
+        {/* Filter tabs with icons */}
+        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+          {[
+            {key:"All",    label:"All",     icon:<path d="M3 12h18M3 6h18M3 18h18"/>},
+            {key:"Active", label:"Active",  icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></>},
+            {key:"Expired",label:"Expired", icon:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>},
+          ].map(f=>(
+            <button key={f.key} onClick={()=>setFilter(f.key)}
+              style={{display:"inline-flex",alignItems:"center",gap:"5px",padding:"5px 14px",borderRadius:"99px",fontSize:"11px",fontWeight:700,cursor:"pointer",border:"1px solid",transition:"all .15s",
+                background: filter===f.key ? (f.key==="Expired"?"rgba(248,113,113,0.08)":"rgba(34,211,238,0.1)") : "#1E293B",
+                borderColor: filter===f.key ? (f.key==="Expired"?"rgba(248,113,113,0.3)":"#22D3EE") : "#334155",
+                color: filter===f.key ? (f.key==="Expired"?"#F87171":"#22D3EE") : "#94A3B8",
+              }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
+              {f.label}
             </button>
           ))}
         </div>
-
-        {/* Legend */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-          <span className="text-slate-400 text-xs">Red highlighted rows = Expired internships (deadline passed)</span>
-        </div>
+        
 
         {actionError   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">{actionError}</div>}
         {actionSuccess && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4">{actionSuccess}</div>}
@@ -147,12 +190,12 @@ export default function ManageInternships() {
         {loading ? (
           <div className="text-slate-400 text-sm animate-pulse py-10">Loading internships...</div>
         ) : filtered.length === 0 ? (
-          <div className="card p-16 text-center">
+          <div className="card admin-hover-surface p-16 text-center">
             <p className="text-4xl mb-3"></p>
             <p className="text-slate-400 text-sm">No internships found for this filter.</p>
           </div>
         ) : (
-          <div className="card overflow-hidden">
+          <div className="card admin-hover-surface overflow-hidden">
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#0B1220" }}>
@@ -180,14 +223,13 @@ export default function ManageInternships() {
                       <td className="px-4 py-3 text-slate-400 text-sm">{item.company}</td>
                       <td className="px-4 py-3 text-slate-400 text-sm">{item.location}</td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(item.skillsRequired || "").split(",").slice(0, 2).map((s, i) =>
-                            s.trim() ? <span key={i} className="skill-tag">{s.trim()}</span> : null
+                        <div style={{display:"flex",flexWrap:"wrap",gap:"2px"}}>
+                          {(item.skillsRequired||"").split(",").slice(0,3).map((s,i)=>
+                            s.trim()?<TechBadge key={i} skill={s}/>:null
                           )}
-                          {(item.skillsRequired || "").split(",").length > 2 && (
-                            <span className="text-[10px] text-slate-400 px-2 py-0.5 rounded-full"
-                              style={{ background: "#1E293B", border: "1px solid #334155" }}>
-                              +{(item.skillsRequired || "").split(",").length - 2}
+                          {(item.skillsRequired||"").split(",").length>3&&(
+                            <span style={{fontSize:"9px",color:"#64748B",padding:"2px 6px",borderRadius:"99px",background:"#1E293B",border:"1px solid #334155"}}>
+                              +{(item.skillsRequired||"").split(",").length-3}
                             </span>
                           )}
                         </div>
@@ -202,16 +244,18 @@ export default function ManageInternships() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => openEdit(item)}
-                            className="text-cyan-400 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer"
-                            style={{ background: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.15)" }}
-                          >
+                          <button onClick={()=>openEdit(item)}
+                            style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"7px",background:"rgba(34,211,238,0.08)",border:"1px solid rgba(34,211,238,0.2)",color:"#22D3EE",fontSize:"9px",fontWeight:700,cursor:"pointer",transition:"all .15s"}}
+                            onMouseEnter={e=>(e.currentTarget.style.background="rgba(34,211,238,0.15)")}
+                            onMouseLeave={e=>(e.currentTarget.style.background="rgba(34,211,238,0.08)")}>
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
                             Update
                           </button>
-                          <button onClick={() => setDeleteId(item._id)}
-                            className="text-red-400 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer"
-                            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}
-                          >
+                          <button onClick={()=>setDeleteId(item._id)}
+                            style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"7px",background:"rgba(248,113,113,0.08)",border:"1px solid rgba(248,113,113,0.2)",color:"#F87171",fontSize:"9px",fontWeight:700,cursor:"pointer",transition:"all .15s"}}
+                            onMouseEnter={e=>(e.currentTarget.style.background="rgba(248,113,113,0.15)")}
+                            onMouseLeave={e=>(e.currentTarget.style.background="rgba(248,113,113,0.08)")}>
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
                             Delete
                           </button>
                         </div>
