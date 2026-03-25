@@ -10,7 +10,7 @@ import UsersDashboard from "./Pages/Admin/UsersDashboard";
 import AddInternship from "./Pages/Admin/AddInternship";
 import ManageInternships from "./Pages/Admin/ManageInternships";
 import MatchingEngine from "./Pages/Admin/MatchingEngine";
-import StudentDashboard from "./Pages/Student/StudentDashboard";
+import StudentDashboard from "./Pages/Student/StudentMatchers";
 
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
