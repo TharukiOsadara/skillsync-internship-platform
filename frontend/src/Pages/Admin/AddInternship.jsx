@@ -67,19 +67,41 @@ export default function AddInternship() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <AdminSidebar />
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
         <main className="flex-1 p-8 overflow-y-auto" style={{ minWidth: 0 }}>
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-slate-200 m-0">Add Internship</h1>
-            <p className="text-slate-400 text-sm mt-1">Post a new internship opportunity for students</p>
+          {/* Page header */}
+          <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"28px"}}>
+            <button onClick={()=>navigate(-1)}
+              style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
+              onMouseEnter={e=>(e.currentTarget.style.color="#22D3EE")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#64748B")}>←</button>
+            <div style={{width:"44px",height:"44px",flexShrink:0,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <div>
+              <h1 style={{fontSize:"28px",fontWeight:800,color:"#F1F5F9",margin:0}}>Add Internship</h1>
+              <p style={{color:"#64748B",fontSize:"13px",margin:"3px 0 0"}}>Post a new internship opportunity for students</p>
+            </div>
           </div>
 
         <div className="max-w-2xl">
-          <div className="card p-8">
+          <div className="card admin-hover-surface p-8">
             {/* Header */}
             <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 bg-cyan-400/10 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"></div>
+              <div className="w-12 h-12 bg-cyan-400/10 rounded-2xl flex items-center justify-center flex-shrink-0 border border-cyan-400/20">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="7" width="18" height="13" rx="2" ry="2" />
+                  <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="12" y1="12" x2="12" y2="16" />
+                  <line x1="10" y1="14" x2="14" y2="14" />
+                </svg>
+              </div>
               <div>
                 <p className="text-slate-200 font-bold text-base m-0">New Internship Listing</p>
                 <p className="text-slate-400 text-xs mt-1 m-0">All fields required. Deadline must be a future date.</p>
@@ -135,7 +157,7 @@ export default function AddInternship() {
           </div>
 
           {/* Rules box */}
-          <div className="mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)" }}>
+          <div className="admin-hover-surface mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)" }}>
             <p className="text-cyan-400 font-bold text-sm mb-2">📌 Business Rules Applied</p>
             <ul className="text-slate-400 text-xs leading-7 pl-4 m-0">
               <li>All fields (Title, Company, Skills, Location, Duration, Deadline) are mandatory</li>
