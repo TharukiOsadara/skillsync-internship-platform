@@ -36,7 +36,9 @@ export default function AdminDashboard() {
   const [users,setUsers]             = useState([]);
   const [loading,setLoading]         = useState(true);
   const [entered,setEntered]         = useState(false);
+  const [animatedStats,setAnimatedStats] = useState({ total:0, active:0, expired:0, students:0 });
   const [dashboardFilter,setDashboardFilter] = useState("all");
+  const [liveTime,setLiveTime]       = useState(new Date());
   const user       = getUser();
   const loggedInAt = getLoggedInAt();
   const now        = new Date();
@@ -46,6 +48,11 @@ export default function AdminDashboard() {
     const timer = setTimeout(()=>setEntered(true), 80);
     return ()=>clearTimeout(timer);
   },[]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setLiveTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(()=>{
     const fetchData=async()=>{
@@ -78,24 +85,47 @@ export default function AdminDashboard() {
   const tableInternships = filteredInternships.slice(0, 8);
   const showStudentsTable = dashboardFilter === "students";
 
+  useEffect(() => {
+    if (loading) return;
+    const targets = {
+      total: internships.length,
+      active: activeCount,
+      expired: expiredCount,
+      students: studentCount,
+    };
+    const start = Date.now();
+    const duration = 420;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      setAnimatedStats({
+        total: Math.round(targets.total * progress),
+        active: Math.round(targets.active * progress),
+        expired: Math.round(targets.expired * progress),
+        students: Math.round(targets.students * progress),
+      });
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [loading, internships.length, activeCount, expiredCount, studentCount]);
+
   const stats=[
     {
-      label:"Total Internships",value:internships.length,color:"#22D3EE",border:"rgba(34,211,238,0.2)",
+      label:"Total Internships",value:animatedStats.total,color:"#22D3EE",border:"rgba(34,211,238,0.2)",
       filterKey:"all",
       icon:<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></>,
     },
     {
-      label:"Active", value:activeCount, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
+      label:"Active", value:animatedStats.active, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
       filterKey:"active",
       icon:<><polyline points="20 6 9 17 4 12"/></>,
     },
     {
-      label:"Expired", value:expiredCount, color:"#F87171", border:"rgba(248,113,113,0.2)",
+      label:"Expired", value:animatedStats.expired, color:"#F87171", border:"rgba(248,113,113,0.2)",
       filterKey:"expired",
       icon:<><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>,
     },
     {
-      label:"Students", value:studentCount, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
+      label:"Students", value:animatedStats.students, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
       filterKey:"students",
       icon:<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
     },
@@ -141,6 +171,9 @@ export default function AdminDashboard() {
             border:"1px solid rgba(34,211,238,0.25)",
             background:"linear-gradient(135deg, rgba(34,211,238,0.14), rgba(15,23,42,0.94))",
             boxShadow:"0 10px 24px rgba(34,211,238,0.12)",
+            opacity: entered ? 1 : 0,
+            transform: entered ? "translateX(0)" : "translateX(24px)",
+            transition: "opacity .38s ease 120ms, transform .45s cubic-bezier(0.22, 1, 0.36, 1) 120ms",
           }}>
             <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
               <div style={{
@@ -168,6 +201,13 @@ export default function AdminDashboard() {
                 <span>Logged in at: {loggedInAt.toLocaleString()}</span>
               </div>
             )}
+            <div style={{marginTop:"6px",display:"flex",alignItems:"center",gap:"6px",color:"#94A3B8",fontSize:"11px"}}>
+              <Ico size={12} stroke="#22D3EE">
+                <circle cx="12" cy="12" r="9"/>
+                <polyline points="12 8 12 12 15 12"/>
+              </Ico>
+              <span>Live: {liveTime.toLocaleTimeString()}</span>
+            </div>
           </div>
         </div>
 
