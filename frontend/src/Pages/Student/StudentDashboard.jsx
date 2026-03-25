@@ -9,10 +9,15 @@ export default function StudentDashboard() {
   const [scored, setScored]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort]       = useState("hl");  // "hl" | "lh" | "dl"
+  const [liveTime, setLiveTime] = useState(new Date());
   const user = getUser();
   const now  = new Date();
 
   useEffect(() => { if (!user || user.role !== "Student") navigate("/login"); }, []);
+  useEffect(() => {
+    const timer = setInterval(() => setLiveTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -92,7 +97,7 @@ export default function StudentDashboard() {
               </span>
             </p>
             <p className="text-slate-400 text-xs mt-1 m-0">
-              Logged in at: {new Date().toLocaleString()}
+              Live time: {liveTime.toLocaleString()}
             </p>
             {/* CV Matched badge — below logged-in time */}
             {user?.skills && (
