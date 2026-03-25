@@ -46,6 +46,7 @@ export default function UsersDashboard() {
   const [error,setError]                           = useState("");
   const [success,setSuccess]                       = useState("");
   const [search,setSearch]                         = useState("");
+  const [roleFilter,setRoleFilter]                 = useState("All");
   const [editUser,setEditUser]                     = useState(null);
   const [form,setForm]                             = useState(initialForm);
   const [deleteUserId,setDeleteUserId]             = useState(null);
@@ -54,12 +55,17 @@ export default function UsersDashboard() {
   const [passwordUserId,setPasswordUserId]         = useState(null);
   const [passwordAdminInput,setPasswordAdminInput] = useState("");
   const [revealedPasswords,setRevealedPasswords]   = useState({});
+  const [entered,setEntered]                       = useState(false);
 
   const totalUsers   = users.length;
   const adminCount   = users.filter(u=>u.role==="Admin").length;
   const studentCount = users.filter(u=>u.role==="Student").length;
 
   useEffect(()=>{ if(!currentUser||currentUser.role!=="Admin") navigate("/login"); },[currentUser,navigate]);
+  useEffect(()=>{
+    const timer = setTimeout(()=>setEntered(true), 80);
+    return ()=>clearTimeout(timer);
+  },[]);
 
   const fetchUsers = async () => {
     setLoading(true); setError("");
@@ -150,9 +156,18 @@ export default function UsersDashboard() {
 
   // ── Filtered users ─────────────────────────────────────────────────────────
   const filtered = users.filter(u => {
+    const role = u.role || "Student";
+    if (roleFilter === "Admin" && role !== "Admin") return false;
+    if (roleFilter === "Student" && role !== "Student") return false;
     if (!search) return true;
     const q = search.toLowerCase();
     return (u.fullName||"").toLowerCase().includes(q) || (u.gmail||"").toLowerCase().includes(q);
+  });
+
+  const revealStyle = (delay = 0) => ({
+    opacity: entered ? 1 : 0,
+    transform: entered ? "translateY(0)" : "translateY(-16px)",
+    transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
   });
 
   return (
@@ -161,7 +176,7 @@ export default function UsersDashboard() {
       <main className="flex-1 p-8 overflow-y-auto">
 
         {/* ── Page header ── */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px",...revealStyle(0)}}>
           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
             <BackBtn onClick={()=>navigate(-1)}/>
             <div style={{width:"44px",height:"44px",flexShrink:0,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -204,35 +219,51 @@ export default function UsersDashboard() {
             </div>
             {loggedInAt&&(
               <div style={{marginTop:"8px",paddingTop:"8px",borderTop:"1px solid rgba(34,211,238,0.2)",display:"flex",alignItems:"center",gap:"6px",color:"#94A3B8",fontSize:"11px"}}>
-                <Ico size={12} stroke="#64748B">
-                  <circle cx="12" cy="12" r="9"/>
-                  <polyline points="12 7 12 12 15 14"/>
-                </Ico>
-                <span>Logged in at: {loggedInAt.toLocaleString()}</span>
+                  <Ico size={12} stroke="#64748B">
+                    <circle cx="12" cy="12" r="9"/>
+                    <polyline points="12 7 12 12 15 14"/>
+                  </Ico>
+                  <span>Logged in at: {loggedInAt.toLocaleString()}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* ── Stats ── */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"14px",marginBottom:"20px"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"14px",marginBottom:"20px",...revealStyle(70)}}>
           {[
             {
               label:"Total Users",value:totalUsers, color:"#22D3EE",border:"rgba(34,211,238,0.2)",
+              filterKey:"All",
+              hoverBg:"rgba(34,211,238,0.1)",
               icon:<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
             },
             {
               label:"Admins", value:adminCount, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
+              filterKey:"Admin",
+              hoverBg:"rgba(167,139,250,0.1)",
               icon:<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/><path d="M9 12l2 2 4-4"/></>,
             },
             {
               label:"Students", value:studentCount, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
+              filterKey:"Student",
+              hoverBg:"rgba(74,222,128,0.1)",
               icon:<><path d="M22 10v6M2 10v6"/><path d="M12 2L1 8l11 6 9-4.91"/><path d="M6 12v5c0 2.5 2.7 4 6 4s6-1.5 6-4v-5"/></>,
             },
           ].map((s,i)=>(
-            <div key={i} className="admin-hover-surface" style={{background:"#0F172A",border:`1px solid ${s.border}`,borderRadius:"14px",padding:"20px",textAlign:"center"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=s.color;}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=s.border;}}>
+            <div key={i} onClick={()=>setRoleFilter(s.filterKey)} style={{background:roleFilter===s.filterKey?s.hoverBg:"#0F172A",border:`1px solid ${roleFilter===s.filterKey?s.color:s.border}`,borderRadius:"14px",padding:"20px",textAlign:"center",cursor:"pointer",opacity:entered?1:0,transform:entered?"translateY(0)":"translateY(-14px)",boxShadow:roleFilter===s.filterKey?`0 14px 30px ${s.color}35, 0 0 0 1px ${s.color}44 inset`:"none",transition:`opacity .45s ease ${120 + (i * 80)}ms, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${120 + (i * 80)}ms, box-shadow .2s, border-color .2s, background-color .2s`}}
+              onMouseEnter={e=>{
+                e.currentTarget.style.borderColor=s.color;
+                e.currentTarget.style.transform="translateY(-5px)";
+                e.currentTarget.style.boxShadow=`0 16px 34px ${s.color}40, 0 0 0 1px ${s.color}55 inset`;
+                e.currentTarget.style.backgroundColor=s.hoverBg;
+              }}
+              onMouseLeave={e=>{
+                e.currentTarget.style.borderColor=roleFilter===s.filterKey?s.color:s.border;
+                e.currentTarget.style.transform="translateY(0)";
+                e.currentTarget.style.boxShadow=roleFilter===s.filterKey?`0 14px 30px ${s.color}35, 0 0 0 1px ${s.color}44 inset`:"none";
+                e.currentTarget.style.backgroundColor=roleFilter===s.filterKey?s.hoverBg:"#0F172A";
+              }}>
               <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"8px"}}>
                 <div style={{width:"32px",height:"32px",borderRadius:"9px",background:s.border,border:`1px solid ${s.color}55`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                   <Ico size={14} stroke={s.color}>{s.icon}</Ico>
@@ -245,7 +276,7 @@ export default function UsersDashboard() {
         </div>
 
         {/* ── Search bar ── */}
-        <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#1E293B",border:"1px solid #334155",borderRadius:"10px",padding:"9px 14px",marginBottom:"16px",maxWidth:"400px",transition:"border-color .15s"}}
+        <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#1E293B",border:"1px solid #334155",borderRadius:"10px",padding:"9px 14px",marginBottom:"16px",maxWidth:"400px",transition:"border-color .15s",...revealStyle(190)}}
           onFocus={e=>(e.currentTarget.style.borderColor="#22D3EE")}
           onBlur={e=>(e.currentTarget.style.borderColor="#334155")}>
           <Ico size={14} stroke="#64748B"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
@@ -260,13 +291,13 @@ export default function UsersDashboard() {
           )}
         </div>
 
-        {error   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">⚠️ {error}</div>}
-        {success && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4">✅ {success}</div>}
+        {error   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4" style={revealStyle(230)}>⚠️ {error}</div>}
+        {success && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4" style={revealStyle(230)}>✅ {success}</div>}
 
         {loading ? (
-          <div className="text-slate-400 text-sm animate-pulse py-10">Loading users...</div>
+          <div className="text-slate-400 text-sm animate-pulse py-10" style={revealStyle(250)}>Loading users...</div>
         ) : (
-          <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden"}}>
+          <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden",...revealStyle(250)}}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1700px] border-collapse text-xs">
                 <thead>
