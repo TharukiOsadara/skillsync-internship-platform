@@ -42,6 +42,9 @@ export default function MatchingEngine() {
   const [loading, setLoading] = useState(true);
   const [matchLoading, setMatchLoading] = useState(false);
   const [loadingTick, setLoadingTick] = useState(0);
+  const [resultEntered, setResultEntered] = useState(false);
+  const [animatedScores, setAnimatedScores] = useState({});
+  const [animatedMatchCount, setAnimatedMatchCount] = useState(0);
   const [entered, setEntered] = useState(false);
   const user = getUser();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -81,6 +84,66 @@ export default function MatchingEngine() {
     return () => clearInterval(timer);
   }, [matchLoading]);
 
+  useEffect(() => {
+    setResultEntered(false);
+    const timer = setTimeout(() => setResultEntered(true), 25);
+    return () => clearTimeout(timer);
+  }, [selectedInternship?._id, matchLoading]);
+
+  useEffect(() => {
+    if (matchLoading || !selectedInternship || matches.length === 0) {
+      setAnimatedScores({});
+      return;
+    }
+
+    const requiredCount = Math.max(1, (selectedInternship.skillsRequired || "").split(",").filter(Boolean).length);
+    const targets = {};
+    matches.forEach((m) => {
+      targets[m._id] = Math.round((m.matchScore / requiredCount) * 100);
+    });
+
+    const start = Date.now();
+    const duration = 420;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const next = {};
+
+      Object.keys(targets).forEach((id) => {
+        const target = targets[id];
+        next[id] = target <= 0 ? 0 : Math.max(1, Math.round(target * progress));
+      });
+
+      setAnimatedScores(next);
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [matches, matchLoading, selectedInternship]);
+
+  useEffect(() => {
+    if (matchLoading || !selectedInternship) {
+      setAnimatedMatchCount(0);
+      return;
+    }
+
+    const target = matches.length;
+    if (target <= 0) {
+      setAnimatedMatchCount(0);
+      return;
+    }
+
+    const start = Date.now();
+    const duration = 320;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const next = Math.round(target * progress);
+      setAnimatedMatchCount(next);
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [matches, matchLoading, selectedInternship]);
+
   // Matching logic: find students whose skills overlap with internship skillsRequired
   const runMatching = (internship) => {
     setMatchLoading(true);
@@ -119,6 +182,18 @@ export default function MatchingEngine() {
     opacity: entered ? 1 : 0,
     transform: entered ? "translateY(0)" : "translateY(-16px)",
     transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
+  const getMatchPercent = (student) => {
+    if (!selectedInternship) return 0;
+    const requiredCount = Math.max(1, (selectedInternship.skillsRequired || "").split(",").filter(Boolean).length);
+    return Math.round((student.matchScore / requiredCount) * 100);
+  };
+
+  const rightItemStyle = (delay = 0) => ({
+    opacity: resultEntered ? 1 : 0,
+    transform: resultEntered ? "translateY(0)" : "translateY(8px)",
+    transition: `opacity .22s ease ${delay}ms, transform .28s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
   });
 
   return (
@@ -210,110 +285,127 @@ export default function MatchingEngine() {
 
             {/* Right: Match Results */}
             <div className="admin-hover-surface" style={styles.rightPanel}>
-              {!selectedInternship ? (
-                <div style={styles.emptyState}>
-                  <p style={{ fontSize: "48px", margin: 0 }}></p>
-                  <p style={{ color: "#94A3B8", fontSize: "15px", marginTop: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="11" cy="11" r="7" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <span>Select an internship on the left to see matched students</span>
-                  </p>
-                  <p style={{ color: "#334155", fontSize: "13px" }}>
-                    The engine compares student skills with internship requirements
-                  </p>
-                </div>
-              ) : matchLoading ? (
-                <div style={styles.emptyState}>
-                  <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"16px 20px",background:"#1E293B",borderRadius:"12px",border:"1px solid rgba(34,211,238,0.15)"}}>
-                    <div style={{width:"36px",height:"36px",background:"rgba(34,211,238,0.15)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-9.77"/>
+              <div key={`${selectedInternship?._id || "none"}-${matchLoading ? "loading" : "ready"}`} style={{
+                height: "100%",
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column",
+                opacity: resultEntered ? 1 : 0,
+                transform: resultEntered ? "translateY(0) scale(1)" : "translateY(14px) scale(0.985)",
+                filter: resultEntered ? "blur(0px)" : "blur(2px)",
+                transformOrigin: "top center",
+                transition: "opacity .34s ease, transform .42s cubic-bezier(0.22, 1, 0.36, 1), filter .34s ease",
+              }}>
+                {!selectedInternship ? (
+                  <div style={styles.emptyState}>
+                    <p style={{ fontSize: "48px", margin: 0, ...rightItemStyle(0) }}></p>
+                    <p style={{ color: "#94A3B8", fontSize: "15px", marginTop: "12px", display: "flex", alignItems: "center", gap: "8px", ...rightItemStyle(40) }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
-                    </div>
-                    <div style={{flex:1}}>
-                      <p style={{color:"#22D3EE",fontWeight:700,fontSize:"14px",margin:0}}>
-                        Running skill match
-                        <span style={{display:"inline-block",width:"20px",textAlign:"left"}}>{".".repeat(loadingTick + 1)}</span>
-                      </p>
-                      <p style={{color:"#64748B",fontSize:"11px",margin:"3px 0 0"}}>Comparing student profiles against internship requirements</p>
-                    </div>
-                    <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
-                      {[0, 1, 2].map((i) => (
-                        <span
-                          key={i}
-                          style={{
-                            width:"6px",
-                            height:"6px",
-                            background:"#22D3EE",
-                            borderRadius:"50%",
-                            opacity: loadingTick === i ? 1 : 0.25,
-                            transition:"opacity .2s ease",
-                          }}
-                        ></span>
-                      ))}
+                      <span>Select an internship on the left to see matched students</span>
+                    </p>
+                    <p style={{ color: "#334155", fontSize: "13px", ...rightItemStyle(80) }}>
+                      The engine compares student skills with internship requirements
+                    </p>
+                  </div>
+                ) : matchLoading ? (
+                  <div style={styles.emptyState}>
+                    <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"16px 20px",background:"#1E293B",borderRadius:"12px",border:"1px solid rgba(34,211,238,0.15)",...rightItemStyle(30)}}>
+                      <div style={{width:"36px",height:"36px",background:"rgba(34,211,238,0.15)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-9.77"/>
+                        </svg>
+                      </div>
+                      <div style={{flex:1}}>
+                        <p style={{color:"#22D3EE",fontWeight:700,fontSize:"14px",margin:0}}>
+                          Running skill match
+                          <span style={{display:"inline-block",width:"20px",textAlign:"left"}}>{".".repeat(loadingTick + 1)}</span>
+                        </p>
+                        <p style={{color:"#64748B",fontSize:"11px",margin:"3px 0 0"}}>Comparing student profiles against internship requirements</p>
+                      </div>
+                      <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
+                        {[0, 1, 2].map((i) => (
+                          <span
+                            key={i}
+                            style={{
+                              width:"6px",
+                              height:"6px",
+                              background:"#22D3EE",
+                              borderRadius:"50%",
+                              opacity: loadingTick === i ? 1 : 0.25,
+                              transition:"opacity .2s ease",
+                            }}
+                          ></span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <div style={styles.matchHeader}>
-                    <div>
-                      <h3 style={{ color: "#F8FAFC", fontWeight: "800", margin: "0 0 4px", fontSize: "18px" }}>
-                        {selectedInternship.title}
-                      </h3>
-                      <p style={{ color: "#94A3B8", fontSize: "13px", margin: 0 }}>
-                        {selectedInternship.company} · Required skills: {selectedInternship.skillsRequired}
-                      </p>
+                ) : (
+                  <>
+                    <div style={{...styles.matchHeader, ...rightItemStyle(20)}}>
+                      <div style={rightItemStyle(45)}>
+                        <h3 style={{ color: "#F8FAFC", fontWeight: "800", margin: "0 0 4px", fontSize: "18px" }}>
+                          {selectedInternship.title}
+                        </h3>
+                        <p style={{ color: "#94A3B8", fontSize: "13px", margin: 0 }}>
+                          {selectedInternship.company} · Required skills: {selectedInternship.skillsRequired}
+                        </p>
+                      </div>
+                      <div style={{...styles.matchCount, ...rightItemStyle(70)}}>
+                        <span style={{ color: "#22D3EE", fontSize: "28px", fontWeight: "800" }}>{animatedMatchCount}</span>
+                        <span style={{ color: "#94A3B8", fontSize: "12px" }}>matches</span>
+                      </div>
                     </div>
-                    <div style={styles.matchCount}>
-                      <span style={{ color: "#22D3EE", fontSize: "28px", fontWeight: "800" }}>{matches.length}</span>
-                      <span style={{ color: "#94A3B8", fontSize: "12px" }}>matches</span>
-                    </div>
-                  </div>
 
-                  {matches.length === 0 ? (
-                    <div style={styles.noMatch}>
-                      <p style={{ fontSize: "32px", margin: 0 }}></p>
-                      <p style={{ color: "#94A3B8", margin: "8px 0 0" }}>
-                        No students matched the required skills for this internship.
-                      </p>
-                    </div>
-                  ) : (
-                    <div style={styles.matchList}>
-                      {matches.map((student, idx) => (
-                        <div key={student._id} style={styles.studentCard}>
-                          <div style={styles.studentRank}>#{idx + 1}</div>
-                          <div style={styles.studentAvatar}>
-                            {student.fullName[0].toUpperCase()}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <p style={{ color: "#F8FAFC", fontWeight: "700", margin: "0 0 2px", fontSize: "15px" }}>
-                              {student.fullName}
-                            </p>
-                            <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>
-                              {student.gmail} · {student.education}
-                            </p>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                              {student.matchedSkills.map((skill, i) => (
-                                <TechBadgeME key={i} skill={"✓ "+skill}/>
-                              ))}
+                    {matches.length === 0 ? (
+                      <div style={{...styles.noMatch, ...rightItemStyle(95)}}>
+                        <p style={{ fontSize: "32px", margin: 0, ...rightItemStyle(115) }}></p>
+                        <p style={{ color: "#94A3B8", margin: "8px 0 0", ...rightItemStyle(140) }}>
+                          No students matched the required skills for this internship.
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{...styles.matchList, ...rightItemStyle(95)}}>
+                        {matches.map((student, idx) => (
+                          <div key={student._id} style={{
+                            ...styles.studentCard,
+                            opacity: resultEntered ? 1 : 0,
+                            transform: resultEntered ? "translateY(0)" : "translateY(10px)",
+                            transition: `opacity .22s ease ${110 + (idx * 26)}ms, transform .3s cubic-bezier(0.22, 1, 0.36, 1) ${110 + (idx * 26)}ms`,
+                          }}>
+                            <div style={styles.studentRank}>#{idx + 1}</div>
+                            <div style={styles.studentAvatar}>
+                              {student.fullName[0].toUpperCase()}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ color: "#F8FAFC", fontWeight: "700", margin: "0 0 2px", fontSize: "15px" }}>
+                                {student.fullName}
+                              </p>
+                              <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>
+                                {student.gmail} · {student.education}
+                              </p>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                                {student.matchedSkills.map((skill, i) => (
+                                  <TechBadgeME key={i} skill={"✓ "+skill}/>
+                                ))}
+                              </div>
+                            </div>
+                            {/* Match score bar */}
+                            <div style={styles.scoreWrap}>
+                              <p style={{ color: "#22D3EE", fontWeight: "800", fontSize: "18px", margin: 0 }}>
+                                {(animatedScores[student._id] ?? getMatchPercent(student))}%
+                              </p>
+                              <p style={{ color: "#94A3B8", fontSize: "11px", margin: 0 }}>match</p>
                             </div>
                           </div>
-                          {/* Match score bar */}
-                          <div style={styles.scoreWrap}>
-                            <p style={{ color: "#22D3EE", fontWeight: "800", fontSize: "18px", margin: 0 }}>
-                              {Math.round((student.matchScore / selectedInternship.skillsRequired.split(",").length) * 100)}%
-                            </p>
-                            <p style={{ color: "#94A3B8", fontSize: "11px", margin: 0 }}>match</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -390,7 +482,7 @@ const styles = {
   },
   matchList: {
     display: "flex", flexDirection: "column", gap: "12px",
-    overflowY: "auto", flex: 1, minHeight: 0, paddingRight: "4px",
+    overflowY: "auto", overflowX: "hidden", scrollbarGutter: "stable", flex: 1, minHeight: 0, paddingRight: "4px",
   },
   studentCard: {
     background: "#1E293B", border: "1px solid #334155", borderRadius: "12px",
