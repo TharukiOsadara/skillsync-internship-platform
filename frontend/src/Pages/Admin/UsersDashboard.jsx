@@ -56,16 +56,43 @@ export default function UsersDashboard() {
   const [passwordAdminInput,setPasswordAdminInput] = useState("");
   const [revealedPasswords,setRevealedPasswords]   = useState({});
   const [entered,setEntered]                       = useState(false);
+  const [animatedStats,setAnimatedStats]           = useState({ total:0, admins:0, students:0 });
+  const [liveTime,setLiveTime]                     = useState(new Date());
 
   const totalUsers   = users.length;
   const adminCount   = users.filter(u=>u.role==="Admin").length;
   const studentCount = users.filter(u=>u.role==="Student").length;
+
+  useEffect(() => {
+    if (loading) return;
+    const targets = {
+      total: totalUsers,
+      admins: adminCount,
+      students: studentCount,
+    };
+    const start = Date.now();
+    const duration = 380;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      setAnimatedStats({
+        total: Math.round(targets.total * progress),
+        admins: Math.round(targets.admins * progress),
+        students: Math.round(targets.students * progress),
+      });
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [loading, totalUsers, adminCount, studentCount]);
 
   useEffect(()=>{ if(!currentUser||currentUser.role!=="Admin") navigate("/login"); },[currentUser,navigate]);
   useEffect(()=>{
     const timer = setTimeout(()=>setEntered(true), 80);
     return ()=>clearTimeout(timer);
   },[]);
+  useEffect(() => {
+    const timer = setInterval(() => setLiveTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true); setError("");
@@ -199,6 +226,9 @@ export default function UsersDashboard() {
             border:"1px solid rgba(34,211,238,0.25)",
             background:"linear-gradient(135deg, rgba(34,211,238,0.14), rgba(15,23,42,0.94))",
             boxShadow:"0 10px 24px rgba(34,211,238,0.12)",
+            opacity: entered ? 1 : 0,
+            transform: entered ? "translateX(0)" : "translateX(24px)",
+            transition: "opacity .38s ease 120ms, transform .45s cubic-bezier(0.22, 1, 0.36, 1) 120ms",
           }}>
             <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
               <div style={{
@@ -226,6 +256,13 @@ export default function UsersDashboard() {
                   <span>Logged in at: {loggedInAt.toLocaleString()}</span>
               </div>
             )}
+            <div style={{marginTop:"6px",display:"flex",alignItems:"center",gap:"6px",color:"#94A3B8",fontSize:"11px"}}>
+              <Ico size={12} stroke="#22D3EE">
+                <circle cx="12" cy="12" r="9"/>
+                <polyline points="12 8 12 12 15 12"/>
+              </Ico>
+              <span>Live: {liveTime.toLocaleTimeString()}</span>
+            </div>
           </div>
         </div>
 
@@ -233,19 +270,19 @@ export default function UsersDashboard() {
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"14px",marginBottom:"20px",...revealStyle(70)}}>
           {[
             {
-              label:"Total Users",value:totalUsers, color:"#22D3EE",border:"rgba(34,211,238,0.2)",
+              label:"Total Users",value:animatedStats.total, color:"#22D3EE",border:"rgba(34,211,238,0.2)",
               filterKey:"All",
               hoverBg:"rgba(34,211,238,0.1)",
               icon:<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
             },
             {
-              label:"Admins", value:adminCount, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
+              label:"Admins", value:animatedStats.admins, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
               filterKey:"Admin",
               hoverBg:"rgba(167,139,250,0.1)",
               icon:<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/><path d="M9 12l2 2 4-4"/></>,
             },
             {
-              label:"Students", value:studentCount, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
+              label:"Students", value:animatedStats.students, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
               filterKey:"Student",
               hoverBg:"rgba(74,222,128,0.1)",
               icon:<><path d="M22 10v6M2 10v6"/><path d="M12 2L1 8l11 6 9-4.91"/><path d="M6 12v5c0 2.5 2.7 4 6 4s6-1.5 6-4v-5"/></>,
