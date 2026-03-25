@@ -118,8 +118,22 @@ export default function StudentProfile() {
           </div>
 
           {/* Alerts */}
-          {error   && <div style={{ background:"rgba(248,113,113,0.1)", border:"1px solid rgba(248,113,113,0.3)", color:"#F87171", padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginBottom:"14px" }}>⚠️ {error}</div>}
-          {success && <div style={{ background:"rgba(74,222,128,0.1)",  border:"1px solid rgba(74,222,128,0.3)",  color:"#4ADE80",  padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginBottom:"14px" }}>✅ {success}</div>}
+          {error && (
+            <div style={{ background:"rgba(248,113,113,0.1)", border:"1px solid rgba(248,113,113,0.3)", color:"#F87171", padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginBottom:"14px", display:"flex", alignItems:"center", gap:"8px" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+          {success && (
+            <div style={{ background:"rgba(74,222,128,0.1)", border:"1px solid rgba(74,222,128,0.3)", color:"#4ADE80", padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginBottom:"14px", display:"flex", alignItems:"center", gap:"8px" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 10"/>
+              </svg>
+              <span>{success}</span>
+            </div>
+          )}
 
           {/* Form */}
           <div style={{ background:"#0F172A", border:"1px solid #1E293B", borderRadius:"14px", padding:"20px" }}>

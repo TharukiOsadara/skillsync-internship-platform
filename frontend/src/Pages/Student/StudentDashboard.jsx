@@ -14,6 +14,8 @@ export default function StudentDashboard() {
   const [scored, setScored]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort]       = useState("hl");
+  const [animatedPct, setAnimatedPct] = useState({});
+  const [animatedMatchCount, setAnimatedMatchCount] = useState(0);
   const user = getUser();
   const now  = new Date();
 
@@ -33,13 +35,61 @@ export default function StudentDashboard() {
           const unmatched = required.filter(r => !matched.includes(r));
           return { ...item, matchedSkills: matched, unmatchedSkills: unmatched,
             matchPct: required.length > 0 ? Math.round((matched.length / required.length) * 100) : 0 };
-        }).sort((a, b) => b.matchPct - a.matchPct);
+        }).filter((item) => new Date(item.deadline) >= new Date()).sort((a, b) => b.matchPct - a.matchPct);
         setScored(withScore);
       } catch (err) { console.error(err); }
       setLoading(false);
     };
     fetchSuggestions();
   }, []);
+
+  useEffect(() => {
+    if (loading || scored.length === 0) {
+      setAnimatedPct({});
+      return;
+    }
+
+    const targets = {};
+    scored.forEach((item) => { targets[item._id] = item.matchPct || 0; });
+
+    const start = Date.now();
+    const duration = 420;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const next = {};
+      Object.keys(targets).forEach((id) => {
+        const target = targets[id];
+        next[id] = target <= 0 ? 0 : Math.max(1, Math.round(target * progress));
+      });
+      setAnimatedPct(next);
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [loading, scored]);
+
+  useEffect(() => {
+    if (loading) {
+      setAnimatedMatchCount(0);
+      return;
+    }
+
+    const target = scored.length;
+    if (target === 0) {
+      setAnimatedMatchCount(0);
+      return;
+    }
+
+    const start = Date.now();
+    const duration = 360;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      setAnimatedMatchCount(Math.round(target * progress));
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [loading, scored.length]);
 
   let list = [...scored];
   if (sort === "lh") list = list.sort((a, b) => a.matchPct - b.matchPct);
@@ -64,7 +114,7 @@ export default function StudentDashboard() {
           </div>
           {!loading && (
             <span style={{ background:"rgba(34,211,238,0.1)", border:"1px solid rgba(34,211,238,0.2)", color:"#22D3EE", fontSize:"11px", fontWeight:700, padding:"5px 16px", borderRadius:"99px" }}>
-              {scored.length} match{scored.length !== 1 ? "es" : ""} found
+              {animatedMatchCount} match{animatedMatchCount !== 1 ? "es" : ""} found
             </span>
           )}
         </div>
@@ -123,7 +173,7 @@ export default function StudentDashboard() {
                       {expired ? "Expired" : "Active"}
                     </span>
                     <div style={{ textAlign:"right" }}>
-                      <div style={{ fontSize:"20px", fontWeight:800, color: expired?"#F87171":"#22D3EE" }}>{item.matchPct}%</div>
+                      <div style={{ fontSize:"20px", fontWeight:800, color: expired?"#F87171":"#22D3EE" }}>{animatedPct[item._id] ?? item.matchPct}%</div>
                       <div style={{ fontSize:"10px", color:"#64748B" }}>{item.duration}</div>
                     </div>
                   </div>
@@ -132,7 +182,7 @@ export default function StudentDashboard() {
                     <p style={{ fontSize:"11px", color:"#64748B", margin:"3px 0 0" }}>{item.company} · {item.location}</p>
                   </div>
                   <div style={{ height:"4px", background:"#1E293B", borderRadius:"99px", overflow:"hidden" }}>
-                    <div style={{ height:"4px", width:`${item.matchPct}%`, background: expired?"#F87171":"linear-gradient(90deg,#22D3EE,#06B6D4)", borderRadius:"99px" }} />
+                    <div style={{ height:"4px", width:`${animatedPct[item._id] ?? item.matchPct}%`, background: expired?"#F87171":"linear-gradient(90deg,#22D3EE,#06B6D4)", borderRadius:"99px", transition:"width .18s linear" }} />
                   </div>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:"4px" }}>
                     {item.matchedSkills.map((s,i) => (
@@ -143,11 +193,18 @@ export default function StudentDashboard() {
                     ))}
                   </div>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:"8px", borderTop:"1px solid #1E293B", marginTop:"auto" }}>
-                    <p style={{ fontSize:"10px", color: expired?"#F87171":"#64748B", margin:0 }}>
-                      📅 {expired ? "Deadline passed" : new Date(item.deadline).toLocaleDateString("en-GB")}
+                    <p style={{ fontSize:"10px", color: expired?"#F87171":"#64748B", margin:0, display:"inline-flex", alignItems:"center", gap:"5px" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={expired ? "#F87171" : "#64748B"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      <span>{expired ? "Deadline passed" : new Date(item.deadline).toLocaleDateString("en-GB")}</span>
                     </p>
                     {!expired && (
                       <button style={{ background:"rgba(34,211,238,0.08)", border:"1px solid rgba(34,211,238,0.15)", color:"#22D3EE", fontSize:"10px", fontWeight:700, padding:"5px 13px", borderRadius:"7px", cursor:"pointer" }}
+                        onClick={() => navigate(`/student/apply/${item._id}`, { state: { internship: item } })}
                         onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.16)")}
                         onMouseLeave={e => (e.currentTarget.style.background = "rgba(34,211,238,0.08)")}>
                         Apply →

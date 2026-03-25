@@ -63,6 +63,22 @@ export default function StudentSidebar() {
     }
     return location.pathname === path;
   };
+  const applyNavHoverIn = (e, active) => {
+    if (active) return;
+    e.currentTarget.style.background = "rgba(34,211,238,0.1)";
+    e.currentTarget.style.borderColor = "rgba(34,211,238,0.35)";
+    e.currentTarget.style.color = "#A5F3FC";
+    e.currentTarget.style.transform = "translateX(2px)";
+    e.currentTarget.style.boxShadow = "0 10px 22px rgba(34,211,238,0.14)";
+  };
+  const applyNavHoverOut = (e, active) => {
+    if (active) return;
+    e.currentTarget.style.background = "transparent";
+    e.currentTarget.style.borderColor = "transparent";
+    e.currentTarget.style.color = "#4E6785";
+    e.currentTarget.style.transform = "translateX(0)";
+    e.currentTarget.style.boxShadow = "none";
+  };
 
   return (
     <aside style={{
@@ -79,7 +95,8 @@ export default function StudentSidebar() {
       flexShrink: 0,
       position: "sticky",
       top: 0,
-      overflow: "hidden",
+      overflowY: "hidden",
+      overflowX: "hidden",
       fontFamily: "'DM Sans', sans-serif",
     }}>
 
@@ -136,10 +153,18 @@ export default function StudentSidebar() {
           border: "1px solid rgba(34,211,238,0.08)",
           borderRadius: "8px", cursor: "pointer",
           marginBottom: "4px", width: "100%",
-          transition: "background .15s",
+          transition: "all .2s",
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.08)")}
-        onMouseLeave={e => (e.currentTarget.style.background = "rgba(34,211,238,0.04)")}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = "rgba(34,211,238,0.12)";
+          e.currentTarget.style.borderColor = "rgba(34,211,238,0.28)";
+          e.currentTarget.style.boxShadow = "0 8px 20px rgba(34,211,238,0.12)";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = "rgba(34,211,238,0.04)";
+          e.currentTarget.style.borderColor = "rgba(34,211,238,0.08)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
       >
         {!collapsed && <span style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>Collapse</span>}
         <Ico size={13} stroke="#22D3EE">
@@ -150,7 +175,7 @@ export default function StudentSidebar() {
       </button>
 
       {/* ── Nav ── */}
-      <nav style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, overflowY: "auto" }}>
+      <nav style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, overflowY: "auto", overflowX: "hidden", minWidth: 0 }}>
         {NAV.map(group => (
           <div key={group.section}>
             {/* Section label */}
@@ -174,27 +199,17 @@ export default function StudentSidebar() {
                     gap: collapsed ? "0" : "11px",
                     justifyContent: collapsed ? "center" : "flex-start",
                     padding: collapsed ? "10px 0" : "9px 11px",
-                    borderRadius: "10px",
+                    borderRadius: "11px",
                     textDecoration: "none",
                     position: "relative",
                     background: active ? "rgba(34,211,238,0.1)" : "transparent",
                     border: active ? "1px solid rgba(34,211,238,0.15)" : "1px solid transparent",
                     color: active ? "#22D3EE" : "#4E6785",
-                    transition: "all .15s",
+                    transition: "all .2s",
                     cursor: "pointer",
                   }}
-                  onMouseEnter={e => {
-                    if (!active) {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                      e.currentTarget.style.color = "#94A3B8";
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!active) {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "#4E6785";
-                    }
-                  }}
+                  onMouseEnter={e => applyNavHoverIn(e, active)}
+                  onMouseLeave={e => applyNavHoverOut(e, active)}
                 >
                   {/* Active accent bar */}
                   {active && (
@@ -263,12 +278,19 @@ export default function StudentSidebar() {
               {user?.fullName || "Student"}
             </p>
             <span style={{
-              display: "inline-block", marginTop: "4px",
+              display: "inline-flex", alignItems: "center", gap: "4px", marginTop: "4px",
               fontSize: "8px", fontWeight: 800, color: "#4ADE80",
               background: "rgba(74,222,128,0.1)",
               border: "1px solid rgba(74,222,128,0.2)",
               padding: "1px 7px", borderRadius: "99px",
-            }}>🎓 Student</span>
+            }}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 10v6M2 10v6"/>
+                <path d="M12 2L1 8l11 6 9-4.91"/>
+                <path d="M6 12v5c0 2.5 2.7 4 6 4s6-1.5 6-4v-5"/>
+              </svg>
+              <span>Student</span>
+            </span>
           </div>
         )}
       </div>
@@ -287,10 +309,18 @@ export default function StudentSidebar() {
           border: "1px solid rgba(248,113,113,0.12)",
           color: "#F87171", fontSize: "12px", fontWeight: 700,
           cursor: "pointer", marginTop: "6px", width: "100%",
-          transition: "background .15s",
+          transition: "all .2s",
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = "rgba(248,113,113,0.12)")}
-        onMouseLeave={e => (e.currentTarget.style.background = "rgba(248,113,113,0.06)")}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = "rgba(248,113,113,0.14)";
+          e.currentTarget.style.borderColor = "rgba(248,113,113,0.3)";
+          e.currentTarget.style.boxShadow = "0 10px 22px rgba(248,113,113,0.15)";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = "rgba(248,113,113,0.06)";
+          e.currentTarget.style.borderColor = "rgba(248,113,113,0.12)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
       >
         <div style={{
           width: "30px", height: "30px", borderRadius: "8px", flexShrink: 0,
@@ -300,8 +330,8 @@ export default function StudentSidebar() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="#F87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
+            <polyline points="8 7 3 12 8 17"/>
+            <line x1="3" y1="12" x2="15" y2="12"/>
           </svg>
         </div>
         {!collapsed && <span>Sign Out</span>}
