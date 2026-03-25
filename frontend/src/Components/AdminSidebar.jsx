@@ -19,18 +19,22 @@ export default function AdminSidebar() {
   // Live counts fetched from backend
   const [userCount, setUserCount]   = useState(null);
   const [internCount, setInternCount] = useState(null);
+  const [appUnreadCount, setAppUnreadCount] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, iRes] = await Promise.all([
+        const [uRes, iRes, aRes] = await Promise.all([
           fetch("http://localhost:5000/users",        { headers: authHeaders() }),
           fetch("http://localhost:5000/internships"),
+          fetch("http://localhost:5000/internships/applications", { headers: authHeaders() }),
         ]);
         const uData = await uRes.json();
         const iData = await iRes.json();
+        const aData = await aRes.json();
         setUserCount((uData.users || []).length);
         setInternCount((iData.internships || []).length);
+        setAppUnreadCount(aData.unreadCount || 0);
       } catch { /* silently fail — badges just won't show */ }
     };
     load();
@@ -60,7 +64,7 @@ export default function AdminSidebar() {
   const S = {
     aside: {
       width: collapsed ? "68px" : "230px",
-      minHeight: "100vh",
+      height: "100vh",
       background: "rgba(10,22,40,0.98)",
       border: "1px solid rgba(255,255,255,0.07)",
       padding: collapsed ? "18px 10px" : "18px 14px",
@@ -68,6 +72,8 @@ export default function AdminSidebar() {
       transition: "width 0.25s ease, padding 0.25s ease",
       flexShrink: 0, position: "sticky", top: 0,
       fontFamily: "'DM Sans', sans-serif",
+      overflowY: "auto",
+      overflowX: "hidden",
     },
     navItem: (isActive) => ({
       display: "flex", alignItems: "center",
@@ -216,6 +222,23 @@ export default function AdminSidebar() {
         </div>
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Users</span>}
         {!collapsed && userCount !== null && <span style={S.badge}>{userCount}</span>}
+      </Link>
+
+      <Link to="/admin/applications" style={S.navItem(active("/admin/applications"))}
+        onMouseEnter={e => applyNavHoverIn(e, active("/admin/applications"))}
+        onMouseLeave={e => applyNavHoverOut(e, active("/admin/applications"))}
+        title={collapsed ? "Applications" : ""}
+      >
+        {active("/admin/applications") && <span style={{ position:"absolute",left:0,top:"22%",bottom:"22%",width:"3px",background:"#22D3EE",borderRadius:"0 3px 3px 0" }} />}
+        <div style={S.ibox(active("/admin/applications"))}>
+          <Ico stroke={active("/admin/applications") ? "#22D3EE" : "#4E6785"}>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </Ico>
+        </div>
+        {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Applications</span>}
+        {!collapsed && appUnreadCount !== null && <span style={S.badge}>{appUnreadCount}</span>}
       </Link>
 
       {/* ── INTERNSHIPS section ── */}

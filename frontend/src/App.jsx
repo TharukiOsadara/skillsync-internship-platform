@@ -10,11 +10,13 @@ import UsersDashboard from "./Pages/Admin/UsersDashboard";
 import AddInternship from "./Pages/Admin/AddInternship";
 import ManageInternships from "./Pages/Admin/ManageInternships";
 import MatchingEngine from "./Pages/Admin/MatchingEngine";
+import ApplicationsDashboard from "./Pages/Admin/ApplicationsDashboard";
 import StudentMatches from "./Pages/Student/StudentDashboard";
 import StudentCvUpload from "./Pages/Student/StudentCvUpload";
 import StudentNotifications from "./Pages/Student/StudentNotifications";
 import StudentSuggestions from "./Pages/Student/StudentSuggesstions";
 import StudentProfile from "./Pages/Student/StudentProfilePage";
+import StudentApplyInternship from "./Pages/Student/StudentApplyInternship";
 
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
@@ -41,9 +43,11 @@ export default function App() {
           <Route path="/admin/add-internship"     element={<ProtectedRoute role="Admin"><AddInternship /></ProtectedRoute>} />
           <Route path="/admin/manage-internships" element={<ProtectedRoute role="Admin"><ManageInternships /></ProtectedRoute>} />
           <Route path="/admin/matching-engine"    element={<ProtectedRoute role="Admin"><MatchingEngine /></ProtectedRoute>} />
+          <Route path="/admin/applications"       element={<ProtectedRoute role="Admin"><ApplicationsDashboard /></ProtectedRoute>} />
           <Route path="/student"                  element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
           <Route path="/student/dashboard"        element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
           <Route path="/student/matches"          element={<ProtectedRoute role="Student"><StudentMatches /></ProtectedRoute>} />
+          <Route path="/student/apply/:internshipId" element={<ProtectedRoute role="Student"><StudentApplyInternship /></ProtectedRoute>} />
           <Route path="/student/cv-upload"        element={<ProtectedRoute role="Student"><StudentCvUpload /></ProtectedRoute>} />
           <Route path="/student/suggestions"      element={<ProtectedRoute role="Student"><StudentSuggestions /></ProtectedRoute>} />
           <Route path="/student/notifications"    element={<ProtectedRoute role="Student"><StudentNotifications /></ProtectedRoute>} />
