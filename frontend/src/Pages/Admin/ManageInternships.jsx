@@ -42,6 +42,7 @@ export default function ManageInternships() {
   const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState(null);
   const [editItem, setEditItem] = useState(null);
   const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
@@ -136,6 +137,15 @@ export default function ManageInternships() {
     if (filter === "Active")  return !exp;
     if (filter === "Expired") return  exp;
     return true;
+  }).filter((i) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      (i.title || "").toLowerCase().includes(q) ||
+      (i.company || "").toLowerCase().includes(q) ||
+      (i.location || "").toLowerCase().includes(q) ||
+      (i.skillsRequired || "").toLowerCase().includes(q)
+    );
   });
 
   const revealStyle = (delay = 0) => ({
@@ -147,7 +157,7 @@ export default function ManageInternships() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
       <AdminSidebar />
-      <main className="flex-1 p-8 overflow-y-auto" style={{ minWidth: 0 }}>
+      <main className="flex-1 p-8 overflow-hidden" style={{ minWidth: 0, display:"flex", flexDirection:"column" }}>
         {/* Page header */}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px",...revealStyle(0)}}>
           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
@@ -175,37 +185,53 @@ export default function ManageInternships() {
           </Link>
         </div>
 
-        {/* Filter tabs with icons */}
-        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",...revealStyle(70)}}>
-          {[
-            {key:"All",    label:"All",     color:"#22D3EE", bg:"rgba(34,211,238,0.1)", border:"rgba(34,211,238,0.3)", icon:<path d="M3 12h18M3 6h18M3 18h18"/>},
-            {key:"Active", label:"Active",  color:"#4ADE80", bg:"rgba(74,222,128,0.1)", border:"rgba(74,222,128,0.3)", icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></>},
-            {key:"Expired",label:"Expired", color:"#F87171", bg:"rgba(248,113,113,0.08)", border:"rgba(248,113,113,0.3)", icon:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>},
-          ].map(f=>(
-            <button key={f.key} onClick={()=>setFilter(f.key)}
-              onMouseEnter={e=>{
-                if (filter !== f.key) {
-                  e.currentTarget.style.background = f.bg;
-                  e.currentTarget.style.borderColor = f.border;
-                  e.currentTarget.style.color = f.color;
-                }
-              }}
-              onMouseLeave={e=>{
-                if (filter !== f.key) {
-                  e.currentTarget.style.background = "#1E293B";
-                  e.currentTarget.style.borderColor = "#334155";
-                  e.currentTarget.style.color = "#94A3B8";
-                }
-              }}
-              style={{display:"inline-flex",alignItems:"center",gap:"5px",padding:"5px 14px",borderRadius:"99px",fontSize:"11px",fontWeight:700,cursor:"pointer",border:"1px solid",transition:"all .15s",
-                background: filter===f.key ? f.bg : "#1E293B",
-                borderColor: filter===f.key ? f.border : "#334155",
-                color: filter===f.key ? f.color : "#94A3B8",
-              }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
-              {f.label}
-            </button>
-          ))}
+        {/* Filter tabs + search */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px",marginBottom:"14px",...revealStyle(70)}}>
+          <div style={{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}}>
+            {[
+              {key:"All",    label:"All",     color:"#22D3EE", bg:"rgba(34,211,238,0.1)", border:"rgba(34,211,238,0.3)", icon:<path d="M3 12h18M3 6h18M3 18h18"/>},
+              {key:"Active", label:"Active",  color:"#4ADE80", bg:"rgba(74,222,128,0.1)", border:"rgba(74,222,128,0.3)", icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></>},
+              {key:"Expired",label:"Expired", color:"#F87171", bg:"rgba(248,113,113,0.08)", border:"rgba(248,113,113,0.3)", icon:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>},
+            ].map(f=>(
+              <button key={f.key} onClick={()=>setFilter(f.key)}
+                onMouseEnter={e=>{
+                  if (filter !== f.key) {
+                    e.currentTarget.style.background = f.bg;
+                    e.currentTarget.style.borderColor = f.border;
+                    e.currentTarget.style.color = f.color;
+                  }
+                }}
+                onMouseLeave={e=>{
+                  if (filter !== f.key) {
+                    e.currentTarget.style.background = "#1E293B";
+                    e.currentTarget.style.borderColor = "#334155";
+                    e.currentTarget.style.color = "#94A3B8";
+                  }
+                }}
+                style={{display:"inline-flex",alignItems:"center",gap:"5px",padding:"5px 14px",borderRadius:"99px",fontSize:"11px",fontWeight:700,cursor:"pointer",border:"1px solid",transition:"all .15s",
+                  background: filter===f.key ? f.bg : "#1E293B",
+                  borderColor: filter===f.key ? f.border : "#334155",
+                  color: filter===f.key ? f.color : "#94A3B8",
+                }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:"8px",background:"#1E293B",border:"1px solid #334155",borderRadius:"9px",padding:"6px 10px",width:"310px",flexShrink:0}}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              value={search}
+              onChange={(e)=>setSearch(e.target.value)}
+              placeholder="Search title, company, location, skills..."
+              style={{background:"transparent",border:"none",outline:"none",color:"#F1F5F9",fontSize:"11px",width:"100%",fontFamily:"'DM Sans',sans-serif"}}
+            />
+            {search && (
+              <button onClick={()=>setSearch("")} style={{background:"none",border:"none",color:"#64748B",cursor:"pointer",fontSize:"14px",padding:0}}>×</button>
+            )}
+          </div>
         </div>
         
 
@@ -220,13 +246,14 @@ export default function ManageInternships() {
             <p className="text-slate-400 text-sm">No internships found for this filter.</p>
           </div>
         ) : (
-          <div className="card admin-hover-surface overflow-hidden" style={revealStyle(170)}>
+          <div className="card admin-hover-surface overflow-hidden" style={{...revealStyle(170), flex:1, minHeight:0, display:"flex", flexDirection:"column"}}>
+            <div className="overflow-auto" style={{flex:1, minHeight:0}}>
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#0B1220" }}>
                   {["#", "Title", "Company", "Location", "Skills", "Deadline", "Status", "Action"].map(h => (
                     <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3"
-                      style={{ borderBottom: "1px solid #1E293B" }}>
+                      style={{ borderBottom: "1px solid #1E293B", position:"sticky", top:0, background:"#0B1220", zIndex:2 }}>
                       {h}
                     </th>
                   ))}
@@ -290,6 +317,7 @@ export default function ManageInternships() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </main>
