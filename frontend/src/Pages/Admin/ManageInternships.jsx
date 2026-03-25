@@ -47,11 +47,16 @@ export default function ManageInternships() {
   const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
+  const [entered, setEntered] = useState(false);
   const user = getUser();
     const [sidebarOpen, setSidebarOpen] = useState(true);
   const now = new Date();
 
   useEffect(() => { if (!user || user.role !== "Admin") navigate("/login"); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchInternships = async () => {
     setLoading(true);
@@ -133,12 +138,18 @@ export default function ManageInternships() {
     return true;
   });
 
+  const revealStyle = (delay = 0) => ({
+    opacity: entered ? 1 : 0,
+    transform: entered ? "translateY(0)" : "translateY(-16px)",
+    transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto" style={{ minWidth: 0 }}>
         {/* Page header */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px",...revealStyle(0)}}>
           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
             <button onClick={()=>navigate(-1)}
               style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
@@ -165,17 +176,31 @@ export default function ManageInternships() {
         </div>
 
         {/* Filter tabs with icons */}
-        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",...revealStyle(70)}}>
           {[
-            {key:"All",    label:"All",     icon:<path d="M3 12h18M3 6h18M3 18h18"/>},
-            {key:"Active", label:"Active",  icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></>},
-            {key:"Expired",label:"Expired", icon:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>},
+            {key:"All",    label:"All",     color:"#22D3EE", bg:"rgba(34,211,238,0.1)", border:"rgba(34,211,238,0.3)", icon:<path d="M3 12h18M3 6h18M3 18h18"/>},
+            {key:"Active", label:"Active",  color:"#4ADE80", bg:"rgba(74,222,128,0.1)", border:"rgba(74,222,128,0.3)", icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></>},
+            {key:"Expired",label:"Expired", color:"#F87171", bg:"rgba(248,113,113,0.08)", border:"rgba(248,113,113,0.3)", icon:<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>},
           ].map(f=>(
             <button key={f.key} onClick={()=>setFilter(f.key)}
+              onMouseEnter={e=>{
+                if (filter !== f.key) {
+                  e.currentTarget.style.background = f.bg;
+                  e.currentTarget.style.borderColor = f.border;
+                  e.currentTarget.style.color = f.color;
+                }
+              }}
+              onMouseLeave={e=>{
+                if (filter !== f.key) {
+                  e.currentTarget.style.background = "#1E293B";
+                  e.currentTarget.style.borderColor = "#334155";
+                  e.currentTarget.style.color = "#94A3B8";
+                }
+              }}
               style={{display:"inline-flex",alignItems:"center",gap:"5px",padding:"5px 14px",borderRadius:"99px",fontSize:"11px",fontWeight:700,cursor:"pointer",border:"1px solid",transition:"all .15s",
-                background: filter===f.key ? (f.key==="Expired"?"rgba(248,113,113,0.08)":"rgba(34,211,238,0.1)") : "#1E293B",
-                borderColor: filter===f.key ? (f.key==="Expired"?"rgba(248,113,113,0.3)":"#22D3EE") : "#334155",
-                color: filter===f.key ? (f.key==="Expired"?"#F87171":"#22D3EE") : "#94A3B8",
+                background: filter===f.key ? f.bg : "#1E293B",
+                borderColor: filter===f.key ? f.border : "#334155",
+                color: filter===f.key ? f.color : "#94A3B8",
               }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
               {f.label}
@@ -184,18 +209,18 @@ export default function ManageInternships() {
         </div>
         
 
-        {actionError   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">{actionError}</div>}
-        {actionSuccess && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4">{actionSuccess}</div>}
+        {actionError   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4" style={revealStyle(120)}>{actionError}</div>}
+        {actionSuccess && <div className="bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-3 rounded-xl text-sm mb-4" style={revealStyle(120)}>{actionSuccess}</div>}
 
         {loading ? (
-          <div className="text-slate-400 text-sm animate-pulse py-10">Loading internships...</div>
+          <div className="text-slate-400 text-sm animate-pulse py-10" style={revealStyle(170)}>Loading internships...</div>
         ) : filtered.length === 0 ? (
-          <div className="card admin-hover-surface p-16 text-center">
+          <div className="card admin-hover-surface p-16 text-center" style={revealStyle(170)}>
             <p className="text-4xl mb-3"></p>
             <p className="text-slate-400 text-sm">No internships found for this filter.</p>
           </div>
         ) : (
-          <div className="card admin-hover-surface overflow-hidden">
+          <div className="card admin-hover-surface overflow-hidden" style={revealStyle(170)}>
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#0B1220" }}>
