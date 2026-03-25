@@ -50,6 +50,25 @@
     box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15) !important;
     outline: none;
   }
+  svg {
+    transition: filter 0.2s ease, transform 0.2s ease, stroke 0.2s ease, color 0.2s ease;
+  }
+  button svg,
+  a svg,
+  .card svg,
+  .nav-item svg,
+  aside svg {
+    filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.22));
+  }
+  button:hover svg,
+  a:hover svg,
+  .card:hover svg,
+  .nav-item:hover svg,
+  aside button:hover svg,
+  aside a:hover svg {
+    filter: drop-shadow(0 0 14px rgba(var(--accent-rgb), 0.38));
+    transform: translateY(-1px);
+  }
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: var(--color-bg-page); }
   ::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 10px; }
