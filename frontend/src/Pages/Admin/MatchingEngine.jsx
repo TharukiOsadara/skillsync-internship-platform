@@ -42,12 +42,18 @@ export default function MatchingEngine() {
   const [loading, setLoading] = useState(true);
   const [matchLoading, setMatchLoading] = useState(false);
   const [loadingTick, setLoadingTick] = useState(0);
+  const [entered, setEntered] = useState(false);
   const user = getUser();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (!user || user.role !== "Admin") navigate("/login");
   }, [navigate, user]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,6 +115,12 @@ export default function MatchingEngine() {
 
   const now = new Date();
 
+  const revealStyle = (delay = 0) => ({
+    opacity: entered ? 1 : 0,
+    transform: entered ? "translateY(0)" : "translateY(-16px)",
+    transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
   return (
     <div className="flex h-screen bg-[#0B1220] font-syne overflow-hidden">
       {/* Sidebar */}
@@ -116,7 +128,7 @@ export default function MatchingEngine() {
 
       {/* Main */}
       <main className="flex-1 h-screen p-8 overflow-y-auto" style={{ minWidth: 0 }}>
-        <div style={styles.topBar}>
+        <div style={{...styles.topBar, ...revealStyle(0)}}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button onClick={()=>navigate(-1)}
               style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
@@ -138,9 +150,9 @@ export default function MatchingEngine() {
         </div>
 
         {loading ? (
-          <div className="text-slate-400 text-sm animate-pulse py-10">Loading data...</div>
+          <div className="text-slate-400 text-sm animate-pulse py-10" style={revealStyle(110)}>Loading data...</div>
         ) : (
-          <div style={styles.layout}>
+          <div style={{...styles.layout, ...revealStyle(110)}}>
             {/* Left: Internship List */}
             <div className="admin-hover-surface" style={styles.leftPanel}>
               <h3 style={styles.panelTitle}> Select Internship</h3>
@@ -307,7 +319,7 @@ export default function MatchingEngine() {
         )}
 
         {/* Business Rules Box */}
-        <div className="admin-hover-surface" style={styles.rulesBox}>
+        <div className="admin-hover-surface" style={{...styles.rulesBox, ...revealStyle(220)}}>
           <p style={styles.rulesTitle}>📌 Matching Engine Rules</p>
           <ul style={styles.rulesList}>
             <li>Only students whose skill tags overlap with internship skill tags are shown</li>
