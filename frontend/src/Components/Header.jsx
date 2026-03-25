@@ -2,6 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getUser, isLoggedIn, logout } from "../Utils/auth";
 
+const Ico = ({ stroke = "currentColor", size = 13, children }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -151,33 +158,76 @@ export default function Header() {
                     <p className="text-slate-200 font-bold text-sm m-0">{user?.fullName}</p>
                     <p className="text-slate-400 text-xs mt-1 m-0">{user?.gmail}</p>
                     <span
-                      className={`inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`inline-flex items-center gap-1 mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         user?.role === "Admin"
                           ? "bg-purple-400/10 text-purple-400 border border-purple-400/20"
                           : "bg-green-400/10 text-green-400 border border-green-400/20"
                       }`}
                     >
-                      {user?.role === "Admin" ? "🛡️ Admin" : "🎓 Student"}
+                      {user?.role === "Admin" ? (
+                        <>
+                          <Ico size={11}>
+                            <path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                          </Ico>
+                          <span>Admin</span>
+                        </>
+                      ) : (
+                        <>
+                          <Ico size={11}>
+                            <path d="M22 10v6M2 10v6"/>
+                            <path d="M12 2L1 8l11 6 9-4.91"/>
+                            <path d="M6 12v5c0 2.5 2.7 4 6 4s6-1.5 6-4v-5"/>
+                          </Ico>
+                          <span>Student</span>
+                        </>
+                      )}
                     </span>
                   </div>
                   <div className="h-px my-1" style={{ background: "#1E293B" }} />
                   {user?.role === "Admin" && (
                     <>
-                      <DropItem to="/admin/dashboard"          label="📊 Dashboard"       onClick={() => setMenuOpen(false)} />
-                      <DropItem to="/admin/add-internship"     label="➕ Add Internship"   onClick={() => setMenuOpen(false)} />
-                      <DropItem to="/admin/manage-internships" label="📋 Manage"           onClick={() => setMenuOpen(false)} />
-                      <DropItem to="/admin/matching-engine"    label="🔍 Matching Engine"  onClick={() => setMenuOpen(false)} />
+                      <DropItem
+                        to="/admin/dashboard"
+                        label="Dashboard"
+                        onClick={() => setMenuOpen(false)}
+                        icon={<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>}
+                      />
+                      <DropItem
+                        to="/admin/add-internship"
+                        label="Add Internship"
+                        onClick={() => setMenuOpen(false)}
+                        icon={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></>}
+                      />
+                      <DropItem
+                        to="/admin/manage-internships"
+                        label="Manage"
+                        onClick={() => setMenuOpen(false)}
+                        icon={<><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></>}
+                      />
+                      <DropItem
+                        to="/admin/matching-engine"
+                        label="Matching Engine"
+                        onClick={() => setMenuOpen(false)}
+                        icon={<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></>}
+                      />
                     </>
                   )}
                   {user?.role === "Student" && (
-                    <DropItem to="/student/dashboard" label="🎓 My Dashboard" onClick={() => setMenuOpen(false)} />
+                    <DropItem
+                      to="/student/dashboard"
+                      label="My Dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      icon={<><path d="M22 10v6M2 10v6"/><path d="M12 2L1 8l11 6 9-4.91"/><path d="M6 12v5c0 2.5 2.7 4 6 4s6-1.5 6-4v-5"/></>}
+                    />
                   )}
                   <div className="h-px my-1" style={{ background: "#1E293B" }} />
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 rounded-lg text-red-400 text-sm font-bold bg-red-400/5 border border-red-400/10 hover:bg-red-400/10 transition-all cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-lg text-red-400 text-sm font-bold bg-red-400/5 border border-red-400/10 hover:bg-red-400/10 transition-all cursor-pointer inline-flex items-center gap-2"
                   >
-                    ⬅️ Sign Out
+                    <Ico size={13} stroke="#F87171"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/></Ico>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               )}
@@ -203,17 +253,18 @@ function NavLink({ to, label, active }) {
   );
 }
 
-function DropItem({ to, label, onClick }) {
+function DropItem({ to, label, onClick, icon }) {
   return (
     <Link
       to={to}
       onClick={onClick}
-      className="flex items-center px-3 py-2 rounded-lg text-slate-400 text-sm font-semibold hover:text-slate-200 transition-all no-underline"
+      className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 text-sm font-semibold hover:text-slate-200 transition-all no-underline"
       style={{ background: "transparent" }}
       onMouseEnter={e => (e.currentTarget.style.background = "#1E293B")}
       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
     >
-      {label}
+      <Ico size={13}>{icon}</Ico>
+      <span>{label}</span>
     </Link>
   );
 }
