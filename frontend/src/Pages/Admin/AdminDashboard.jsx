@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [entered,setEntered]         = useState(false);
   const [animatedStats,setAnimatedStats] = useState({ total:0, active:0, expired:0, students:0 });
   const [dashboardFilter,setDashboardFilter] = useState("all");
+  const [tableSearch,setTableSearch] = useState("");
   const [liveTime,setLiveTime]       = useState(new Date());
   const user       = getUser();
   const loggedInAt = getLoggedInAt();
@@ -82,8 +83,24 @@ export default function AdminDashboard() {
     if (dashboardFilter === "expired") return expired;
     return true;
   });
-  const tableInternships = filteredInternships.slice(0, 8);
+  const tableInternships = filteredInternships.filter((item) => {
+    if (!tableSearch) return true;
+    const q = tableSearch.toLowerCase();
+    return (
+      (item.title || "").toLowerCase().includes(q) ||
+      (item.company || "").toLowerCase().includes(q) ||
+      (item.location || "").toLowerCase().includes(q)
+    );
+  }).slice(0, 8);
   const showStudentsTable = dashboardFilter === "students";
+  const filteredStudentRows = studentRows.filter((student) => {
+    if (!tableSearch) return true;
+    const q = tableSearch.toLowerCase();
+    return (
+      (student.fullName || "").toLowerCase().includes(q) ||
+      (student.gmail || "").toLowerCase().includes(q)
+    );
+  }).slice(0, 8);
 
   useEffect(() => {
     if (loading) return;
@@ -273,10 +290,25 @@ export default function AdminDashboard() {
           </div>
 
           {/* Recent table */}
-          <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",marginBottom:"12px",...revealStyle(300)}}>
-            {dashboardFilter === "students" ? "Recent Students" : "Recently Added Internships"}
-          </h2>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px",marginBottom:"12px",...revealStyle(300)}}>
+            <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",margin:0}}>
+              {dashboardFilter === "students" ? "Recent Students" : "Recently Added Internships"}
+            </h2>
+            <div style={{display:"flex",alignItems:"center",gap:"8px",background:"#1E293B",border:"1px solid #334155",borderRadius:"9px",padding:"6px 10px",width:"320px"}}>
+              <Ico size={12} stroke="#64748B"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
+              <input
+                value={tableSearch}
+                onChange={(e)=>setTableSearch(e.target.value)}
+                placeholder={showStudentsTable ? "Search students by name or email..." : "Search internships by title, company, location..."}
+                style={{background:"transparent",border:"none",outline:"none",color:"#F1F5F9",fontSize:"11px",width:"100%",fontFamily:"'DM Sans',sans-serif"}}
+              />
+              {tableSearch && (
+                <button onClick={()=>setTableSearch("")} style={{background:"none",border:"none",color:"#64748B",cursor:"pointer",fontSize:"14px",padding:0}}>×</button>
+              )}
+            </div>
+          </div>
           <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden",...revealStyle(340)}}>
+            <div className="overflow-auto" style={{maxHeight:"calc(100vh - 345px)"}}>
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{background:"#0B1220"}}>
@@ -284,13 +316,13 @@ export default function AdminDashboard() {
                     ? ["#","Full Name","Gmail","Age","Last Login","Status"]
                     : ["#","Title","Company","Location","Deadline","Status"]).map(h=>(
                     <th key={h} className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider px-5 py-3"
-                      style={{borderBottom:"1px solid #1E293B"}}>{h}</th>
+                      style={{borderBottom:"1px solid #1E293B",position:"sticky",top:0,background:"#0B1220",zIndex:2}}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {showStudentsTable
-                  ? studentRows.slice(0, 8).map((student,index)=>{
+                  ? filteredStudentRows.map((student,index)=>{
                       const online = getOnlineStatus(student.lastLoginAt) !== "offline";
                       return (
                         <tr key={student._id} style={{borderBottom:"1px solid #1E293B"}}>
@@ -316,7 +348,7 @@ export default function AdminDashboard() {
                         </tr>
                       );
                     })}
-                {showStudentsTable && studentRows.length===0 && (
+                {showStudentsTable && filteredStudentRows.length===0 && (
                   <tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No students found</td></tr>
                 )}
                 {!showStudentsTable && tableInternships.length===0 && (
@@ -324,6 +356,7 @@ export default function AdminDashboard() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </>)}
       </main>
