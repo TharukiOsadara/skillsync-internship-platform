@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { isLoggedIn, getUser } from "../Utils/auth";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
+import { isLoggedIn, getUser } from "../../Utils/auth";
+import Header from "../../Components/Header";
+import Footer from "../../Components/Footer";
 
 const pill = {
   display: "inline-block",
