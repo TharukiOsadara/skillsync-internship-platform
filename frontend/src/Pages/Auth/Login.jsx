@@ -28,7 +28,7 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Invalid credentials.");
       saveAuth(data.token, data.user);
-      navigate(data.user.role === "Admin" ? "/admin/dashboard" : "/student/dashboard");
+      navigate(data.user.role === "Admin" ? "/admin/dashboard" : "/student/matches");
     } catch { setError("Server error. Make sure backend is running."); }
     finally { setLoading(false); }
   };
