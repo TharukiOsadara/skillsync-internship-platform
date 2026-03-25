@@ -23,16 +23,29 @@ const BackBtn = ({ onClick }) => (
     onMouseLeave={e=>(e.currentTarget.style.color="#64748B")}>←</button>
 );
 
+function getOnlineStatus(lastLoginAt) {
+  if (!lastLoginAt) return "offline";
+  const minutes = (Date.now() - new Date(lastLoginAt).getTime()) / 1000 / 60;
+  if (minutes < 30) return "online";
+  return "offline";
+}
+
 export default function AdminDashboard() {
   const navigate   = useNavigate();
   const [internships,setInternships] = useState([]);
   const [users,setUsers]             = useState([]);
   const [loading,setLoading]         = useState(true);
+  const [entered,setEntered]         = useState(false);
+  const [dashboardFilter,setDashboardFilter] = useState("all");
   const user       = getUser();
   const loggedInAt = getLoggedInAt();
   const now        = new Date();
 
   useEffect(()=>{ if(!user||user.role!=="Admin") navigate("/login"); },[]);
+  useEffect(()=>{
+    const timer = setTimeout(()=>setEntered(true), 80);
+    return ()=>clearTimeout(timer);
+  },[]);
 
   useEffect(()=>{
     const fetchData=async()=>{
@@ -52,23 +65,38 @@ export default function AdminDashboard() {
   const activeCount  = internships.filter(i=>new Date(i.deadline)>=now).length;
   const expiredCount = internships.filter(i=>new Date(i.deadline)<now).length;
   const studentCount = users.filter(u=>u.role==="Student").length;
-  const recent       = [...internships].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  const recentInternships = [...internships].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const studentRows       = [...users]
+    .filter((u)=>u.role==="Student")
+    .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+  const filteredInternships = recentInternships.filter((item)=>{
+    const expired = new Date(item.deadline) < now;
+    if (dashboardFilter === "active") return !expired;
+    if (dashboardFilter === "expired") return expired;
+    return true;
+  });
+  const tableInternships = filteredInternships.slice(0, 8);
+  const showStudentsTable = dashboardFilter === "students";
 
   const stats=[
     {
       label:"Total Internships",value:internships.length,color:"#22D3EE",border:"rgba(34,211,238,0.2)",
+      filterKey:"all",
       icon:<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></>,
     },
     {
       label:"Active", value:activeCount, color:"#4ADE80", border:"rgba(74,222,128,0.2)",
+      filterKey:"active",
       icon:<><polyline points="20 6 9 17 4 12"/></>,
     },
     {
       label:"Expired", value:expiredCount, color:"#F87171", border:"rgba(248,113,113,0.2)",
+      filterKey:"expired",
       icon:<><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>,
     },
     {
       label:"Students", value:studentCount, color:"#A78BFA", border:"rgba(167,139,250,0.2)",
+      filterKey:"students",
       icon:<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
     },
   ];
@@ -82,13 +110,19 @@ export default function AdminDashboard() {
      icon:<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></>},
   ];
 
+  const revealStyle = (delay = 0) => ({
+    opacity: entered ? 1 : 0,
+    transform: entered ? "translateY(0)" : "translateY(-16px)",
+    transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto" style={{minWidth:0}}>
 
         {/* Page header */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"28px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"28px",...revealStyle(0)}}>
           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
             <BackBtn onClick={()=>navigate(-1)}/>
             <PageIcon>
@@ -138,14 +172,14 @@ export default function AdminDashboard() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-64" style={revealStyle(140)}>
             <div className="text-slate-400 text-sm animate-pulse">Loading data...</div>
           </div>
         ) : (<>
           {/* Stats */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"14px",marginBottom:"24px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"14px",marginBottom:"24px",...revealStyle(70)}}>
             {stats.map((s,i)=>(
-              <div key={i} style={{background:"#0F172A",border:`1px solid ${s.border}`,borderRadius:"14px",padding:"16px",transition:"transform .2s, box-shadow .2s, border-color .2s, background-color .2s",cursor:"pointer"}}
+              <div key={i} onClick={()=>setDashboardFilter(s.filterKey)} style={{background:dashboardFilter===s.filterKey?"rgba(15,23,42,0.98)":"#0F172A",border:`1px solid ${dashboardFilter===s.filterKey?s.color:s.border}`,borderRadius:"14px",padding:"16px",opacity:entered?1:0,transform:entered?"translateY(0)":"translateY(-14px)",boxShadow:dashboardFilter===s.filterKey?`0 10px 24px ${s.border}`:"none",transition:`opacity .45s ease ${120 + (i * 70)}ms, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${120 + (i * 70)}ms, box-shadow .2s, border-color .2s, background-color .2s`,cursor:"pointer"}}
                 onMouseEnter={e=>{
                   e.currentTarget.style.transform="translateY(-3px)";
                   e.currentTarget.style.boxShadow=`0 10px 24px ${s.border}`;
@@ -154,9 +188,9 @@ export default function AdminDashboard() {
                 }}
                 onMouseLeave={e=>{
                   e.currentTarget.style.transform="translateY(0)";
-                  e.currentTarget.style.boxShadow="none";
-                  e.currentTarget.style.borderColor=s.border;
-                  e.currentTarget.style.backgroundColor="#0F172A";
+                  e.currentTarget.style.boxShadow=dashboardFilter===s.filterKey?`0 10px 24px ${s.border}`:"none";
+                  e.currentTarget.style.borderColor=dashboardFilter===s.filterKey?s.color:s.border;
+                  e.currentTarget.style.backgroundColor=dashboardFilter===s.filterKey?"rgba(15,23,42,0.98)":"#0F172A";
                 }}>
                 <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"8px"}}>
                   <div style={{width:"34px",height:"34px",borderRadius:"10px",background:`${s.border}`,border:`1px solid ${s.color}55`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
@@ -170,8 +204,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Actions */}
-          <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",marginBottom:"12px"}}>Quick Actions</h2>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"12px",marginBottom:"24px"}}>
+          <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",marginBottom:"12px",...revealStyle(210)}}>Quick Actions</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"12px",marginBottom:"24px",...revealStyle(250)}}>
             {quickActions.map(a=>(
               <Link key={a.to} to={a.to} style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",padding:"16px",display:"flex",alignItems:"center",gap:"14px",textDecoration:"none",transition:"border-color .2s, box-shadow .2s, transform .2s, background-color .2s"}}
                 onMouseEnter={e=>{
@@ -199,32 +233,55 @@ export default function AdminDashboard() {
           </div>
 
           {/* Recent table */}
-          <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",marginBottom:"12px"}}>Recently Added Internships</h2>
-          <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden"}}>
+          <h2 style={{fontSize:"15px",fontWeight:700,color:"#F1F5F9",marginBottom:"12px",...revealStyle(300)}}>
+            {dashboardFilter === "students" ? "Recent Students" : "Recently Added Internships"}
+          </h2>
+          <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden",...revealStyle(340)}}>
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{background:"#0B1220"}}>
-                  {["#","Title","Company","Location","Deadline","Status"].map(h=>(
+                  {(showStudentsTable
+                    ? ["#","Full Name","Gmail","Age","Last Login","Status"]
+                    : ["#","Title","Company","Location","Deadline","Status"]).map(h=>(
                     <th key={h} className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider px-5 py-3"
                       style={{borderBottom:"1px solid #1E293B"}}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {recent.map((item,index)=>{
-                  const expired=new Date(item.deadline)<now;
-                  return (
-                    <tr key={item._id} style={{borderBottom:"1px solid #1E293B"}}>
-                      <td className="px-5 py-3.5 text-slate-400 text-sm">{index+1}</td>
-                      <td className="px-5 py-3.5 text-slate-200 text-sm font-semibold">{item.title}</td>
-                      <td className="px-5 py-3.5 text-slate-400 text-sm">{item.company}</td>
-                      <td className="px-5 py-3.5 text-slate-400 text-sm">{item.location}</td>
-                      <td className={`px-5 py-3.5 text-sm ${expired?"text-red-400":"text-slate-400"}`}>{new Date(item.deadline).toLocaleDateString()}</td>
-                      <td className="px-5 py-3.5"><span className={expired?"badge-expired":"badge-active"}>{expired?"Expired":"Active"}</span></td>
-                    </tr>
-                  );
-                })}
-                {recent.length===0&&(<tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No internships added yet</td></tr>)}
+                {showStudentsTable
+                  ? studentRows.slice(0, 8).map((student,index)=>{
+                      const online = getOnlineStatus(student.lastLoginAt) !== "offline";
+                      return (
+                        <tr key={student._id} style={{borderBottom:"1px solid #1E293B"}}>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{index+1}</td>
+                          <td className="px-5 py-3.5 text-slate-200 text-sm font-semibold">{student.fullName||"-"}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{student.gmail||"-"}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{student.age||"-"}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{student.lastLoginAt?new Date(student.lastLoginAt).toLocaleString():"Never"}</td>
+                          <td className="px-5 py-3.5"><span className={online?"badge-active":"badge-expired"}>{online?"Active":"Offline"}</span></td>
+                        </tr>
+                      );
+                    })
+                  : tableInternships.map((item,index)=>{
+                      const expired=new Date(item.deadline)<now;
+                      return (
+                        <tr key={item._id} style={{borderBottom:"1px solid #1E293B"}}>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{index+1}</td>
+                          <td className="px-5 py-3.5 text-slate-200 text-sm font-semibold">{item.title}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{item.company}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">{item.location}</td>
+                          <td className={`px-5 py-3.5 text-sm ${expired?"text-red-400":"text-slate-400"}`}>{new Date(item.deadline).toLocaleDateString()}</td>
+                          <td className="px-5 py-3.5"><span className={expired?"badge-expired":"badge-active"}>{expired?"Expired":"Active"}</span></td>
+                        </tr>
+                      );
+                    })}
+                {showStudentsTable && studentRows.length===0 && (
+                  <tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No students found</td></tr>
+                )}
+                {!showStudentsTable && tableInternships.length===0 && (
+                  <tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No internships found for this filter</td></tr>
+                )}
               </tbody>
             </table>
           </div>
