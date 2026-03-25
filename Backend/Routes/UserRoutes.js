@@ -5,7 +5,7 @@ const UserControllers = require('../Controllers/UserControllers');
 
 router.get("/",     protect, adminOnly, UserControllers.getUsers);    // Admin only
 router.post("/:id/view-password", protect, adminOnly, UserControllers.viewUserPassword); // Admin only
-router.put("/:id",  protect, adminOnly, UserControllers.updateUser);  // Admin only
+router.put("/:id",  protect, UserControllers.updateUser);  // Admin or self
 router.delete("/:id", protect, adminOnly, UserControllers.deleteUser); // Admin only
 
 // Public — no middleware needed

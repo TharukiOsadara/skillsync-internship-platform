@@ -54,6 +54,31 @@ const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo,
     return null;
 };
 
+const validateSelfUpdatePayload = ({ fullName, gmail, age, address, phoneNo, skills, education, experience }) => {
+    if (fullName !== undefined) {
+        if (!String(fullName).trim()) return 'Full name is required.';
+        if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
+    }
+
+    if (gmail !== undefined) {
+        const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
+    }
+
+    if (age !== undefined && (Number(age) < 16 || Number(age) > 60)) return 'Age must be between 16 and 60.';
+    if (address !== undefined && !hasLetter(address)) return 'Address cannot be only numbers.';
+    if (skills !== undefined && String(skills).trim() && !hasLetter(skills)) return 'Skills cannot be only numbers.';
+    if (education !== undefined && !hasLetter(education)) return 'Education cannot be only numbers.';
+    if (experience !== undefined && !hasLetter(experience)) return 'Experience cannot be only numbers.';
+
+    if (phoneNo !== undefined) {
+        const phoneDigits = digitsOnly(phoneNo);
+        if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
+    }
+
+    return null;
+};
+
 // @desc    Register a new user (Student or Admin)
 // @route   POST /api/users/register
 const registerUser = async (req, res) => {
@@ -182,30 +207,72 @@ const addUsers = async (req, res) => {
 };
 //update user
 const updateUser = async (req, res) => {
-    const adminUser = await requireAdmin(req, res);
-    if (!adminUser) return;
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+        return res.status(401).json({ success: false, message: 'Not authorized.' });
+    }
 
     const id = req.params.id;
-    const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience, adminPassword } = req.body;
-    let user;
+    const isAdmin = authUser.role === 'Admin';
+    const isSelf = String(authUser._id) === String(id);
 
-    if (!adminPassword) {
-        return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
+    if (!isAdmin && !isSelf) {
+        return res.status(403).json({ success: false, message: 'Not authorized to update this user.' });
     }
 
-    if (adminUser.password !== adminPassword) {
-        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, photo, adminPassword } = req.body;
+
+    if (isAdmin && !isSelf) {
+        if (!adminPassword) {
+            return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
+        }
+
+        if (authUser.password !== adminPassword) {
+            return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+        }
+
+        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        if (validationError) {
+            return res.status(400).json({ success: false, message: validationError });
+        }
+
+        try {
+            const user = await User.findByIdAndUpdate(
+                id,
+                { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() },
+                { new: true, runValidators: true }
+            );
+            if (!user) {
+                return res.status(404).json({ message: 'User cannot Update' });
+            }
+            return res.status(200).json({ success: true, data: user });
+        } catch (err) {
+            return res.status(400).json({ success: false, message: err.message });
+        }
     }
 
-    const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+    const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
     if (validationError) {
         return res.status(400).json({ success: false, message: validationError });
     }
 
+    const updates = { updatedAt: new Date() };
+    const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo'];
+
+    allowedSelfFields.forEach((field) => {
+        if (req.body[field] !== undefined) {
+            updates[field] = field === 'phoneNo' ? digitsOnly(req.body[field]) : req.body[field];
+        }
+    });
+
+    if (Object.keys(updates).length === 1) {
+        return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
+    }
+
     try {
-        user = await User.findByIdAndUpdate(req.params.id, { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, updatedAt: new Date() }, { new: true, runValidators: true });
+        const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
         if (!user) {
-            return res.status(404).json({ message: 'User cannot Update' });
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
         return res.status(200).json({ success: true, data: user });
     } catch (err) {
