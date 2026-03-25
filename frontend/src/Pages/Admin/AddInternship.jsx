@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../Components/AdminSidebar";
 import { getUser, authHeaders } from "../../Utils/auth";
@@ -9,8 +9,14 @@ export default function AddInternship() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [entered, setEntered] = useState(false);
   const user = getUser();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setError(""); };
 
@@ -65,13 +71,19 @@ export default function AddInternship() {
     { name: "deadline", label: "Application Deadline *", type: "date" },
   ];
 
+  const revealStyle = (delay = 0) => ({
+    opacity: entered ? 1 : 0,
+    transform: entered ? "translateY(0)" : "translateY(-16px)",
+    transition: `opacity .48s ease, transform .55s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220] font-syne">
       <AdminSidebar />
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
         <main className="flex-1 p-8 overflow-y-auto" style={{ minWidth: 0 }}>
           {/* Page header */}
-          <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"28px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"28px",...revealStyle(0)}}>
             <button onClick={()=>navigate(-1)}
               style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
               onMouseEnter={e=>(e.currentTarget.style.color="#22D3EE")}
@@ -90,7 +102,7 @@ export default function AddInternship() {
             </div>
           </div>
 
-        <div className="max-w-2xl">
+        <div className="max-w-2xl" style={revealStyle(90)}>
           <div className="card admin-hover-surface p-8">
             {/* Header */}
             <div className="flex items-start gap-4 mb-6">
@@ -157,7 +169,7 @@ export default function AddInternship() {
           </div>
 
           {/* Rules box */}
-          <div className="admin-hover-surface mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)" }}>
+          <div className="admin-hover-surface mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)", ...revealStyle(170) }}>
             <p className="text-cyan-400 font-bold text-sm mb-2">📌 Business Rules Applied</p>
             <ul className="text-slate-400 text-xs leading-7 pl-4 m-0">
               <li>All fields (Title, Company, Skills, Location, Duration, Deadline) are mandatory</li>
