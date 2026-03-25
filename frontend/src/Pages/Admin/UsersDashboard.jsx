@@ -313,19 +313,21 @@ export default function UsersDashboard() {
         </div>
 
         {/* ── Search bar ── */}
-        <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#1E293B",border:"1px solid #334155",borderRadius:"10px",padding:"9px 14px",marginBottom:"16px",maxWidth:"400px",transition:"border-color .15s",...revealStyle(190)}}
-          onFocus={e=>(e.currentTarget.style.borderColor="#22D3EE")}
-          onBlur={e=>(e.currentTarget.style.borderColor="#334155")}>
-          <Ico size={14} stroke="#64748B"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"14px",...revealStyle(190)}}>
+          <div style={{display:"flex",alignItems:"center",gap:"8px",background:"#1E293B",border:"1px solid #334155",borderRadius:"9px",padding:"6px 10px",width:"320px",transition:"border-color .15s"}}
+            onFocus={e=>(e.currentTarget.style.borderColor="#22D3EE")}
+            onBlur={e=>(e.currentTarget.style.borderColor="#334155")}>
+          <Ico size={12} stroke="#64748B"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
           <input
             value={search}
             onChange={e=>setSearch(e.target.value)}
             placeholder="Search users by name or email..."
-            style={{background:"transparent",border:"none",outline:"none",color:"#F1F5F9",fontSize:"12px",width:"100%",fontFamily:"'DM Sans',sans-serif"}}
+            style={{background:"transparent",border:"none",outline:"none",color:"#F1F5F9",fontSize:"11px",width:"100%",fontFamily:"'DM Sans',sans-serif"}}
           />
           {search && (
             <button onClick={()=>setSearch("")} style={{background:"none",border:"none",color:"#64748B",cursor:"pointer",fontSize:"14px",padding:0}}>×</button>
           )}
+          </div>
         </div>
 
         {error   && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4" style={revealStyle(230)}>⚠️ {error}</div>}
@@ -335,12 +337,12 @@ export default function UsersDashboard() {
           <div className="text-slate-400 text-sm animate-pulse py-10" style={revealStyle(250)}>Loading users...</div>
         ) : (
           <div className="admin-hover-surface" style={{background:"#0F172A",border:"1px solid #1E293B",borderRadius:"14px",overflow:"hidden",...revealStyle(250)}}>
-            <div className="overflow-x-auto">
+            <div className="overflow-auto" style={{maxHeight:"calc(100vh - 320px)"}}>
               <table className="w-full min-w-[1700px] border-collapse text-xs">
                 <thead>
                   <tr style={{background:"#0B1220"}}>
                     {["#","Full Name","Status","Gmail","Role","Password","Age","Address","Phone","Skills","Education","Experience","Created At","Updated At","Last Login","Actions"].map(h=>(
-                      <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 py-3 border-b border-navy-800">{h}</th>
+                      <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 py-3 border-b border-navy-800" style={{position:"sticky",top:0,background:"#0B1220",zIndex:2}}>{h}</th>
                     ))}
                   </tr>
                 </thead>
