@@ -3,6 +3,36 @@ import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../Components/AdminSidebar";
 import { getUser, authHeaders } from "../../Utils/auth";
 
+const TECH_STYLES_ME = {
+  react:{bg:"rgba(34,211,238,0.1)",border:"rgba(34,211,238,0.2)",color:"#22D3EE"},
+  javascript:{bg:"rgba(251,191,36,0.1)",border:"rgba(251,191,36,0.25)",color:"#FCD34D"},
+  js:{bg:"rgba(251,191,36,0.1)",border:"rgba(251,191,36,0.25)",color:"#FCD34D"},
+  python:{bg:"rgba(59,130,246,0.1)",border:"rgba(59,130,246,0.25)",color:"#60A5FA"},
+  node:{bg:"rgba(74,222,128,0.1)",border:"rgba(74,222,128,0.2)",color:"#4ADE80"},
+  "node.js":{bg:"rgba(74,222,128,0.1)",border:"rgba(74,222,128,0.2)",color:"#4ADE80"},
+  mongodb:{bg:"rgba(74,222,128,0.1)",border:"rgba(74,222,128,0.2)",color:"#4ADE80"},
+  docker:{bg:"rgba(96,165,250,0.1)",border:"rgba(96,165,250,0.2)",color:"#93C5FD"},
+  java:{bg:"rgba(251,146,60,0.1)",border:"rgba(251,146,60,0.2)",color:"#FB923C"},
+  flutter:{bg:"rgba(99,179,237,0.1)",border:"rgba(99,179,237,0.2)",color:"#63B3ED"},
+  aws:{bg:"rgba(251,146,60,0.1)",border:"rgba(251,146,60,0.2)",color:"#FB923C"},
+  django:{bg:"rgba(74,222,128,0.1)",border:"rgba(74,222,128,0.2)",color:"#4ADE80"},
+  ml:{bg:"rgba(167,139,250,0.1)",border:"rgba(167,139,250,0.2)",color:"#A78BFA"},
+  mysql:{bg:"rgba(59,130,246,0.1)",border:"rgba(59,130,246,0.25)",color:"#60A5FA"},
+  css:{bg:"rgba(96,165,250,0.1)",border:"rgba(96,165,250,0.2)",color:"#93C5FD"},
+  html:{bg:"rgba(251,146,60,0.1)",border:"rgba(251,146,60,0.2)",color:"#FB923C"},
+  express:{bg:"rgba(74,222,128,0.1)",border:"rgba(74,222,128,0.2)",color:"#4ADE80"},
+  redux:{bg:"rgba(167,139,250,0.1)",border:"rgba(167,139,250,0.2)",color:"#A78BFA"},
+  firebase:{bg:"rgba(251,146,60,0.1)",border:"rgba(251,146,60,0.2)",color:"#FB923C"},
+  kubernetes:{bg:"rgba(96,165,250,0.1)",border:"rgba(96,165,250,0.2)",color:"#93C5FD"},
+};
+function TechBadgeME({skill}){
+  const k=skill.trim().toLowerCase().replace(/\s+/g,"");
+  const s=TECH_STYLES_ME[k]||{bg:"rgba(34,211,238,0.08)",border:"rgba(34,211,238,0.15)",color:"#22D3EE"};
+  return <span style={{display:"inline-flex",alignItems:"center",gap:"3px",padding:"2px 8px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",background:s.bg,border:`1px solid ${s.border}`,color:s.color}}>{skill.trim()}</span>;
+}
+
+
+
 export default function MatchingEngine() {
   const navigate = useNavigate();
   const [internships, setInternships] = useState([]);
@@ -11,6 +41,7 @@ export default function MatchingEngine() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [matchLoading, setMatchLoading] = useState(false);
+  const [loadingTick, setLoadingTick] = useState(0);
   const user = getUser();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -35,6 +66,14 @@ export default function MatchingEngine() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!matchLoading) return;
+    const timer = setInterval(() => {
+      setLoadingTick((prev) => (prev + 1) % 3);
+    }, 350);
+    return () => clearInterval(timer);
+  }, [matchLoading]);
 
   // Matching logic: find students whose skills overlap with internship skillsRequired
   const runMatching = (internship) => {
@@ -73,16 +112,27 @@ export default function MatchingEngine() {
   return (
     <div className="flex h-screen bg-[#0B1220] font-syne overflow-hidden">
       {/* Sidebar */}
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <AdminSidebar />
 
       {/* Main */}
       <main className="flex-1 h-screen p-8 overflow-y-auto" style={{ minWidth: 0 }}>
         <div style={styles.topBar}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "#94A3B8", cursor: "pointer", fontSize: "1.5rem" }} className="hover:text-cyan-400 transition-colors">←</button>
-            <div>
-              <h1 style={styles.pageTitle}>Matching Engine</h1>
-              <p style={styles.pageSub}>Select an internship to see skill-matched students automatically</p>
+            <button onClick={()=>navigate(-1)}
+              style={{background:"none",border:"none",color:"#64748B",fontSize:"20px",cursor:"pointer",padding:0,transition:"color .15s"}}
+              onMouseEnter={e=>(e.currentTarget.style.color="#22D3EE")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#64748B")}>←</button>
+            <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+              <div style={{width:"44px",height:"44px",flexShrink:0,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+              </div>
+              <div>
+                <h1 style={styles.pageTitle}>Matching Engine</h1>
+                <p style={styles.pageSub}>Select an internship to see skill-matched students automatically</p>
+              </div>
             </div>
           </div>
         </div>
@@ -92,7 +142,7 @@ export default function MatchingEngine() {
         ) : (
           <div style={styles.layout}>
             {/* Left: Internship List */}
-            <div style={styles.leftPanel}>
+            <div className="admin-hover-surface" style={styles.leftPanel}>
               <h3 style={styles.panelTitle}> Select Internship</h3>
               <p style={styles.panelSub}>Click to trigger skill matching</p>
               <div style={styles.internshipList}>
@@ -106,6 +156,20 @@ export default function MatchingEngine() {
                     <div
                       key={item._id}
                       onClick={() => runMatching(item)}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.borderColor = "rgba(34,211,238,0.45)";
+                          e.currentTarget.style.boxShadow = "0 10px 22px rgba(34,211,238,0.14)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.borderColor = "#334155";
+                          e.currentTarget.style.boxShadow = "none";
+                        }
+                      }}
                       style={{
                         ...styles.internshipItem,
                         ...(isSelected ? styles.internshipItemSelected : {}),
@@ -121,9 +185,9 @@ export default function MatchingEngine() {
                         </span>
                       </div>
                       <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>{item.company} · {item.location}</p>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                        {(item.skillsRequired || "").split(",").slice(0, 3).map((s, i) =>
-                          s.trim() ? <span key={i} style={styles.skillTag}>{s.trim()}</span> : null
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+                        {(item.skillsRequired||"").split(",").slice(0,3).map((s,i)=>
+                          s.trim()?<TechBadgeME key={i} skill={s}/>:null
                         )}
                       </div>
                     </div>
@@ -133,12 +197,16 @@ export default function MatchingEngine() {
             </div>
 
             {/* Right: Match Results */}
-            <div style={styles.rightPanel}>
+            <div className="admin-hover-surface" style={styles.rightPanel}>
               {!selectedInternship ? (
                 <div style={styles.emptyState}>
                   <p style={{ fontSize: "48px", margin: 0 }}></p>
-                  <p style={{ color: "#94A3B8", fontSize: "15px", marginTop: "12px" }}>
-                    Select an internship on the left to see matched students
+                  <p style={{ color: "#94A3B8", fontSize: "15px", marginTop: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <span>Select an internship on the left to see matched students</span>
                   </p>
                   <p style={{ color: "#334155", fontSize: "13px" }}>
                     The engine compares student skills with internship requirements
@@ -146,7 +214,35 @@ export default function MatchingEngine() {
                 </div>
               ) : matchLoading ? (
                 <div style={styles.emptyState}>
-                  <p style={{ color: "#22D3EE", fontSize: "16px" }}> Running skill match...</p>
+                  <div style={{display:"flex",alignItems:"center",gap:"12px",padding:"16px 20px",background:"#1E293B",borderRadius:"12px",border:"1px solid rgba(34,211,238,0.15)"}}>
+                    <div style={{width:"36px",height:"36px",background:"rgba(34,211,238,0.15)",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-9.77"/>
+                      </svg>
+                    </div>
+                    <div style={{flex:1}}>
+                      <p style={{color:"#22D3EE",fontWeight:700,fontSize:"14px",margin:0}}>
+                        Running skill match
+                        <span style={{display:"inline-block",width:"20px",textAlign:"left"}}>{".".repeat(loadingTick + 1)}</span>
+                      </p>
+                      <p style={{color:"#64748B",fontSize:"11px",margin:"3px 0 0"}}>Comparing student profiles against internship requirements</p>
+                    </div>
+                    <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
+                      {[0, 1, 2].map((i) => (
+                        <span
+                          key={i}
+                          style={{
+                            width:"6px",
+                            height:"6px",
+                            background:"#22D3EE",
+                            borderRadius:"50%",
+                            opacity: loadingTick === i ? 1 : 0.25,
+                            transition:"opacity .2s ease",
+                          }}
+                        ></span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -189,7 +285,7 @@ export default function MatchingEngine() {
                             </p>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                               {student.matchedSkills.map((skill, i) => (
-                                <span key={i} style={styles.matchedSkillTag}>✓ {skill}</span>
+                                <TechBadgeME key={i} skill={"✓ "+skill}/>
                               ))}
                             </div>
                           </div>
@@ -211,7 +307,7 @@ export default function MatchingEngine() {
         )}
 
         {/* Business Rules Box */}
-        <div style={styles.rulesBox}>
+        <div className="admin-hover-surface" style={styles.rulesBox}>
           <p style={styles.rulesTitle}>📌 Matching Engine Rules</p>
           <ul style={styles.rulesList}>
             <li>Only students whose skill tags overlap with internship skill tags are shown</li>
