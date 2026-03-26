@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
  * LoaderPage
  * ──────────
  * Full-screen animated logo page shown on first load at "/".
- * Auto-redirects to /homepage after 3 seconds.
+ * Auto-redirects to /homepage after 5 seconds.
  * No layout wrapper — renders standalone.
  *
  * Animations:
@@ -20,7 +20,7 @@ export default function LoaderPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => navigate("/homepage", { replace: true }), 3000);
+    const timer = setTimeout(() => navigate("/homepage", { replace: true }), 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
