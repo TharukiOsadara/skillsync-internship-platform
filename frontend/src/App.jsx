@@ -23,7 +23,7 @@ function ProtectedRoute({ children, role }) {
   if (!isLoggedIn()) return <Navigate to="/login" replace />;
   const user = getUser();
   if (role && user?.role !== role) {
-    return <Navigate to={user?.role === "Admin" ? "/admin/dashboard" : "/student/matches"} replace />;
+    return <Navigate to={user?.role === "Admin" ? "/admin/dashboard" : "/student/cv-upload"} replace />;
   }
   return children;
 }
@@ -44,8 +44,8 @@ export default function App() {
           <Route path="/admin/manage-internships" element={<ProtectedRoute role="Admin"><ManageInternships /></ProtectedRoute>} />
           <Route path="/admin/matching-engine"    element={<ProtectedRoute role="Admin"><MatchingEngine /></ProtectedRoute>} />
           <Route path="/admin/applications"       element={<ProtectedRoute role="Admin"><ApplicationsDashboard /></ProtectedRoute>} />
-          <Route path="/student"                  element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
-          <Route path="/student/dashboard"        element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
+          <Route path="/student"                  element={<ProtectedRoute role="Student"><Navigate to="/student/cv-upload" replace /></ProtectedRoute>} />
+          <Route path="/student/dashboard"        element={<ProtectedRoute role="Student"><Navigate to="/student/cv-upload" replace /></ProtectedRoute>} />
           <Route path="/student/matches"          element={<ProtectedRoute role="Student"><StudentMatches /></ProtectedRoute>} />
           <Route path="/student/apply/:internshipId" element={<ProtectedRoute role="Student"><StudentApplyInternship /></ProtectedRoute>} />
           <Route path="/student/cv-upload"        element={<ProtectedRoute role="Student"><StudentCvUpload /></ProtectedRoute>} />

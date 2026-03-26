@@ -56,7 +56,15 @@ export default function StudentSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   const userInitial = (user?.fullName || "S").trim().charAt(0).toUpperCase();
-  const handleLogout = () => { logout(); navigate("/homepage"); };
+  const handleLogout = () => {
+    try {
+      logout();
+      navigate("/homepage", { replace: true });
+    } catch {
+      // Fallback protects logout flow if router state is unstable.
+      window.location.replace("/homepage");
+    }
+  };
   const isActive = (path) => {
     if (path === "/student/matches") {
       return location.pathname === "/student/matches" || location.pathname === "/student/dashboard";
@@ -297,6 +305,7 @@ export default function StudentSidebar() {
 
       {/* ── Sign Out ── */}
       <button
+        type="button"
         onClick={handleLogout}
         title={collapsed ? "Sign Out" : ""}
         style={{
