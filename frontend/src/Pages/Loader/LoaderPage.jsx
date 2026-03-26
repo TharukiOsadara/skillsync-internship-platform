@@ -92,6 +92,14 @@ const PARTICLES = [
   { width:"3px",height:"3px",top:"42%",right:"9%",   animation:"float2 5s ease-in-out infinite 0.8s" },
   { width:"2px",height:"2px",top:"82%",left:"38%",   animation:"float1 4.2s ease-in-out infinite 1.2s" },
   { width:"2px",height:"2px",top:"12%",right:"35%",  animation:"float2 3.8s ease-in-out infinite 0.3s" },
+  { width:"3px",height:"3px",top:"22%",left:"27%",   animation:"float1 4.7s ease-in-out infinite 0.6s" },
+  { width:"2px",height:"2px",top:"64%",left:"30%",   animation:"float2 4.1s ease-in-out infinite 1.4s" },
+  { width:"3px",height:"3px",top:"14%",right:"28%",  animation:"float1 5.3s ease-in-out infinite 0.9s" },
+  { width:"2px",height:"2px",top:"58%",right:"33%",  animation:"float2 4.9s ease-in-out infinite 0.7s" },
+  { width:"2px",height:"2px",top:"36%",left:"42%",   animation:"float1 5.6s ease-in-out infinite 1.1s" },
+  { width:"3px",height:"3px",top:"76%",left:"50%",   animation:"float2 4.4s ease-in-out infinite 0.4s" },
+  { width:"2px",height:"2px",top:"30%",right:"46%",  animation:"float1 4.3s ease-in-out infinite 1.6s" },
+  { width:"3px",height:"3px",top:"86%",right:"41%",  animation:"float2 5.1s ease-in-out infinite 1.0s" },
 ];
 
 // ── Styles ────────────────────────────────────────────────────────────────────
