@@ -16,11 +16,6 @@ const NAV = [
     section: "MY SPACE",
     items: [
       {
-        to: "/student/matches",
-        label: "My Matches",
-        icon: <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></>,
-      },
-      {
         to: "/student/cv-upload",
         label: "CV Upload",
         icon: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>,
@@ -34,6 +29,11 @@ const NAV = [
         to: "/student/notifications",
         label: "Notifications",
         icon: <><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,
+      },
+      {
+        to: "/student/matches",
+        label: "My Matches",
+        icon: <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></>,
       },
     ],
   },

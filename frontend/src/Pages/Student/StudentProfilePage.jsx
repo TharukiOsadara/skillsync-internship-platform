@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
-import { getUser, authHeaders, saveAuth, getToken } from "../../Utils/auth";
+import { getUser, authHeaders, saveAuth, getToken, getLoggedInAt } from "../../Utils/auth";
 
 const PageIcon = ({ children }) => (
   <div style={{ width:"42px",height:"42px",flexShrink:0,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center" }}>
@@ -23,6 +23,7 @@ const Inp = ({ label, name, value, onChange, type="text", placeholder="" }) => (
 export default function StudentProfile() {
   const navigate = useNavigate();
   const user     = getUser();
+  const loggedInAt = getLoggedInAt();
   const fileRef  = useRef(null);
 
   const [form, setForm] = useState({
@@ -79,14 +80,52 @@ export default function StudentProfile() {
       <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
 
         {/* Header */}
-        <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"28px" }}>
-          <PageIcon>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </PageIcon>
-          <div>
-            <h1 style={{ fontSize:"26px", fontWeight:800, color:"#F1F5F9", margin:0 }}>My Profile</h1>
-            <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Update your personal information and skills</p>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"16px", marginBottom:"28px" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
+            <PageIcon>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </PageIcon>
+            <div>
+              <h1 style={{ fontSize:"26px", fontWeight:800, color:"#F1F5F9", margin:0 }}>My Profile</h1>
+              <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Update your personal information and skills</p>
+            </div>
+          </div>
+
+          <div style={{
+            minWidth:"250px",
+            borderRadius:"12px",
+            padding:"10px 12px",
+            border:"1px solid rgba(34,211,238,0.25)",
+            background:"linear-gradient(135deg, rgba(34,211,238,0.14), rgba(15,23,42,0.94))",
+            boxShadow:"0 10px 24px rgba(34,211,238,0.12)",
+          }}>
+            <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+              <div style={{
+                width:"34px", height:"34px", flexShrink:0,
+                borderRadius:"10px",
+                background:"rgba(34,211,238,0.15)",
+                border:"1px solid rgba(34,211,238,0.3)",
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 12h-4l-3 8-4-16-3 8H2" />
+                </svg>
+              </div>
+              <div style={{ lineHeight:1.1 }}>
+                <p style={{ color:"#67E8F9", fontSize:"10px", fontWeight:800, letterSpacing:"0.08em", margin:0, textTransform:"uppercase" }}>Welcome Back</p>
+                <p style={{ color:"#F1F5F9", fontSize:"13px", fontWeight:700, margin:"4px 0 0" }}>{user?.fullName || "Student"}</p>
+              </div>
+            </div>
+            {loggedInAt && (
+              <div style={{ marginTop:"8px", paddingTop:"8px", borderTop:"1px solid rgba(34,211,238,0.2)", display:"flex", alignItems:"center", gap:"6px", color:"#94A3B8", fontSize:"11px" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <polyline points="12 7 12 12 15 14"/>
+                </svg>
+                <span>Logged in at: {loggedInAt.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         </div>
 
