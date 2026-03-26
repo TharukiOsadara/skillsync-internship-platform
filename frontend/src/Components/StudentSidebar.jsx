@@ -338,9 +338,8 @@ export default function StudentSidebar() {
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="#F87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="8 7 3 12 8 17"/>
-            <line x1="3" y1="12" x2="15" y2="12"/>
+            <line x1="3" y1="12" x2="17" y2="12"/>
           </svg>
         </div>
         {!collapsed && <span>Sign Out</span>}
