@@ -96,13 +96,34 @@ const MARQUEE_ITEMS = [
 // Match % positions for the 3 terminal card rows
 const DEMO_PCTS = [100, 75, 60];
 
+const HERO_PARTICLES = [
+  { width: "3px", height: "3px", top: "16%", left: "10%", animation: "float1 4.2s ease-in-out infinite" },
+  { width: "2px", height: "2px", top: "72%", left: "15%", animation: "float2 4.8s ease-in-out infinite .8s" },
+  { width: "3px", height: "3px", top: "24%", right: "11%", animation: "float1 3.7s ease-in-out infinite .3s" },
+  { width: "2px", height: "2px", top: "78%", right: "17%", animation: "float2 5.1s ease-in-out infinite 1.1s" },
+  { width: "2px", height: "2px", top: "45%", left: "4%", animation: "float1 5.6s ease-in-out infinite 1.6s" },
+  { width: "3px", height: "3px", top: "38%", right: "5%", animation: "float2 4.6s ease-in-out infinite .6s" },
+  { width: "2px", height: "2px", top: "10%", left: "42%", animation: "float1 4.1s ease-in-out infinite .9s" },
+  { width: "2px", height: "2px", top: "84%", right: "36%", animation: "float2 4.4s ease-in-out infinite 1.2s" },
+  { width: "3px", height: "3px", top: "20%", left: "24%", animation: "float1 4.9s ease-in-out infinite .5s" },
+  { width: "2px", height: "2px", top: "63%", left: "28%", animation: "float2 5.2s ease-in-out infinite .7s" },
+  { width: "3px", height: "3px", top: "14%", right: "27%", animation: "float1 4.0s ease-in-out infinite 1.0s" },
+  { width: "2px", height: "2px", top: "67%", right: "29%", animation: "float2 4.3s ease-in-out infinite .4s" },
+  { width: "3px", height: "3px", top: "32%", left: "33%", animation: "float1 5.4s ease-in-out infinite 1.1s" },
+  { width: "2px", height: "2px", top: "56%", right: "41%", animation: "float2 4.7s ease-in-out infinite .9s" },
+  { width: "3px", height: "3px", top: "87%", left: "46%", animation: "float1 4.5s ease-in-out infinite .2s" },
+  { width: "2px", height: "2px", top: "26%", right: "46%", animation: "float2 5.0s ease-in-out infinite 1.3s" },
+];
+
 export default function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
 
   // ── Live state ──────────────────────────────────────────────────────────────
   const [stats, setStats] = useState({ internshipCount: null, studentCount: null, companyCount: null });
+  const [animatedStats, setAnimatedStats] = useState({ internshipCount: 1, studentCount: 1, companyCount: 1, accuracy: 1 });
   const [liveMatches, setLiveMatches] = useState([]);   // terminal card rows
+  const [animatedMatches, setAnimatedMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // ── Redirect logged-in users ────────────────────────────────────────────────
@@ -176,6 +197,67 @@ export default function HomePage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (stats.internshipCount === null || stats.studentCount === null || stats.companyCount === null) return;
+
+    const target = {
+      internshipCount: Math.max(0, stats.internshipCount),
+      studentCount: Math.max(0, stats.studentCount),
+      companyCount: Math.max(0, stats.companyCount),
+      accuracy: 95,
+    };
+
+    const start = Date.now();
+    const duration = 850;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setAnimatedStats({
+        internshipCount: target.internshipCount > 0 ? Math.max(1, Math.round(target.internshipCount * eased)) : 0,
+        studentCount: target.studentCount > 0 ? Math.max(1, Math.round(target.studentCount * eased)) : 0,
+        companyCount: target.companyCount > 0 ? Math.max(1, Math.round(target.companyCount * eased)) : 0,
+        accuracy: target.accuracy > 0 ? Math.max(1, Math.round(target.accuracy * eased)) : 0,
+      });
+
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [stats.internshipCount, stats.studentCount, stats.companyCount]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (liveMatches.length === 0) {
+      setAnimatedMatches([]);
+      return;
+    }
+
+    const seeded = liveMatches.map((item) => ({
+      ...item,
+      animatedPct: item.pct > 0 ? 1 : 0,
+    }));
+    setAnimatedMatches(seeded);
+
+    const start = Date.now();
+    const duration = 900;
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setAnimatedMatches(
+        liveMatches.map((item) => ({
+          ...item,
+          animatedPct: item.pct > 0 ? Math.max(1, Math.round(item.pct * eased)) : 0,
+        }))
+      );
+
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [loading, liveMatches]);
+
   // ── Helpers for display ─────────────────────────────────────────────────────
   const fmt = (n) => (n === null ? "..." : n > 0 ? `${n}+` : "0");
 
@@ -188,6 +270,11 @@ export default function HomePage() {
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(34,211,238,0.04)1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,0.04)1px,transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: "10%", left: "5%", width: "450px", height: "450px", borderRadius: "50%", background: "radial-gradient(circle,rgba(34,211,238,0.08)0%,transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "10%", right: "5%", width: "300px", height: "300px", borderRadius: "50%", background: "radial-gradient(circle,rgba(167,139,250,0.06)0%,transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          {HERO_PARTICLES.map((p, i) => (
+            <div key={i} style={{ ...p, position: "absolute", borderRadius: "50%", background: "rgba(103,232,249,0.9)", boxShadow: "0 0 8px rgba(34,211,238,0.8), 0 0 18px rgba(34,211,238,0.55)" }} />
+          ))}
+        </div>
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "80px 40px 70px", display: "flex", alignItems: "center", gap: "56px", minHeight: "calc(100vh - 60px)", flexWrap: "wrap", position: "relative", zIndex: 1 }}>
 
@@ -226,10 +313,10 @@ export default function HomePage() {
             {/* ── STATS ROW — live from /internships/stats ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", background: "#0A1628", border: "1px solid #1E293B", borderRadius: "14px", overflow: "hidden" }}>
               {[
-                [fmt(stats.internshipCount), "Internships"],
-                [fmt(stats.studentCount),    "Students"],
-                [fmt(stats.companyCount),    "Companies"],
-                ["95%",                      "Accuracy"],
+                [loading ? "..." : `${animatedStats.internshipCount}+`, "Internships"],
+                [loading ? "..." : `${animatedStats.studentCount}+`, "Students"],
+                [loading ? "..." : `${animatedStats.companyCount}+`, "Companies"],
+                [loading ? "..." : `${animatedStats.accuracy}%`, "Accuracy"],
               ].map(([v, l], i) => (
                 <div key={i} style={{ textAlign: "center", padding: "12px 6px", borderRight: i < 3 ? "1px solid #1E293B" : "none" }}>
                   <div style={{ fontSize: "17px", fontWeight: 800, color: "#22D3EE", transition: "all 0.4s" }}>{v}</div>
@@ -277,21 +364,21 @@ export default function HomePage() {
                 <div style={{ color: "#64748B", fontSize: "11px", textAlign: "center", padding: "14px 0" }}>
                   Loading...
                 </div>
-              ) : liveMatches.length === 0 ? (
+              ) : animatedMatches.length === 0 ? (
                 <div style={{ color: "#64748B", fontSize: "11px", textAlign: "center", padding: "14px 0" }}>
                   No active internships yet
                 </div>
               ) : (
-                liveMatches.map((m, i) => (
+                animatedMatches.map((m, i) => (
                   <div key={i} style={{ background: "#0F1F38", borderRadius: "9px", padding: "9px 11px", marginBottom: "6px", display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: "#F1F5F9", fontSize: "11px", fontWeight: 700 }}>{m.title}</div>
                       <div style={{ color: "#64748B", fontSize: "9px", marginTop: "1px" }}>{m.co}</div>
                       <div style={{ height: "4px", background: "#1E293B", borderRadius: "99px", marginTop: "7px", overflow: "hidden" }}>
-                        <div style={{ height: "4px", width: `${m.pct}%`, background: "linear-gradient(90deg,#22D3EE,#06B6D4)", borderRadius: "99px" }} />
+                        <div style={{ height: "4px", width: `${m.animatedPct}%`, background: "linear-gradient(90deg,#22D3EE,#06B6D4)", borderRadius: "99px", transition: "width .15s linear" }} />
                       </div>
                     </div>
-                    <div style={{ color: "#22D3EE", fontSize: "11px", fontWeight: 800, minWidth: "34px", textAlign: "right" }}>{m.pct}%</div>
+                    <div style={{ color: "#22D3EE", fontSize: "11px", fontWeight: 800, minWidth: "34px", textAlign: "right" }}>{m.animatedPct}%</div>
                   </div>
                 ))
               )}
@@ -308,7 +395,7 @@ export default function HomePage() {
 
       {/* ── MARQUEE STRIP ──────────────────────────────────────────────────── */}
       <div style={{ background: "#0A1628", borderTop: "1px solid #1E293B", borderBottom: "1px solid #1E293B", padding: "12px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
-        <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+        <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} @keyframes float1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-14px) scale(1.4)}} @keyframes float2{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(11px) scale(0.7)}}`}</style>
         <div style={{ display: "inline-block", animation: "marquee 22s linear infinite" }}>
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
             <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "6px", margin: "0 22px", color: "#475569", fontSize: "11px", fontWeight: 600 }}>
