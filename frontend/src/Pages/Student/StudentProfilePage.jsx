@@ -176,7 +176,73 @@ export default function StudentProfile() {
             </button>
           </div>
         </form>
+
+        {/* Password Reset Section */}
+        <div style={{ maxWidth: 480, margin: '40px 0 0 0', background: '#0F172A', border: '1px solid #1E293B', borderRadius: 14, padding: 24 }}>
+          <h2 style={{ color: '#F1F5F9', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Reset Password</h2>
+          <PasswordReset userId={user?._id} />
+        </div>
       </main>
     </div>
   );
 }
+
+// Password reset component (move outside main component)
+function PasswordReset({ userId }) {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleReset = async e => {
+    e.preventDefault();
+    setError(""); setSuccess("");
+    if (!oldPassword || !newPassword || !confirmPassword) return setError("All fields are required.");
+    if (newPassword.length < 6) return setError("New password must be at least 6 characters.");
+    if (newPassword !== confirmPassword) return setError("Passwords do not match.");
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5000/users/${userId}/reset-password`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) return setError(data.message || "Password reset failed.");
+      setSuccess("Password reset successful!");
+      setOldPassword(""); setNewPassword(""); setConfirmPassword("");
+    } catch {
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleReset} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <input type="password" placeholder="Current password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} style={inputStyle} />
+      <input type="password" placeholder="New password" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={inputStyle} />
+      <input type="password" placeholder="Confirm new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} style={inputStyle} />
+      {error && <div style={{ color: '#F87171', fontSize: 13 }}>{error}</div>}
+      {success && <div style={{ color: '#4ADE80', fontSize: 13 }}>{success}</div>}
+      <button type="submit" disabled={loading} style={{ padding: '10px', background: 'linear-gradient(135deg,#22D3EE,#06B6D4)', color: '#060D1A', fontWeight: 700, border: 'none', borderRadius: 8, cursor: 'pointer', marginTop: 6 }}>
+        {loading ? "Resetting..." : "Reset Password"}
+      </button>
+    </form>
+  );
+}
+
+const inputStyle = {
+  background: '#1E293B',
+  border: '1px solid #334155',
+  borderRadius: 8,
+  padding: '8px 11px',
+  color: '#F1F5F9',
+  fontSize: 13,
+  width: '100%',
+  fontFamily: "'DM Sans',sans-serif",
+  outline: 'none',
+  marginBottom: 2
+};

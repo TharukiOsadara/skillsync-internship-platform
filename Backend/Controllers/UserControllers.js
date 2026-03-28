@@ -1,3 +1,38 @@
+// @route   POST /users/:id/reset-password
+// @desc    Student resets their password (must provide old password)
+const resetPassword = async (req, res) => {
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+        return res.status(401).json({ success: false, message: 'Not authorized.' });
+    }
+    const id = req.params.id;
+    const isSelf = String(authUser._id) === String(id);
+    if (!isSelf) {
+        return res.status(403).json({ success: false, message: 'Not authorized to reset this password.' });
+    }
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Old and new password are required.' });
+    }
+    if (oldPassword !== authUser.password) {
+        return res.status(401).json({ success: false, message: 'Old password is incorrect.' });
+    }
+    if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
+    }
+    try {
+        const user = await User.findById(id).select('+password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        user.password = newPassword;
+        await user.save();
+        return res.status(200).json({ success: true, message: 'Password reset successful.' });
+    } catch (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+};
+
 const User = require('../Models/UserModel');
 const jwt = require('jsonwebtoken');
 
@@ -380,6 +415,7 @@ exports.getUsers = getUsers;
 exports.getUserById = getUserById;
 exports.addUsers = addUsers;
 exports.updateUser = updateUser;
+exports.resetPassword = resetPassword;
 exports.deleteUser = deleteUser;
 exports.viewUserPassword = viewUserPassword;
 exports.getUserEmails = getUserEmails;

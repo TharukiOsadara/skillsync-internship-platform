@@ -10,6 +10,7 @@ router.get("/emails", UserControllers.getUserEmails);
 router.get("/",     protect, adminOnly, UserControllers.getUsers);    // Admin only
 router.post("/:id/view-password", protect, adminOnly, UserControllers.viewUserPassword); // Admin only
 router.put("/:id",  protect, UserControllers.updateUser);  // Admin or self
+router.post("/:id/reset-password", protect, UserControllers.resetPassword); // Student self password reset
 router.delete("/:id", protect, adminOnly, UserControllers.deleteUser); // Admin only
 
 // Public — no middleware needed
