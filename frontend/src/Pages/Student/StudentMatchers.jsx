@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
+import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders } from "../../Utils/auth";
 
 const Ico = ({ stroke = "#22D3EE", size = 14, children }) => (

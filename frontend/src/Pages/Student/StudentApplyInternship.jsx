@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
+import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { authHeaders, getUser } from "../../Utils/auth";
 
 export default function StudentApplyInternship() {
@@ -74,18 +75,21 @@ export default function StudentApplyInternship() {
     <div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", fontFamily: "'DM Sans',sans-serif" }}>
       <StudentSidebar />
       <main style={{ flex: 1, padding: "32px", minWidth: 0, overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "22px" }}>
-          <div style={{ width: "42px", height: "42px", borderRadius: "12px", background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "22px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "42px", height: "42px", borderRadius: "12px", background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </div>
+            <div>
+              <h1 style={{ color: "#F1F5F9", fontSize: "26px", fontWeight: 800, margin: 0 }}>Apply Internship</h1>
+              <p style={{ color: "#64748B", fontSize: "13px", margin: "3px 0 0" }}>Submit your application for this role</p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ color: "#F1F5F9", fontSize: "26px", fontWeight: 800, margin: 0 }}>Apply Internship</h1>
-            <p style={{ color: "#64748B", fontSize: "13px", margin: "3px 0 0" }}>Submit your application for this role</p>
-          </div>
+          <StudentWelcomeBack/>
         </div>
 
         <div style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: "14px", padding: "20px", maxWidth: "760px" }}>

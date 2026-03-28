@@ -41,6 +41,25 @@ const InternshipSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    mode: {
+        type: String,
+        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid'],
+        required: true,
+    },
+    timePreference: {
+        type: String,
+        enum: ['Day', 'Night'],
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+        minlength: 10,
+        validate: {
+            validator: (v) => /[A-Za-z]/.test(String(v)),
+            message: 'Description must contain letters'
+        }
+    },
     status: {
         type: String,
         enum: ['Active', 'Expired'],

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
+import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders } from "../../Utils/auth";
 
 const PageIcon = ({ children }) => (
@@ -112,6 +113,8 @@ export default function StudentDashboard() {
               <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Internships matched to your skill profile</p>
             </div>
           </div>
+          <StudentWelcomeBack/>
+          <StudentWelcomeBack/>
           {!loading && (
             <span style={{ background:"rgba(34,211,238,0.1)", border:"1px solid rgba(34,211,238,0.2)", color:"#22D3EE", fontSize:"11px", fontWeight:700, padding:"5px 16px", borderRadius:"99px" }}>
               {animatedMatchCount} match{animatedMatchCount !== 1 ? "es" : ""} found

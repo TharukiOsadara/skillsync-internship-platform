@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
+import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders, saveAuth, getToken, getLoggedInAt } from "../../Utils/auth";
 
 const PageIcon = ({ children }) => (
@@ -127,6 +128,8 @@ export default function StudentProfile() {
               </div>
             )}
           </div>
+
+          <StudentWelcomeBack/>
         </div>
 
         <form onSubmit={handleSubmit} style={{ maxWidth:"680px" }}>

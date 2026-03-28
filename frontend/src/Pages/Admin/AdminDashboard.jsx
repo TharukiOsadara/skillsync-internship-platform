@@ -314,7 +314,7 @@ export default function AdminDashboard() {
                 <tr style={{background:"#0B1220"}}>
                   {(showStudentsTable
                     ? ["#","Full Name","Gmail","Age","Last Login","Status"]
-                    : ["#","Title","Company","Location","Deadline","Status"]).map(h=>(
+                    : ["#","Title","Company","Location","Mode","Time","Deadline","Status"]).map(h=>(
                     <th key={h} className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider px-5 py-3"
                       style={{borderBottom:"1px solid #1E293B",position:"sticky",top:0,background:"#0B1220",zIndex:2}}>{h}</th>
                   ))}
@@ -343,6 +343,16 @@ export default function AdminDashboard() {
                           <td className="px-5 py-3.5 text-slate-200 text-sm font-semibold">{item.title}</td>
                           <td className="px-5 py-3.5 text-slate-400 text-sm">{item.company}</td>
                           <td className="px-5 py-3.5 text-slate-400 text-sm">{item.location}</td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">
+                            <span style={{background:item.mode==="Online/Remote"?"rgba(34,211,238,0.1)":item.mode==="Physical/On-site"?"rgba(74,222,128,0.1)":"rgba(167,139,250,0.1)",color:item.mode==="Online/Remote"?"#22D3EE":item.mode==="Physical/On-site"?"#4ADE80":"#A78BFA",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
+                              {item.mode||"N/A"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-slate-400 text-sm">
+                            <span style={{background:item.timePreference==="Day"?"rgba(251,191,36,0.1)":"rgba(96,165,250,0.1)",color:item.timePreference==="Day"?"#FCD34D":"#93C5FD",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
+                              {item.timePreference||"N/A"}
+                            </span>
+                          </td>
                           <td className={`px-5 py-3.5 text-sm ${expired?"text-red-400":"text-slate-400"}`}>{new Date(item.deadline).toLocaleDateString()}</td>
                           <td className="px-5 py-3.5"><span className={expired?"badge-expired":"badge-active"}>{expired?"Expired":"Active"}</span></td>
                         </tr>
@@ -352,7 +362,7 @@ export default function AdminDashboard() {
                   <tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No students found</td></tr>
                 )}
                 {!showStudentsTable && tableInternships.length===0 && (
-                  <tr><td colSpan={6} className="text-center text-slate-400 text-sm py-10">No internships found for this filter</td></tr>
+                  <tr><td colSpan={8} className="text-center text-slate-400 text-sm py-10">No internships found for this filter</td></tr>
                 )}
               </tbody>
             </table>

@@ -45,7 +45,7 @@ export default function ManageInternships() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState(null);
   const [editItem, setEditItem] = useState(null);
-  const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
+  const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
   const [entered, setEntered] = useState(false);
@@ -84,15 +84,19 @@ export default function ManageInternships() {
   };
 
   const validateInternshipInput = (payload) => {
-    const { title, company, location, duration, skillsRequired, deadline } = payload;
+    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = payload;
     const startsWithDigit = (v) => /^\d/.test(String(v || "").trim());
     const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
-    if (!title || !company || !location || !duration || !skillsRequired || !deadline) return "All fields are mandatory.";
+    if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) return "All fields are mandatory.";
     if (startsWithDigit(title)) return "Title cannot start with a number.";
     if (startsWithDigit(company)) return "Company name cannot start with a number.";
     if (startsWithDigit(location)) return "Location cannot start with a number.";
     if (startsWithDigit(skillsRequired)) return "Skills cannot start with a number.";
     if (!hasLetter(title) || !hasLetter(company) || !hasLetter(location) || !hasLetter(skillsRequired)) return "Title, company, location and skills must include letters.";
+    if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
+    if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
+    if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
+    if (!hasLetter(description)) return "Description cannot be only numbers.";
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (new Date(deadline) <= today) return "Deadline must be a future date.";
     return null;
@@ -108,6 +112,9 @@ export default function ManageInternships() {
       duration: item.duration || "",
       skillsRequired: item.skillsRequired || "",
       deadline: item.deadline ? new Date(item.deadline).toISOString().split("T")[0] : "",
+      mode: item.mode || "",
+      timePreference: item.timePreference || "",
+      description: item.description || "",
     });
   };
 
@@ -251,7 +258,7 @@ export default function ManageInternships() {
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#0B1220" }}>
-                  {["#", "Title", "Company", "Location", "Skills", "Deadline", "Status", "Action"].map(h => (
+                  {["#", "Title", "Company", "Location", "Skills", "Mode", "Time", "Description", "Deadline", "Status", "Action"].map(h => (
                     <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3"
                       style={{ borderBottom: "1px solid #1E293B", position:"sticky", top:0, background:"#0B1220", zIndex:2 }}>
                       {h}
@@ -284,6 +291,21 @@ export default function ManageInternships() {
                               +{(item.skillsRequired||"").split(",").length-3}
                             </span>
                           )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 text-sm">
+                        <span style={{background:item.mode==="Online/Remote"?"rgba(34,211,238,0.1)":item.mode==="Physical/On-site"?"rgba(74,222,128,0.1)":"rgba(167,139,250,0.1)",color:item.mode==="Online/Remote"?"#22D3EE":item.mode==="Physical/On-site"?"#4ADE80":"#A78BFA",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
+                          {item.mode||"N/A"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 text-sm">
+                        <span style={{background:item.timePreference==="Day"?"rgba(251,191,36,0.1)":"rgba(96,165,250,0.1)",color:item.timePreference==="Day"?"#FCD34D":"#93C5FD",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
+                          {item.timePreference||"N/A"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-400 text-xs" title={item.description}>
+                        <div style={{maxWidth:"150px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                          {item.description||"N/A"}
                         </div>
                       </td>
                       <td className={`px-4 py-3 text-sm ${expired ? "text-red-400" : "text-slate-400"}`}>
@@ -374,6 +396,43 @@ export default function ManageInternships() {
                   className="input-field"
                 />
               </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-slate-400 text-xs font-semibold">Work Mode *</label>
+                <select
+                  value={editForm.mode}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, mode: e.target.value }))}
+                  className="input-field"
+                >
+                  <option value="">Select work mode</option>
+                  <option value="Online/Remote">Online/Remote</option>
+                  <option value="Physical/On-site">Physical/On-site</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-slate-400 text-xs font-semibold">Time Preference *</label>
+                <select
+                  value={editForm.timePreference}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, timePreference: e.target.value }))}
+                  className="input-field"
+                >
+                  <option value="">Select time preference</option>
+                  <option value="Day">Day</option>
+                  <option value="Night">Night</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5 mt-4">
+              <label className="text-slate-400 text-xs font-semibold">Description * (Min 10 characters)</label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
+                rows="3"
+                className="input-field resize-none"
+              />
+              {editForm.description && (
+                <span className="text-cyan-400 text-xs font-semibold">{editForm.description.length} characters</span>
+              )}
             </div>
             {actionError && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mt-4">{actionError}</div>}
             <div className="flex gap-3 mt-6">

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
+import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders, saveAuth, getToken, getLoggedInAt } from "../../Utils/auth";
 
 const Ico = ({ size = 14, stroke = "currentColor", children }) => (
@@ -213,8 +214,7 @@ export default function CVUpload() {
               <p style={{ color:"#94A3B8", fontSize:"11px", lineHeight:"1.6", margin:0 }}>
                 <span style={{ color:"#A78BFA", fontWeight:700 }}>CV Builder integration pending</span> — full skill extraction will be live once the CV Builder module (teammate's component) is connected. Currently using keyword detection as a placeholder.
               </p>
-            </div>
-          </div>
+            </div>            <StudentWelcomeBack/>          </div>
 
           {/* Extracted skills */}
           <div>
