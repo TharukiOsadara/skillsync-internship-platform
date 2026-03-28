@@ -104,21 +104,37 @@ export default function UsersDashboard() {
 
   useEffect(() => { fetchUsers(); }, []);
 
+  // Per-field validation for update user modal
+  const fieldValidators = {
+    fullName: v => !v ? "Full name is required." : /\d/.test(v) ? "Full name cannot contain numbers." : null,
+    gmail: v => !v ? "Gmail is required." : !/^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v) ? "Gmail must start with a letter and be valid." : null,
+    age: v => !v ? "Age is required." : isNaN(Number(v)) ? "Age must be a number." : Number(v) < 16 || Number(v) > 60 ? "Age must be between 16 and 60." : null,
+    address: v => !v ? "Address is required." : !/[A-Za-z]/.test(v) ? "Address cannot be only numbers." : null,
+    phoneNo: v => !v ? "Phone number is required." : String(v).replace(/\D/g, "").length !== 10 ? "Phone number must be exactly 10 digits." : null,
+    skills: v => v && !/[A-Za-z]/.test(v) ? "Skills cannot be only numbers." : null,
+    education: v => !v ? "Education is required." : !/[A-Za-z]/.test(v) ? "Education cannot be only numbers." : null,
+    experience: v => !v ? "Experience is required." : !/[A-Za-z]/.test(v) ? "Experience cannot be only numbers." : null,
+    role: v => !v ? "Role is required." : null,
+  };
+
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Validate all fields at once (for submit)
   const validateUser = (payload) => {
-    const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
-    const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    const phoneDigits = String(payload.phoneNo || "").replace(/\D/g, "");
-    if (!payload.fullName || !payload.gmail || !payload.age || !payload.address || !payload.phoneNo || !payload.education || !payload.experience)
-      return "All required fields must be filled.";
-    if (/\d/.test(payload.fullName)) return "Full name cannot contain numbers.";
-    if (!emailRx.test(payload.gmail)) return "Gmail must start with a letter and be valid.";
-    if (!hasLetter(payload.address)) return "Address cannot be only numbers.";
-    if (payload.skills && !hasLetter(payload.skills)) return "Skills cannot be only numbers.";
-    if (!hasLetter(payload.education)) return "Education cannot be only numbers.";
-    if (!hasLetter(payload.experience)) return "Experience cannot be only numbers.";
-    if (phoneDigits.length !== 10) return "Phone number must be exactly 10 digits.";
-    if (Number(payload.age) < 16 || Number(payload.age) > 60) return "Age must be between 16 and 60.";
-    return null;
+    const errors = {};
+    Object.keys(fieldValidators).forEach(key => {
+      const err = fieldValidators[key](payload[key]);
+      if (err) errors[key] = err;
+    });
+    setFieldErrors(errors);
+    return Object.keys(errors).length > 0 ? Object.values(errors)[0] : null;
+  };
+
+  // Validate a single field on change
+  const validateField = (key, value) => {
+    const err = fieldValidators[key](value);
+    setFieldErrors(prev => ({ ...prev, [key]: err }));
+    return err;
   };
 
   const openEditModal = (user) => {
@@ -366,15 +382,38 @@ export default function UsersDashboard() {
               {[ ["fullName", "Full Name"], ["gmail", "Gmail"], ["age", "Age"], ["address", "Address"], ["phoneNo", "Phone Number"], ["skills", "Skills"], ["education", "Education"], ["experience", "Experience"] ].map(([key, label]) => (
                 <div key={key} className="flex flex-col gap-1">
                   <label className="text-slate-400 text-xs">{label}</label>
-                  <input value={form[key]} onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))} className="input-field" />
+                  <input
+                    value={form[key]}
+                    onChange={e => {
+                      const v = e.target.value;
+                      setForm(prev => ({ ...prev, [key]: v }));
+                      validateField(key, v);
+                    }}
+                    className="input-field"
+                    style={fieldErrors[key] ? { borderColor: '#F87171', background: 'rgba(248,113,113,0.07)' } : {}}
+                  />
+                  {fieldErrors[key] && (
+                    <span style={{ color: '#F87171', fontSize: '11px', marginTop: '2px' }}>{fieldErrors[key]}</span>
+                  )}
                 </div>
               ))}
               <div className="flex flex-col gap-1">
                 <label className="text-slate-400 text-xs">Role</label>
-                <select value={form.role} onChange={e => setForm(prev => ({ ...prev, role: e.target.value }))} className="input-field">
+                <select
+                  value={form.role}
+                  onChange={e => {
+                    setForm(prev => ({ ...prev, role: e.target.value }));
+                    validateField('role', e.target.value);
+                  }}
+                  className="input-field"
+                  style={fieldErrors.role ? { borderColor: '#F87171', background: 'rgba(248,113,113,0.07)' } : {}}
+                >
                   <option value="Student">Student</option>
                   <option value="Admin">Admin</option>
                 </select>
+                {fieldErrors.role && (
+                  <span style={{ color: '#F87171', fontSize: '11px', marginTop: '2px' }}>{fieldErrors.role}</span>
+                )}
               </div>
             </div>
             {modalError && (
