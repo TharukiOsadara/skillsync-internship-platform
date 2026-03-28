@@ -4,6 +4,7 @@ const router = express.Router();
 const { protect, adminOnly } = require('../Middleware/authMiddleware');
 const UserControllers = require('../Controllers/UserControllers');
 
+
 // Public endpoint for login suggestions
 router.get("/emails", UserControllers.getUserEmails);
 

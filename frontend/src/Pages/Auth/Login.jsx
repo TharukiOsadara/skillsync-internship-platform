@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { saveAuth } from "../../Utils/auth";
@@ -17,19 +18,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Load saved credentials from localStorage on mount
-
-
+  // Restore input handlers inside component
   const handleGmailChange = (e) => {
-    const value = e.target.value;
-    setForm({ ...form, gmail: value });
+    setForm({ ...form, gmail: e.target.value });
     setError("");
   };
 
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
@@ -110,6 +106,7 @@ export default function Login() {
               <button type="submit" disabled={loading} className="btn-cyan w-full mt-1 text-sm">
                 {loading ? "Signing in..." : "Sign In \u2192"}
               </button>
+              {/* Forgot Password removed */}
             </form>
 
             {/* Role hints */}
