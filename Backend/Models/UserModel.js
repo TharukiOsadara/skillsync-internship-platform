@@ -51,6 +51,20 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    mode: {
+        type: String,
+        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid', ''],
+        default: ''
+    },
+    timePreference: {
+        type: String,
+        enum: ['Day', 'Night', ''],
+        default: ''
+    },
+    description: {
+        type: String,
+        default: ''
+    },
     photo: {
         type: String,
         default: ''

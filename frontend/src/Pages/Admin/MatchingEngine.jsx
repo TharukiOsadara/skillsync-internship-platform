@@ -144,7 +144,7 @@ export default function MatchingEngine() {
     return () => clearInterval(timer);
   }, [matches, matchLoading, selectedInternship]);
 
-  // Matching logic: find students whose skills overlap with internship skillsRequired
+  // Matching logic: find students whose skills overlap with internship skillsRequired AND mode/timePreference match
   const runMatching = (internship) => {
     setMatchLoading(true);
     setSelectedInternship(internship);
@@ -167,7 +167,18 @@ export default function MatchingEngine() {
 
         return { ...student, matchedSkills: overlap, matchScore: overlap.length };
       })
-      .filter((s) => s.matchScore > 0)
+      .filter((s) => {
+        // Filter by skill match (must have at least 1 matched skill)
+        if (s.matchScore === 0) return false;
+        
+        // Filter by mode preference match
+        if (internship.mode && s.mode && internship.mode !== s.mode) return false;
+        
+        // Filter by time preference match
+        if (internship.timePreference && s.timePreference && internship.timePreference !== s.timePreference) return false;
+        
+        return true;
+      })
       .sort((a, b) => b.matchScore - a.matchScore);
 
     setTimeout(() => {
@@ -272,6 +283,28 @@ export default function MatchingEngine() {
                         </span>
                       </div>
                       <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>{item.company} · {item.location}</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"8px"}}>
+                        {item.mode && (
+                          <span style={{
+                            background: item.mode === "Online/Remote" ? "rgba(34,211,238,0.15)" : item.mode === "Physical/On-site" ? "rgba(34,194,61,0.15)" : "rgba(168,85,247,0.15)",
+                            border: item.mode === "Online/Remote" ? "1px solid rgba(34,211,238,0.3)" : item.mode === "Physical/On-site" ? "1px solid rgba(34,194,61,0.3)" : "1px solid rgba(168,85,247,0.3)",
+                            color: item.mode === "Online/Remote" ? "#22D3EE" : item.mode === "Physical/On-site" ? "#22C25C" : "#A855F7",
+                            padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: "600"
+                          }}>
+                            {item.mode}
+                          </span>
+                        )}
+                        {item.timePreference && (
+                          <span style={{
+                            background: item.timePreference === "Day" ? "rgba(234,179,8,0.15)" : "rgba(59,130,246,0.15)",
+                            border: item.timePreference === "Day" ? "1px solid rgba(234,179,8,0.3)" : "1px solid rgba(59,130,246,0.3)",
+                            color: item.timePreference === "Day" ? "#EAB308" : "#3B82F6",
+                            padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: "600"
+                          }}>
+                            {item.timePreference}
+                          </span>
+                        )}
+                      </div>
                       <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
                         {(item.skillsRequired||"").split(",").slice(0,3).map((s,i)=>
                           s.trim()?<TechBadgeME key={i} skill={s}/>:null
@@ -386,6 +419,29 @@ export default function MatchingEngine() {
                               <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>
                                 {student.gmail} · {student.education}
                               </p>
+                              {/* Mode and Time Preference Badges */}
+                              <div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"8px"}}>
+                                {student.mode && (
+                                  <span style={{
+                                    background: student.mode === "Online/Remote" ? "rgba(34,211,238,0.15)" : student.mode === "Physical/On-site" ? "rgba(34,194,61,0.15)" : "rgba(168,85,247,0.15)",
+                                    border: student.mode === "Online/Remote" ? "1px solid rgba(34,211,238,0.3)" : student.mode === "Physical/On-site" ? "1px solid rgba(34,194,61,0.3)" : "1px solid rgba(168,85,247,0.3)",
+                                    color: student.mode === "Online/Remote" ? "#22D3EE" : student.mode === "Physical/On-site" ? "#22C25C" : "#A855F7",
+                                    padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: "600"
+                                  }}>
+                                    {student.mode}
+                                  </span>
+                                )}
+                                {student.timePreference && (
+                                  <span style={{
+                                    background: student.timePreference === "Day" ? "rgba(234,179,8,0.15)" : "rgba(59,130,246,0.15)",
+                                    border: student.timePreference === "Day" ? "1px solid rgba(234,179,8,0.3)" : "1px solid rgba(59,130,246,0.3)",
+                                    color: student.timePreference === "Day" ? "#EAB308" : "#3B82F6",
+                                    padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: "600"
+                                  }}>
+                                    {student.timePreference}
+                                  </span>
+                                )}
+                              </div>
                               <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                                 {student.matchedSkills.map((skill, i) => (
                                   <TechBadgeME key={i} skill={"✓ "+skill}/>
@@ -414,9 +470,10 @@ export default function MatchingEngine() {
         <div className="admin-hover-surface" style={{...styles.rulesBox, ...revealStyle(220)}}>
           <p style={styles.rulesTitle}>📌 Matching Engine Rules</p>
           <ul style={styles.rulesList}>
-            <li>Only students whose skill tags overlap with internship skill tags are shown</li>
-            <li>Students are ranked by match score (highest overlap first)</li>
-            <li>Matching triggers automatically when you click an internship</li>
+            <li>Student skills must overlap with internship required skills</li>
+            <li>Student work mode preference must match internship mode requirement</li>
+            <li>Student time preference must match internship time preference requirement</li>
+            <li>Students are ranked by skill match score (highest overlap first)</li>
             <li>Match percentage = matched skills ÷ total required skills × 100</li>
           </ul>
         </div>

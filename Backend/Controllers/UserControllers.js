@@ -28,9 +28,13 @@ const requireAdmin = async (req, res) => {
     return authUser;
 };
 
-const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience }) => {
+const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience, mode, timePreference, description, role }) => {
     if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
         return 'All required fields must be filled.';
+    }
+
+    if (role === 'Student' && (!mode || !timePreference || !description)) {
+        return 'For Student role, Work Mode, Time Preference, and Description are required.';
     }
 
     if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
@@ -44,6 +48,13 @@ const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo,
     if (skills && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (!hasLetter(education)) return 'Education cannot be only numbers.';
     if (!hasLetter(experience)) return 'Experience cannot be only numbers.';
+
+    if (role === 'Student') {
+        if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return 'Please select a valid work mode.';
+        if (!timePreference || !["Day", "Night"].includes(timePreference)) return 'Please select a valid time preference.';
+        if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
+        if (!hasLetter(description)) return 'Description cannot be only numbers.';
+    }
 
     const phoneDigits = digitsOnly(phoneNo);
     if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
@@ -83,9 +94,9 @@ const validateSelfUpdatePayload = ({ fullName, gmail, age, address, phoneNo, ski
 // @route   POST /api/users/register
 const registerUser = async (req, res) => {
     try {
-        const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+        const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, mode, timePreference, description } = req.body;
 
-        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience, mode, timePreference, description, role });
         if (validationError) {
             return res.status(400).json({ success: false, message: validationError });
         }
@@ -99,14 +110,15 @@ const registerUser = async (req, res) => {
         const user = await User.create({
             fullName,
             gmail,
-            password, // Note: In a real app, hash this with bcrypt first!
+            password,
             age,
             address,
             phoneNo: digitsOnly(phoneNo),
             role,
             skills,
             education,
-            experience
+            experience,
+            ...(role === 'Student' && { mode, timePreference, description })
         });
 
         const payload = { id: user._id, role: user.role, gmail: user.gmail };

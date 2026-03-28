@@ -372,7 +372,7 @@ export default function ManageInternships() {
       {/* Edit modal */}
       {editItem && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="card p-8 max-w-2xl w-full mx-4">
+          <div className="card w-full mx-4" style={{ maxWidth: "42rem", maxHeight: "90vh", overflowY: "auto", padding: "32px" }}>
             <h3 className="text-slate-200 font-extrabold text-lg mb-5">Update Internship</h3>
             <div className="grid grid-cols-2 gap-4">
               {["title", "company", "location", "duration", "skillsRequired"].map((field) => (

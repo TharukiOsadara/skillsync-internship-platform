@@ -5,8 +5,8 @@ const Application = require('../Models/ApplicationModel');
 const hasLetter = (value = '') => /[A-Za-z]/.test(String(value));
 const startsWithDigit = (value = '') => /^\d/.test(String(value).trim());
 
-const validateInternshipPayload = ({ title, company, location, duration, skillsRequired, deadline }) => {
-    if (!title || !company || !location || !duration || !skillsRequired || !deadline) {
+const validateInternshipPayload = ({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description }) => {
+    if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) {
         return 'All internship fields are required.';
     }
 
@@ -19,6 +19,10 @@ const validateInternshipPayload = ({ title, company, location, duration, skillsR
     if (!hasLetter(company)) return 'Company name must include letters.';
     if (!hasLetter(location)) return 'Location must include letters.';
     if (!hasLetter(skillsRequired)) return 'Skills required must include letters.';
+    if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) return 'Please select a valid work mode.';
+    if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
+    if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
+    if (!hasLetter(description)) return 'Description cannot be only numbers.';
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -40,16 +44,16 @@ const getInternships = async (req, res) => {
 
 // @desc    Add new Internship (Admin Input)
 const addInternship = async (req, res) => {
-    const { title, company, location, duration, skillsRequired, deadline } = req.body;
+    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = req.body;
     let internship;
 
-    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
+    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
     if (validationError) {
         return res.status(400).json({ message: validationError });
     }
 
     try {
-        internship = new Internship({ title, company, location, duration, skillsRequired, deadline });
+        internship = new Internship({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
         await internship.save();
     } catch (err) {
         return res.status(400).json({ message: 'Unable to add Internship', error: err.message });
@@ -59,9 +63,9 @@ const addInternship = async (req, res) => {
 
 // @desc    Update Internship
 const updateInternship = async (req, res) => {
-    const { title, company, location, duration, skillsRequired, deadline } = req.body;
+    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = req.body;
 
-    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
+    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
     if (validationError) {
         return res.status(400).json({ message: validationError });
     }
@@ -69,7 +73,7 @@ const updateInternship = async (req, res) => {
     try {
         const internship = await Internship.findByIdAndUpdate(
             req.params.id,
-            { title, company, location, duration, skillsRequired, deadline },
+            { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description },
             { new: true, runValidators: true }
         );
 
