@@ -114,11 +114,6 @@ export default function StudentDashboard() {
             </div>
           </div>
           <StudentWelcomeBack/>
-          {!loading && (
-            <span style={{ background:"rgba(34,211,238,0.1)", border:"1px solid rgba(34,211,238,0.2)", color:"#22D3EE", fontSize:"11px", fontWeight:700, padding:"5px 16px", borderRadius:"99px" }}>
-              {animatedMatchCount} match{animatedMatchCount !== 1 ? "es" : ""} found
-            </span>
-          )}
         </div>
 
         {/* Info banner */}
@@ -132,14 +127,21 @@ export default function StudentDashboard() {
           </p>
         </div>
 
-        {/* Sort */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-end", marginBottom:"18px" }}>
-          <select value={sort} onChange={e => setSort(e.target.value)}
-            style={{ background:"#1E293B", border:"1px solid #334155", color:"#94A3B8", fontSize:"12px", fontWeight:600, padding:"7px 12px", borderRadius:"8px", cursor:"pointer", outline:"none" }}>
-            <option value="hl">Sort: High → Low match</option>
-            <option value="lh">Sort: Low → High match</option>
-            <option value="dl">Sort: Deadline soonest</option>
-          </select>
+        {/* Sort and Matches Count */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"18px", gap:"12px" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
+            <select value={sort} onChange={e => setSort(e.target.value)}
+              style={{ background:"#1E293B", border:"1px solid #334155", color:"#94A3B8", fontSize:"12px", fontWeight:600, padding:"7px 12px", borderRadius:"8px", cursor:"pointer", outline:"none" }}>
+              <option value="hl">Sort: High → Low match</option>
+              <option value="lh">Sort: Low → High match</option>
+              <option value="dl">Sort: Deadline soonest</option>
+            </select>
+            {!loading && (
+              <span style={{ background:"rgba(34,211,238,0.1)", border:"1px solid rgba(34,211,238,0.2)", color:"#22D3EE", fontSize:"11px", fontWeight:700, padding:"5px 16px", borderRadius:"99px" }}>
+                {animatedMatchCount} match{animatedMatchCount !== 1 ? "es" : ""} found
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Cards */}
