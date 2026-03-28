@@ -13,7 +13,7 @@ const Ico = ({ size = 14, stroke = "currentColor", children }) => (
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "" });
+  const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "", mode: "", timePreference: "", description: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,11 +32,12 @@ export default function Register() {
   };
 
   const validate = () => {
-    const { fullName, gmail, password, confirmPassword, age, address, phoneNo, skills, education, experience } = form;
+    const { fullName, gmail, password, confirmPassword, age, address, phoneNo, skills, education, experience, mode, timePreference, description } = form;
     const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const hasLetter = (v) => /[A-Za-z]/.test(String(v));
     const phoneDigits = String(phoneNo).replace(/\D/g, "");
-    if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) return "All fields are required.";
+    if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) return "All basic fields are required.";
+    if (form.role === "Student" && (!mode || !timePreference || !description)) return "For Student role, Work Mode, Time Preference, and Description are required.";
     if (/\d/.test(fullName)) return "Full name cannot contain numbers.";
     if (!emailRx.test(gmail)) return "Email must start with a letter and be valid.";
     if (password.length < 6) return "Password must be at least 6 characters.";
@@ -47,6 +48,12 @@ export default function Register() {
     if (skills && !hasLetter(skills)) return "Skills cannot be only numbers.";
     if (!hasLetter(education)) return "Education cannot be only numbers.";
     if (!hasLetter(experience)) return "Experience cannot be only numbers.";
+    if (form.role === "Student") {
+      if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
+      if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
+      if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
+      if (!hasLetter(description)) return "Description cannot be only numbers.";
+    }
     return null;
   };
 
@@ -174,6 +181,50 @@ export default function Register() {
                 <div className="flex flex-wrap gap-2">
                   {form.skills.split(",").map((s, i) => s.trim() ? <span key={i} className="skill-tag">{s.trim()}</span> : null)}
                 </div>
+              )}
+
+              {/* Conditionally show mode, timePreference, description for Student role */}
+              {form.role === "Student" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-slate-400 text-xs font-semibold">Preferred Work Mode *</label>
+                      <select
+                        name="mode" value={form.mode} onChange={handleChange}
+                        className="input-field"
+                      >
+                        <option value="">Select work mode</option>
+                        <option value="Online/Remote">Online/Remote</option>
+                        <option value="Physical/On-site">Physical/On-site</option>
+                        <option value="Hybrid">Hybrid</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-slate-400 text-xs font-semibold">Time Preference *</label>
+                      <select
+                        name="timePreference" value={form.timePreference} onChange={handleChange}
+                        className="input-field"
+                      >
+                        <option value="">Select time preference</option>
+                        <option value="Day">Day</option>
+                        <option value="Night">Night</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-slate-400 text-xs font-semibold">About You * (Min 10 characters)</label>
+                    <textarea
+                      name="description" placeholder="Tell us about your career goals and what you're looking for in an internship..."
+                      value={form.description} onChange={handleChange}
+                      rows="3"
+                      className="input-field resize-none"
+                    />
+                    {form.description && (
+                      <span className="text-cyan-400 text-xs font-semibold">{form.description.length} characters</span>
+                    )}
+                  </div>
+                </>
               )}
 
               <button type="submit" disabled={loading} className="btn-cyan w-full text-sm mt-1">

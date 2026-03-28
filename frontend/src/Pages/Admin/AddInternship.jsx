@@ -5,7 +5,7 @@ import { getUser, authHeaders } from "../../Utils/auth";
 
 export default function AddInternship() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
+  const [form, setForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,15 +21,19 @@ export default function AddInternship() {
   const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setError(""); };
 
   const validate = () => {
-    const { title, company, location, duration, skillsRequired, deadline } = form;
+    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = form;
     const startsWithDigit = (v) => /^\d/.test(String(v).trim());
     const hasLetter = (v) => /[A-Za-z]/.test(String(v));
-    if (!title || !company || !location || !duration || !skillsRequired || !deadline) return "All fields are mandatory.";
+    if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) return "All fields are mandatory.";
     if (startsWithDigit(title)) return "Title cannot start with a number.";
     if (startsWithDigit(company)) return "Company name cannot start with a number.";
     if (startsWithDigit(location)) return "Location cannot start with a number.";
     if (startsWithDigit(skillsRequired)) return "Skills cannot start with a number.";
     if (!hasLetter(title) || !hasLetter(company) || !hasLetter(location) || !hasLetter(skillsRequired)) return "Title, company, location and skills must include letters.";
+    if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
+    if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
+    if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
+    if (!hasLetter(description)) return "Description cannot be only numbers.";
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (new Date(deadline) <= today) return "Deadline must be a future date.";
     return null;
@@ -57,7 +61,7 @@ export default function AddInternship() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Failed to add internship.");
       setSuccess("Internship published successfully!");
-      setForm({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
+      setForm({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
       setTimeout(() => navigate("/admin/manage-internships"), 1500);
     } catch { setError("Server error. Please try again."); }
     finally { setLoading(false); }
@@ -153,6 +157,45 @@ export default function AddInternship() {
                 </div>
               )}
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-slate-400 text-xs font-semibold">Work Mode *</label>
+                  <select
+                    name="mode" value={form.mode} onChange={handleChange}
+                    className="input-field"
+                  >
+                    <option value="">Select work mode</option>
+                    <option value="Online/Remote">Online/Remote</option>
+                    <option value="Physical/On-site">Physical/On-site</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-slate-400 text-xs font-semibold">Time Preference *</label>
+                  <select
+                    name="timePreference" value={form.timePreference} onChange={handleChange}
+                    className="input-field"
+                  >
+                    <option value="">Select time preference</option>
+                    <option value="Day">Day</option>
+                    <option value="Night">Night</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-slate-400 text-xs font-semibold">Description * (Min 10 characters)</label>
+                <textarea
+                  name="description" placeholder="Describe the internship role, responsibilities, and expectations..."
+                  value={form.description} onChange={handleChange}
+                  rows="4"
+                  className="input-field resize-none"
+                />
+                {form.description && (
+                  <span className="text-cyan-400 text-xs font-semibold">{form.description.length} characters</span>
+                )}
+              </div>
+
               <div className="flex gap-3 mt-2">
                 <button
                   type="button" onClick={() => navigate("/admin/manage-internships")}
@@ -172,7 +215,9 @@ export default function AddInternship() {
           <div className="admin-hover-surface mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)", ...revealStyle(170) }}>
             <p className="text-cyan-400 font-bold text-sm mb-2">📌 Business Rules Applied</p>
             <ul className="text-slate-400 text-xs leading-7 pl-4 m-0">
-              <li>All fields (Title, Company, Skills, Location, Duration, Deadline) are mandatory</li>
+              <li>All fields are mandatory including Work Mode, Time Preference, and Description</li>
+              <li>Description must be at least 10 characters and contain letters</li>
+              <li>Work Mode options: Online/Remote, Physical/On-site, or Hybrid</li>
               <li>Deadline must be set to a future date</li>
               <li>Duplicate internship title + same company is prevented</li>
               <li>Skills feed into the matching engine automatically when posted</li>
