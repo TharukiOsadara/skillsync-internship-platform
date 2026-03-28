@@ -272,6 +272,30 @@ export default function StudentMatchers() {
                       </p>
                     </div>
 
+                    {/* Mode + Time Preference badges */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                      {item.mode && (
+                        <span style={{
+                          background: item.mode === "Online/Remote" ? "rgba(34,211,238,0.12)" : item.mode === "Physical/On-site" ? "rgba(34,194,61,0.12)" : "rgba(168,85,247,0.12)",
+                          border: item.mode === "Online/Remote" ? "1px solid rgba(34,211,238,0.28)" : item.mode === "Physical/On-site" ? "1px solid rgba(34,194,61,0.28)" : "1px solid rgba(168,85,247,0.28)",
+                          color: item.mode === "Online/Remote" ? "#22D3EE" : item.mode === "Physical/On-site" ? "#22C25C" : "#A855F7",
+                          padding: "2px 8px", borderRadius: "20px", fontSize: "9px", fontWeight: 700,
+                        }}>
+                          {item.mode}
+                        </span>
+                      )}
+                      {item.timePreference && (
+                        <span style={{
+                          background: item.timePreference === "Day" ? "rgba(234,179,8,0.12)" : "rgba(59,130,246,0.12)",
+                          border: item.timePreference === "Day" ? "1px solid rgba(234,179,8,0.28)" : "1px solid rgba(59,130,246,0.28)",
+                          color: item.timePreference === "Day" ? "#EAB308" : "#60A5FA",
+                          padding: "2px 8px", borderRadius: "20px", fontSize: "9px", fontWeight: 700,
+                        }}>
+                          {item.timePreference === "Day" ? "☀ Day" : "🌙 Night"}
+                        </span>
+                      )}
+                    </div>
+
                     {/* Match progress bar */}
                     <div style={{ height: "4px", background: "#1E293B", borderRadius: "99px", overflow: "hidden" }}>
                       <div style={{
