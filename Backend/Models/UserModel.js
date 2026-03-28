@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6,
-        select: false // This hides the password by default when fetching user data
+        select: false,
     },
     age: {
         type: Number,
@@ -35,12 +35,11 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['Student', 'Admin'], // Only these two roles allowed
+        enum: ['Student', 'Admin'],
         default: 'Student'
     },
-    // For your matching engine, we store skills here
     skills: {
-        type: String, 
+        type: String,
         default: ''
     },
     education: {
@@ -82,5 +81,6 @@ const UserSchema = new mongoose.Schema({
         default: null
     }
 });
+
 
 module.exports = mongoose.model('User', UserSchema);

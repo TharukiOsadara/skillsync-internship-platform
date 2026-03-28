@@ -50,6 +50,7 @@ export default function Login() {
 
   const handleSuggestionClick = (credential) => {
     setForm({ gmail: credential.gmail, password: credential.password });
+    setSuggestions([]);
     setShowSuggestions(false);
   };
 
@@ -117,7 +118,7 @@ export default function Login() {
             )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5 relative">
+              <div className="flex flex-col gap-1.5 relative" style={{ zIndex: showSuggestions && suggestions.length > 0 ? 50 : 1 }}>
                 <label className="text-slate-400 text-xs font-semibold">Email Address</label>
                 <input 
                   name="gmail" 
@@ -128,15 +129,16 @@ export default function Login() {
                   className="input-field" 
                 />
                 {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg z-20 shadow-lg">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-lg" style={{ top: "100%", zIndex: 100 }}>
                     {suggestions.map((cred, idx) => (
                       <div
                         key={idx}
                         onClick={() => handleSuggestionClick(cred)}
-                        className="px-4 py-2 hover:bg-slate-800 cursor-pointer border-b border-slate-700 last:border-b-0 text-slate-300 text-sm"
+                        className="px-4 py-3 hover:bg-slate-800 cursor-pointer border-b border-slate-700 last:border-b-0 text-slate-300 text-sm transition-colors"
+                        style={{ backgroundColor: "rgb(15, 23, 42)" }}
                       >
-                        <p className="font-semibold text-slate-200">{cred.gmail}</p>
-                        <p className="text-xs text-slate-500">●●●●●●●●</p>
+                        <p className="font-semibold text-slate-200 mb-1">{cred.gmail}</p>
+                        <p className="text-xs text-slate-500">.........</p>
                       </div>
                     ))}
                   </div>
@@ -144,10 +146,10 @@ export default function Login() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-slate-400 text-xs font-semibold">Password</label>
-                <input type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} className="input-field" />
+                <input type="password" name="password" placeholder="........." value={form.password} onChange={handleChange} className="input-field" />
               </div>
               <button type="submit" disabled={loading} className="btn-cyan w-full mt-1 text-sm">
-                {loading ? "Signing in..." : "Sign In →"}
+                {loading ? "Signing in..." : "Sign In \u2192"}
               </button>
             </form>
 

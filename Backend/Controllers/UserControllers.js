@@ -144,8 +144,8 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
-        // Passwords are currently stored in plain text in this project.
-        if (user.password !== password) {
+        // Compare plain text passwords
+        if (password !== user.password) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
@@ -171,7 +171,7 @@ const getUsers = async (req, res) => {
     if (!adminUser) return;
 
     try {
-        const users = await User.find().select('+password').sort({ createdAt: -1 });
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
         return res.status(200).json({ users });
     } catch (err) {
         console.log(err);
@@ -239,7 +239,7 @@ const updateUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
         }
 
-        if (authUser.password !== adminPassword) {
+        if (adminPassword !== authUser.password) {
             return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
         }
 
@@ -249,15 +249,26 @@ const updateUser = async (req, res) => {
         }
 
         try {
-            const user = await User.findByIdAndUpdate(
-                id,
-                { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() },
-                { new: true, runValidators: true }
-            );
+            const user = await User.findById(id);
             if (!user) {
-                return res.status(404).json({ message: 'User cannot Update' });
+                return res.status(404).json({ message: 'User not found' });
             }
-            return res.status(200).json({ success: true, data: user });
+            user.fullName = fullName;
+            user.gmail = gmail;
+            user.password = password;
+            user.age = age;
+            user.address = address;
+            user.phoneNo = digitsOnly(phoneNo);
+            user.role = role;
+            user.skills = skills;
+            user.education = education;
+            user.experience = experience;
+            user.photo = photo;
+            user.updatedAt = new Date();
+            await user.save();
+            const userObj = user.toObject();
+            delete userObj.password;
+            return res.status(200).json({ success: true, data: userObj });
         } catch (err) {
             return res.status(400).json({ success: false, message: err.message });
         }
@@ -301,8 +312,12 @@ const deleteUser = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
     }
 
-    if (adminUser.password !== adminPassword) {
-        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    try {
+        if (adminPassword !== adminUser.password) {
+            return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+        }
+    } catch (err) {
+        return res.status(401).json({ success: false, message: 'Error verifying admin password.' });
     }
 
     const id = req.params.id;
