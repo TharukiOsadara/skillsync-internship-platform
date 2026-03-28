@@ -52,9 +52,6 @@ export default function UsersDashboard() {
   const [deleteUserId,setDeleteUserId]             = useState(null);
   const [adminPassword,setAdminPassword]           = useState("");
   const [updateAdminPassword,setUpdateAdminPassword] = useState("");
-  const [passwordUserId,setPasswordUserId]         = useState(null);
-  const [passwordAdminInput,setPasswordAdminInput] = useState("");
-  const [revealedPasswords,setRevealedPasswords]   = useState({});
   const [entered,setEntered]                       = useState(false);
   const [animatedStats,setAnimatedStats]           = useState({ total:0, admins:0, students:0 });
   const [liveTime,setLiveTime]                     = useState(new Date());
@@ -163,22 +160,6 @@ export default function UsersDashboard() {
       setDeleteUserId(null); setAdminPassword("");
       setSuccess("User deleted successfully.");
     } catch { setError("Server error while deleting."); }
-  };
-
-  const handleRevealPassword = async () => {
-    setError(""); setSuccess("");
-    if(!passwordAdminInput) return setError("Admin password is required.");
-    try {
-      const res=await fetch(`http://localhost:5000/users/${passwordUserId}`,{
-        headers:authHeaders(),
-      });
-      const data=await res.json();
-      if(!res.ok) return setError(data.message||"Failed.");
-      const u=data.user||data;
-      setRevealedPasswords(prev=>({...prev,[passwordUserId]:u.password}));
-      setPasswordUserId(null); setPasswordAdminInput("");
-      setSuccess("Password revealed successfully.");
-    } catch { setError("Server error while revealing password."); }
   };
 
   // ── Filtered users ─────────────────────────────────────────────────────────
@@ -341,7 +322,7 @@ export default function UsersDashboard() {
               <table className="w-full min-w-[1700px] border-collapse text-xs">
                 <thead>
                   <tr style={{background:"#0B1220"}}>
-                    {["#","Full Name","Status","Gmail","Role","Password","Age","Address","Phone","Skills","Education","Experience","Created At","Updated At","Last Login","Actions"].map(h=>(
+                    {["#","Full Name","Status","Gmail","Role","Age","Address","Phone","Skills","Education","Experience","Created At","Updated At","Last Login","Actions"].map(h=>(
                       <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 py-3 border-b border-navy-800" style={{position:"sticky",top:0,background:"#0B1220",zIndex:2}}>{h}</th>
                     ))}
                   </tr>
@@ -369,18 +350,6 @@ export default function UsersDashboard() {
                             :"inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-400/10 text-green-400 border border-green-400/20"}>
                             {user.role||"Student"}
                           </span>
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="text-slate-400">{revealedPasswords[user._id]?revealedPasswords[user._id]:"••••••••"}</span>
-                            {revealedPasswords[user._id]?(
-                              <button onClick={()=>setRevealedPasswords(prev=>({...prev,[user._id]:undefined}))}
-                                className="text-slate-400 text-[10px] font-bold bg-navy-800 border border-navy-700 px-2 py-1 rounded-lg hover:border-slate-500 transition-all cursor-pointer">Hide</button>
-                            ):(
-                              <button onClick={()=>{setPasswordUserId(user._id);setPasswordAdminInput("");setError("");setSuccess("");}}
-                                className="text-cyan-400 text-[10px] font-bold bg-cyan-400/8 border border-cyan-400/15 px-2 py-1 rounded-lg hover:bg-cyan-400/15 transition-all cursor-pointer">View</button>
-                            )}
-                          </div>
                         </td>
                         <td className="px-3 py-3 text-slate-400 whitespace-nowrap">{user.age}</td>
                         <td className="px-3 py-3 text-slate-400">{user.address}</td>
@@ -456,21 +425,6 @@ export default function UsersDashboard() {
             <div className="flex gap-3 mt-5">
               <button onClick={()=>{setDeleteUserId(null);setAdminPassword("");}} className="flex-1 py-3 bg-navy-800 border border-navy-700 text-slate-400 font-bold text-sm rounded-xl hover:border-slate-500 cursor-pointer transition-all">Cancel</button>
               <button onClick={handleDeleteUser} className="flex-1 py-3 bg-red-400/10 border border-red-400/30 text-red-400 font-bold text-sm rounded-xl hover:bg-red-400/20 cursor-pointer transition-all">Delete User</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* View password modal */}
-      {passwordUserId&&(
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="card p-6 max-w-md w-full mx-4">
-            <h3 className="text-slate-200 font-extrabold text-lg mb-2">View User Password</h3>
-            <p className="text-slate-400 text-sm mb-4">Enter admin password to reveal the selected user's password.</p>
-            <input type="password" value={passwordAdminInput} onChange={e=>setPasswordAdminInput(e.target.value)} placeholder="Admin password" className="input-field"/>
-            <div className="flex gap-3 mt-5">
-              <button onClick={()=>{setPasswordUserId(null);setPasswordAdminInput("");}} className="flex-1 py-3 bg-navy-800 border border-navy-700 text-slate-400 font-bold text-sm rounded-xl hover:border-slate-500 cursor-pointer transition-all">Cancel</button>
-              <button onClick={handleRevealPassword} className="flex-1 py-3 bg-cyan-400/10 border border-cyan-400/30 text-cyan-400 font-bold text-sm rounded-xl hover:bg-cyan-400/20 cursor-pointer transition-all">Reveal</button>
             </div>
           </div>
         </div>
