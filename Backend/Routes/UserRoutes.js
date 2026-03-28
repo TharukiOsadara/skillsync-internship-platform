@@ -1,7 +1,11 @@
+
 const express = require('express');
 const router = express.Router();
 const { protect, adminOnly } = require('../Middleware/authMiddleware');
 const UserControllers = require('../Controllers/UserControllers');
+
+// Public endpoint for login suggestions
+router.get("/emails", UserControllers.getUserEmails);
 
 router.get("/",     protect, adminOnly, UserControllers.getUsers);    // Admin only
 router.post("/:id/view-password", protect, adminOnly, UserControllers.viewUserPassword); // Admin only

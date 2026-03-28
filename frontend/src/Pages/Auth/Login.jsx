@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { saveAuth } from "../../Utils/auth";
 import Header from "../../Components/Header";
@@ -16,7 +16,6 @@ export default function Login() {
   const [form, setForm] = useState({ gmail: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // Remove custom suggestions, use browser autofill
 
   // Load saved credentials from localStorage on mount
 

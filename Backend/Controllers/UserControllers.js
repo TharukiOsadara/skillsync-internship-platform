@@ -363,6 +363,16 @@ const viewUserPassword = async (req, res) => {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
+// @desc    Get all user emails (for login suggestions)
+// @route   GET /users/emails
+const getUserEmails = async (req, res) => {
+    try {
+        const users = await User.find({}, { gmail: 1, role: 1, _id: 0 });
+        return res.status(200).json({ emails: users });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
 
 exports.registerUser = registerUser;
 exports.loginUser = loginUser;
@@ -372,5 +382,6 @@ exports.addUsers = addUsers;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.viewUserPassword = viewUserPassword;
+exports.getUserEmails = getUserEmails;
 
 
