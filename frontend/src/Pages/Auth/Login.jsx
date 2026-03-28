@@ -16,43 +16,17 @@ export default function Login() {
   const [form, setForm] = useState({ gmail: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [savedCredentials, setSavedCredentials] = useState([]);
+  // Remove custom suggestions, use browser autofill
 
   // Load saved credentials from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("savedCredentials");
-    if (saved) {
-      try {
-        setSavedCredentials(JSON.parse(saved));
-      } catch (e) {
-        console.error("Error parsing saved credentials", e);
-      }
-    }
-  }, []);
+
 
   const handleGmailChange = (e) => {
     const value = e.target.value;
     setForm({ ...form, gmail: value });
     setError("");
-    
-    if (value.trim().length > 0) {
-      const filtered = savedCredentials.filter((cred) =>
-        cred.gmail.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
   };
 
-  const handleSuggestionClick = (credential) => {
-    setForm({ gmail: credential.gmail, password: credential.password });
-    setSuggestions([]);
-    setShowSuggestions(false);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,8 +37,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.gmail || !form.password) return setError("All fields are required.");
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(form.gmail)) return setError("Please enter a valid email.");
+    const gmailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!gmailRegex.test(form.gmail)) return setError("Please enter a valid gmail.");
 
     setLoading(true);
     try {
@@ -76,15 +50,7 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Invalid credentials.");
       
-      // Save credentials to localStorage
-      const existing = savedCredentials.findIndex((c) => c.gmail === form.gmail);
-      let updated = [...savedCredentials];
-      if (existing >= 0) {
-        updated[existing] = form;
-      } else {
-        updated.push(form);
-      }
-      localStorage.setItem("savedCredentials", JSON.stringify(updated));
+      // No longer saving credentials to localStorage; browser autofill will handle suggestions
       
       saveAuth(data.token, data.user);
       navigate(data.user.role === "Admin" ? "/admin/dashboard" : "/student/cv-upload");
@@ -108,7 +74,7 @@ export default function Login() {
             </div>
 
             <h2 className="text-2xl font-extrabold text-slate-200 mb-1">Welcome Back!!</h2>
-            <p className="text-slate-400 text-sm mb-7">Sign in with your email and password</p>
+            <p className="text-slate-400 text-sm mb-7">Sign in with your gmail and password</p>
 
             {error && (
               <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-5 flex items-center gap-2">
@@ -118,35 +84,29 @@ export default function Login() {
             )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5 relative" style={{ zIndex: showSuggestions && suggestions.length > 0 ? 50 : 1 }}>
+              <div className="flex flex-col gap-1.5">
                 <label className="text-slate-400 text-xs font-semibold">Email Address</label>
-                <input 
-                  name="gmail" 
-                  placeholder="you@example.com" 
-                  value={form.gmail} 
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  value={form.gmail}
                   onChange={handleGmailChange}
-                  onFocus={() => form.gmail.trim().length > 0 && setShowSuggestions(true)}
-                  className="input-field" 
+                  className="input-field"
+                  autoComplete="username"
                 />
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-lg" style={{ top: "100%", zIndex: 100 }}>
-                    {suggestions.map((cred, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => handleSuggestionClick(cred)}
-                        className="px-4 py-3 hover:bg-slate-800 cursor-pointer border-b border-slate-700 last:border-b-0 text-slate-300 text-sm transition-colors"
-                        style={{ backgroundColor: "rgb(15, 23, 42)" }}
-                      >
-                        <p className="font-semibold text-slate-200 mb-1">{cred.gmail}</p>
-                        <p className="text-xs text-slate-500">.........</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-slate-400 text-xs font-semibold">Password</label>
-                <input type="password" name="password" placeholder="........." value={form.password} onChange={handleChange} className="input-field" />
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="input-field"
+                  autoComplete="new-password"
+                />
               </div>
               <button type="submit" disabled={loading} className="btn-cyan w-full mt-1 text-sm">
                 {loading ? "Signing in..." : "Sign In \u2192"}
