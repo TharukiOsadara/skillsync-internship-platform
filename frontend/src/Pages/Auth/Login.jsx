@@ -92,7 +92,7 @@ export default function Login() {
                   value={form.gmail}
                   onChange={handleGmailChange}
                   className="input-field"
-                  autoComplete="username"
+                  autoComplete="email"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
