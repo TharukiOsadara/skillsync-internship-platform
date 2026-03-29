@@ -1,8 +1,12 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
+<<<<<<< HEAD
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders, saveAuth, getToken, getLoggedInAt } from "../../Utils/auth";
+=======
+import { getUser, authHeaders, saveAuth, getToken } from "../../Utils/auth";
+>>>>>>> origin/CV-Builder
 
 const Ico = ({ size = 14, stroke = "currentColor", children }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -34,7 +38,10 @@ function extractSkillsFromText(text) {
 export default function CVUpload() {
   const navigate   = useNavigate();
   const user       = getUser();
+<<<<<<< HEAD
   const loggedInAt = getLoggedInAt();
+=======
+>>>>>>> origin/CV-Builder
   const fileRef    = useRef(null);
 
   const [file, setFile]               = useState(null);
@@ -98,6 +105,7 @@ export default function CVUpload() {
       <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
 
         {/* Header */}
+<<<<<<< HEAD
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"16px", marginBottom:"28px" }}>
           <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
             <PageIcon>
@@ -113,6 +121,18 @@ export default function CVUpload() {
 
           {/* Welcome Back message for student */}
           <StudentWelcomeBack />
+=======
+        <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"28px" }}>
+          <PageIcon>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </PageIcon>
+          <div>
+            <h1 style={{ fontSize:"26px", fontWeight:800, color:"#F1F5F9", margin:0 }}>CV Upload</h1>
+            <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Upload your CV to extract skills and find matching internships</p>
+          </div>
+>>>>>>> origin/CV-Builder
         </div>
 
         {/* How it works */}

@@ -8,6 +8,10 @@ const digitsOnly = (value = '') => String(value).replace(/\D/g, '');
 const getAuthUser = async (req) => {
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ')) return null;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/CV-Builder
     const token = authHeader.split(' ')[1];
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET || 'skillsync_dev_secret');
@@ -27,6 +31,7 @@ const requireAdmin = async (req, res) => {
     return authUser;
 };
 
+<<<<<<< HEAD
 const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience, mode, timePreference, description, role }) => {
     if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
         return 'All required fields must be filled.';
@@ -37,10 +42,25 @@ const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo,
     if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
     const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
+=======
+const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience }) => {
+    if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
+        return 'All required fields must be filled.';
+    }
+
+    if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
+
+    const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRx.test(String(gmail))) {
+        return 'Gmail must start with a letter and be a valid email.';
+    }
+
+>>>>>>> origin/CV-Builder
     if (!hasLetter(address)) return 'Address cannot be only numbers.';
     if (skills && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (!hasLetter(education)) return 'Education cannot be only numbers.';
     if (!hasLetter(experience)) return 'Experience cannot be only numbers.';
+<<<<<<< HEAD
     if (role === 'Student') {
         if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) return 'Please select a valid work mode.';
         if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
@@ -51,6 +71,15 @@ const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo,
     if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
     if (Number(age) < 16 || Number(age) > 60) return 'Age must be between 16 and 60.';
     if (password.length < 6) return 'Password must be at least 6 characters.';
+=======
+
+    const phoneDigits = digitsOnly(phoneNo);
+    if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
+
+    if (Number(age) < 16 || Number(age) > 60) return 'Age must be between 16 and 60.';
+    if (password.length < 6) return 'Password must be at least 6 characters.';
+
+>>>>>>> origin/CV-Builder
     return null;
 };
 
@@ -59,19 +88,32 @@ const validateSelfUpdatePayload = ({ fullName, gmail, age, address, phoneNo, ski
         if (!String(fullName).trim()) return 'Full name is required.';
         if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/CV-Builder
     if (gmail !== undefined) {
         const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
         if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/CV-Builder
     if (age !== undefined && (Number(age) < 16 || Number(age) > 60)) return 'Age must be between 16 and 60.';
     if (address !== undefined && !hasLetter(address)) return 'Address cannot be only numbers.';
     if (skills !== undefined && String(skills).trim() && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (education !== undefined && !hasLetter(education)) return 'Education cannot be only numbers.';
     if (experience !== undefined && !hasLetter(experience)) return 'Experience cannot be only numbers.';
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/CV-Builder
     if (phoneNo !== undefined) {
         const phoneDigits = digitsOnly(phoneNo);
         if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
     }
+<<<<<<< HEAD
     return null;
 };
 
@@ -90,6 +132,45 @@ const registerUser = async (req, res) => {
         });
         const payload = { id: user._id, role: user.role, gmail: user.gmail };
         const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+=======
+
+    return null;
+};
+
+// @desc    Register a new user (Student or Admin)
+// @route   POST /api/users/register
+const registerUser = async (req, res) => {
+    try {
+        const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+
+        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        if (validationError) {
+            return res.status(400).json({ success: false, message: validationError });
+        }
+
+        // Check if user already exists
+        const userExists = await User.findOne({ gmail });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists with this gmail' });
+        }
+
+        const user = await User.create({
+            fullName,
+            gmail,
+            password, // Note: In a real app, hash this with bcrypt first!
+            age,
+            address,
+            phoneNo: digitsOnly(phoneNo),
+            role,
+            skills,
+            education,
+            experience
+        });
+
+        const payload = { id: user._id, role: user.role, gmail: user.gmail };
+        const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+
+>>>>>>> origin/CV-Builder
         return res.status(201).json({ success: true, user, token });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
@@ -97,6 +178,7 @@ const registerUser = async (req, res) => {
 };
 
 // @desc    Login user
+<<<<<<< HEAD
 const loginUser = async (req, res) => {
     try {
         const { gmail, password } = req.body;
@@ -110,12 +192,42 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
         const userObj = user.toObject();
         delete userObj.password;
+=======
+// @route   POST /users/login
+const loginUser = async (req, res) => {
+    try {
+        const { gmail, password } = req.body;
+        if (!gmail || !password) {
+            return res.status(400).json({ success: false, message: 'gmail and password are required' });
+        }
+
+        const user = await User.findOne({ gmail }).select('+password');
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        // Passwords are currently stored in plain text in this project.
+        if (user.password !== password) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        user.lastLoginAt = new Date();
+        await user.save();
+
+        const payload = { id: user._id, role: user.role, gmail: user.gmail };
+        const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+
+        const userObj = user.toObject();
+        delete userObj.password;
+
+>>>>>>> origin/CV-Builder
         return res.status(200).json({ success: true, user: userObj, token });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
     }
 };
 
+<<<<<<< HEAD
 // @desc    Get all users
 const getUsers = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
@@ -124,12 +236,33 @@ const getUsers = async (req, res) => {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
         return res.status(200).json({ users });
     } catch (err) {
+=======
+// @desc    Get all users (Useful for Admin to see students)
+// @route   GET /api/users
+const getUsers = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
+    try {
+        const users = await User.find().select('+password').sort({ createdAt: -1 });
+        return res.status(200).json({ users });
+    } catch (err) {
+        console.log(err);
+>>>>>>> origin/CV-Builder
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
+<<<<<<< HEAD
 // @desc    Get single user
 const getUserById = async (req, res) => {
+=======
+// @desc    Get single user profile
+// @route   GET /api/users/:id
+const getUserById = async (req, res) => {
+    const id = req.params.id;
+    let user;
+>>>>>>> origin/CV-Builder
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -139,6 +272,7 @@ const getUserById = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 const addUsers = async (req, res) => {
     const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience } = req.body;
     const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
@@ -176,33 +310,124 @@ const updateUser = async (req, res) => {
             const userObj = user.toObject();
             delete userObj.password;
             return res.status(200).json({ success: true, data: userObj });
+=======
+
+//Data Insert
+const addUsers = async (req, res) => {
+    const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+    let user;
+
+    const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
+    }
+
+    try {
+        user = new User({fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience});
+        await user.save();
+        console.log("User added successfully:", user);
+    } catch (err) {
+        console.error("Error adding user:", err);
+        return res.status(400).json({ message: 'Unable to add User', error: err.message });
+    }
+    if (!user) {
+        return res.status(404).json({ message: 'Unable to add User' });
+    }
+    return res.status(201).json({ user });
+};
+//update user
+const updateUser = async (req, res) => {
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+        return res.status(401).json({ success: false, message: 'Not authorized.' });
+    }
+
+    const id = req.params.id;
+    const isAdmin = authUser.role === 'Admin';
+    const isSelf = String(authUser._id) === String(id);
+
+    if (!isAdmin && !isSelf) {
+        return res.status(403).json({ success: false, message: 'Not authorized to update this user.' });
+    }
+
+    const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, photo, adminPassword } = req.body;
+
+    if (isAdmin && !isSelf) {
+        if (!adminPassword) {
+            return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
+        }
+
+        if (authUser.password !== adminPassword) {
+            return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+        }
+
+        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        if (validationError) {
+            return res.status(400).json({ success: false, message: validationError });
+        }
+
+        try {
+            const user = await User.findByIdAndUpdate(
+                id,
+                { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() },
+                { new: true, runValidators: true }
+            );
+            if (!user) {
+                return res.status(404).json({ message: 'User cannot Update' });
+            }
+            return res.status(200).json({ success: true, data: user });
+>>>>>>> origin/CV-Builder
         } catch (err) {
             return res.status(400).json({ success: false, message: err.message });
         }
     }
 
+<<<<<<< HEAD
     // Self update (admin updating own profile OR student)
     const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
     if (validationError) return res.status(400).json({ success: false, message: validationError });
 
     const updates = { updatedAt: new Date() };
     const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo', 'mode', 'timePreference', 'description'];
+=======
+    const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
+    if (validationError) {
+        return res.status(400).json({ success: false, message: validationError });
+    }
+
+    const updates = { updatedAt: new Date() };
+    const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo'];
+
+>>>>>>> origin/CV-Builder
     allowedSelfFields.forEach((field) => {
         if (req.body[field] !== undefined) {
             updates[field] = field === 'phoneNo' ? digitsOnly(req.body[field]) : req.body[field];
         }
     });
 
+<<<<<<< HEAD
     if (Object.keys(updates).length === 1) return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
 
     try {
         const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
         if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+=======
+    if (Object.keys(updates).length === 1) {
+        return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
+    }
+
+    try {
+        const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+>>>>>>> origin/CV-Builder
         return res.status(200).json({ success: true, data: user });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
+<<<<<<< HEAD
 
 // @desc    Delete user
 const deleteUser = async (req, res) => {
@@ -216,12 +441,40 @@ const deleteUser = async (req, res) => {
         if (String(adminUser._id) === String(id)) return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
         const user = await User.findByIdAndDelete(id);
         if (!user) return res.status(404).json({ message: 'User not found' });
+=======
+//delete user
+const deleteUser = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
+    const { adminPassword } = req.body || {};
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
+    const id = req.params.id;
+    let user;
+    try {
+        if (String(adminUser._id) === String(id)) {
+            return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
+        }
+
+        user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+>>>>>>> origin/CV-Builder
         return res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
+<<<<<<< HEAD
 // @desc    View a user's password (admin only)
 const viewUserPassword = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
@@ -232,12 +485,36 @@ const viewUserPassword = async (req, res) => {
     try {
         const targetUser = await User.findById(req.params.id).select('+password');
         if (!targetUser) return res.status(404).json({ success: false, message: 'User not found.' });
+=======
+// @desc    Reveal a user's password (admin only, with admin password confirmation)
+// @route   POST /users/:id/view-password
+const viewUserPassword = async (req, res) => {
+    const adminUser = await requireAdmin(req, res);
+    if (!adminUser) return;
+
+    const { adminPassword } = req.body || {};
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
+    try {
+        const targetUser = await User.findById(req.params.id).select('+password');
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+>>>>>>> origin/CV-Builder
         return res.status(200).json({ success: true, password: targetUser.password });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
+<<<<<<< HEAD
 // @desc    Get all user emails (for login suggestions)
 const getUserEmails = async (req, res) => {
     try {
@@ -344,3 +621,15 @@ exports.getUserEmails      = getUserEmails;
 exports.verifyForgotEmail  = verifyForgotEmail;
 exports.resetForgotPassword = resetForgotPassword;
 exports.changePassword     = changePassword;
+=======
+exports.registerUser = registerUser;
+exports.loginUser = loginUser;
+exports.getUsers = getUsers;
+exports.getUserById = getUserById;
+exports.addUsers = addUsers;
+exports.updateUser = updateUser;
+exports.deleteUser = deleteUser;
+exports.viewUserPassword = viewUserPassword;
+
+
+>>>>>>> origin/CV-Builder

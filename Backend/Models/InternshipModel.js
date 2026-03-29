@@ -41,6 +41,7 @@ const InternshipSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+<<<<<<< HEAD
     mode: {
         type: String,
         enum: ['Online/Remote', 'Physical/On-site', 'Hybrid'],
@@ -60,6 +61,8 @@ const InternshipSchema = new mongoose.Schema({
             message: 'Description must contain letters'
         }
     },
+=======
+>>>>>>> origin/CV-Builder
     status: {
         type: String,
         enum: ['Active', 'Expired'],

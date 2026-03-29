@@ -15,4 +15,7 @@ router.get('/applications', protect, adminOnly, InternshipControllers.getApplica
 router.patch('/applications/:id/read', protect, adminOnly, InternshipControllers.markApplicationRead);
 
 module.exports = router;
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/CV-Builder

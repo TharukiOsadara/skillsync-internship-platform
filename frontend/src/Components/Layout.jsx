@@ -6,7 +6,11 @@
  *
  * What this does:
  *  - Provides bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 (same as teammate)
+<<<<<<< HEAD
  *  - Wraps every route in the same max-w-[96rem] centered container
+=======
+ *  - Wraps every route in a full-width container
+>>>>>>> origin/CV-Builder
  *  - Uses <Outlet /> so each page renders its own Header, content, Footer unchanged
  *  - Zero changes to any page logic, CRUD, state, or routing
  *
@@ -25,7 +29,11 @@ export default function Layout() {
       className="min-h-screen text-slate-100 font-syne"
       style={{ background: "linear-gradient(to bottom right, #020617, #0f172a, #020617)" }}
     >
+<<<<<<< HEAD
       <div className="mx-auto flex min-h-screen w-full max-w-[96rem] flex-col">
+=======
+      <div className="flex min-h-screen w-full flex-col">
+>>>>>>> origin/CV-Builder
         <main className="flex-1 flex flex-col">
           <Outlet />
         </main>

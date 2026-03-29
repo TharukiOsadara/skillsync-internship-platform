@@ -1,4 +1,7 @@
+<<<<<<< HEAD
     // ...existing fields...
+=======
+>>>>>>> origin/CV-Builder
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -19,7 +22,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6,
+<<<<<<< HEAD
         select: false,
+=======
+        select: false // This hides the password by default when fetching user data
+>>>>>>> origin/CV-Builder
     },
     age: {
         type: Number,
@@ -36,11 +43,20 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
+<<<<<<< HEAD
         enum: ['Student', 'Admin'],
         default: 'Student'
     },
     skills: {
         type: String,
+=======
+        enum: ['Student', 'Admin'], // Only these two roles allowed
+        default: 'Student'
+    },
+    // For your matching engine, we store skills here
+    skills: {
+        type: String, 
+>>>>>>> origin/CV-Builder
         default: ''
     },
     education: {
@@ -51,6 +67,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+<<<<<<< HEAD
     mode: {
         type: String,
         enum: ['Online/Remote', 'Physical/On-site', 'Hybrid', ''],
@@ -65,6 +82,8 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+=======
+>>>>>>> origin/CV-Builder
     photo: {
         type: String,
         default: ''
@@ -83,5 +102,8 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/CV-Builder
 module.exports = mongoose.model('User', UserSchema);
