@@ -53,18 +53,39 @@ const Alert = ({ type, msg }) => {
   );
 };
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-const StatCard = ({ label, value, color, icon }) => (
-  <div style={{ background: "#0F172A", border: `1px solid ${color}22`, borderRadius: "12px", padding: "16px 18px", display: "flex", alignItems: "center", gap: "12px" }}>
-    <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: `${color}18`, border: `1px solid ${color}33`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-      <Ico size={16} stroke={color}>{icon}</Ico>
+// ── Stat card (hoverable, smaller font, system color) ──────────────────────────
+const StatCard = ({ label, value, icon }) => {
+  const color = "#22D3EE";
+  return (
+    <div
+      style={{
+        background: "#0F172A",
+        border: `1px solid ${color}22`,
+        borderRadius: "12px",
+        padding: "13px 14px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        fontFamily: "'DM Sans',sans-serif",
+        fontSize: "11px",
+        color: "#F1F5F9",
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "box-shadow .15s, border-color .15s"
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#22D3EE22"; }}
+    >
+      <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <Ico size={14} stroke={color}>{icon}</Ico>
+      </div>
+      <div>
+        <p style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, margin: 0 }}>{label}</p>
+        <p style={{ color: color, fontSize: "13px", fontWeight: 800, margin: "3px 0 0" }}>{value || "—"}</p>
+      </div>
     </div>
-    <div>
-      <p style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>{label}</p>
-      <p style={{ color: color, fontSize: "18px", fontWeight: 800, margin: "3px 0 0" }}>{value || "—"}</p>
-    </div>
-  </div>
-);
+  );
+};
 
 export default function AdminProfilePage() {
   const navigate = useNavigate();
@@ -245,10 +266,10 @@ export default function AdminProfilePage() {
 
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "24px", ...revealStyle(60) }}>
-          <StatCard label="Role" value={user?.role} color="#A78BFA" icon={<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /><path d="M9 12l2 2 4-4" /></>} />
-          <StatCard label="Member Since" value={memberSince} color="#22D3EE" icon={<><rect x="3" y="4" width="18" height="17" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>} />
-          <StatCard label="Last Login" value={lastLogin} color="#4ADE80" icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>} />
-          <StatCard label="Live Time" value={liveTime.toLocaleTimeString()} color="#FCD34D" icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 8 12 12 15 12" /></>} />
+          <StatCard label="Role" value={user?.role} icon={<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /><path d="M9 12l2 2 4-4" /></>} />
+          <StatCard label="Member Since" value={memberSince} icon={<><rect x="3" y="4" width="18" height="17" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>} />
+          <StatCard label="Last Login" value={lastLogin} icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>} />
+          <StatCard label="Live Time" value={liveTime.toLocaleTimeString()} icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 8 12 12 15 12" /></>} />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", ...revealStyle(120) }}>
@@ -351,44 +372,184 @@ export default function AdminProfilePage() {
             </div>
 
             {/* ── Change Password ─────────────────────────────────────────── */}
-            <div style={{ background: "#0F172A", border: "1px solid rgba(167,139,250,0.2)", borderRadius: "14px", padding: "18px" }}>
+            {/* Change Password (copied from StudentProfilePage for full consistency) */}
+            <div style={{ background: "#0F172A", border: "1px solid rgba(34,211,238,0.2)", borderRadius: "14px", padding: "20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                <PageIcon color="#A78BFA" bg="rgba(167,139,250,0.08)" border="rgba(167,139,250,0.2)">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <PageIcon color="#22D3EE" bg="rgba(34,211,238,0.1)" border="rgba(34,211,238,0.2)">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </PageIcon>
                 <div>
-                  <h2 style={{ color: "#F1F5F9", fontWeight: 800, fontSize: "16px", margin: 0 }}>Change Password</h2>
-                  <p style={{ color: "#64748B", fontSize: "11px", margin: "2px 0 0" }}>Update your login password securely</p>
+                  <h2 style={{ color: "#F1F5F9", fontWeight: 800, fontSize: "15px", margin: 0 }}>Change Password</h2>
+                  <p style={{ color: "#64748B", fontSize: "11px", margin: "2px 0 0" }}>Update your login password</p>
                 </div>
               </div>
 
               <form onSubmit={handlePasswordChange}>
-                <Alert type="error" msg={pwError} />
+                <Alert type="error"   msg={pwError}   />
                 <Alert type="success" msg={pwSuccess} />
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <PwInput label="Current Password" field="current" placeholder="Your current password" />
-                  <PwInput label="New Password" field="new" placeholder="Min. 6 characters" />
-                  <PwInput label="Confirm New Password" field="confirm" placeholder="Repeat new password" />
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "12px" }}>
+                  {/* PwInput fields mimic StudentProfilePage */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>Current Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPw.current ? "text" : "password"}
+                        value={pwForm.currentPassword}
+                        onChange={e => { setPwForm(p => ({ ...p, currentPassword: e.target.value })); setPwError(""); }}
+                        placeholder={"..."}
+                        autoComplete="current-password"
+                        style={{
+                          background: "#1E293B",
+                          border: "1px solid #334155",
+                          borderRadius: "8px",
+                          padding: "8px 34px 8px 11px",
+                          color: "#F1F5F9",
+                          fontSize: "12px",
+                          width: "100%",
+                          fontFamily: "'DM Sans',sans-serif",
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                        onFocus={e => { e.target.style.borderColor = "#A78BFA"; e.target.style.boxShadow = "0 0 0 3px rgba(167,139,250,0.1)"; }}
+                        onBlur={e  => { e.target.style.borderColor = "#334155"; e.target.style.boxShadow = "none"; }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPw(p => ({ ...p, current: !p.current }))}
+                        style={{ position: "absolute", right: "9px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                      >
+                        <Ico size={13} stroke="#64748B">
+                          {showPw.current
+                            ? <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
+                            : <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>}
+                        </Ico>
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>New Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPw.new ? "text" : "password"}
+                        value={pwForm.newPassword}
+                        onChange={e => { setPwForm(p => ({ ...p, newPassword: e.target.value })); setPwError(""); }}
+                        placeholder={"Min. 6 characters"}
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
+                        style={{
+                          background: "#1E293B",
+                          border: "1px solid #334155",
+                          borderRadius: "8px",
+                          padding: "8px 34px 8px 11px",
+                          color: "#F1F5F9",
+                          fontSize: "12px",
+                          width: "100%",
+                          fontFamily: "'DM Sans',sans-serif",
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                        onFocus={e => { e.target.style.borderColor = "#A78BFA"; e.target.style.boxShadow = "0 0 0 3px rgba(167,139,250,0.1)"; }}
+                        onBlur={e  => { e.target.style.borderColor = "#334155"; e.target.style.boxShadow = "none"; }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPw(p => ({ ...p, new: !p.new }))}
+                        style={{ position: "absolute", right: "9px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                      >
+                        <Ico size={13} stroke="#64748B">
+                          {showPw.new
+                            ? <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
+                            : <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>}
+                        </Ico>
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>Confirm New Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPw.confirm ? "text" : "password"}
+                        value={pwForm.confirmPassword}
+                        onChange={e => { setPwForm(p => ({ ...p, confirmPassword: e.target.value })); setPwError(""); }}
+                        placeholder={"Repeat new password"}
+                        autoComplete="off"
+                        data-lpignore="true"
+                        data-form-type="other"
+                        style={{
+                          background: "#1E293B",
+                          border: "1px solid #334155",
+                          borderRadius: "8px",
+                          padding: "8px 34px 8px 11px",
+                          color: "#F1F5F9",
+                          fontSize: "12px",
+                          width: "100%",
+                          fontFamily: "'DM Sans',sans-serif",
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                        onFocus={e => { e.target.style.borderColor = "#A78BFA"; e.target.style.boxShadow = "0 0 0 3px rgba(167,139,250,0.1)"; }}
+                        onBlur={e  => { e.target.style.borderColor = "#334155"; e.target.style.boxShadow = "none"; }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPw(p => ({ ...p, confirm: !p.confirm }))}
+                        style={{ position: "absolute", right: "9px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                      >
+                        <Ico size={13} stroke="#64748B">
+                          {showPw.confirm
+                            ? <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
+                            : <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>}
+                        </Ico>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Password strength hint */}
+                {/* Password strength bar and match check */}
                 {pwForm.newPassword && (
-                  <div style={{ marginTop: "10px", display: "flex", gap: "4px" }}>
-                    {[1, 2, 3, 4].map(i => {
-                      const len = pwForm.newPassword.length;
-                      const active = len >= 6 && i === 1 || len >= 8 && i === 2 || (len >= 10 && /[A-Z]/.test(pwForm.newPassword)) && i === 3 || (len >= 12 && /[^A-Za-z0-9]/.test(pwForm.newPassword)) && i === 4;
-                      const colors = ["#F87171", "#FCD34D", "#4ADE80", "#22D3EE"];
-                      return <div key={i} style={{ flex: 1, height: "3px", borderRadius: "99px", background: active ? colors[i - 1] : "#1E293B", transition: "background .2s" }} />;
-                    })}
+                  <div style={{ marginBottom: "10px" }}>
+                    <div style={{ display: "flex", gap: "3px", marginBottom: "4px" }}>
+                      {[1, 2, 3, 4].map(i => {
+                        const p = pwForm.newPassword;
+                        let s = 0;
+                        if (p.length >= 6) s++;
+                        if (p.length >= 8) s++;
+                        if (/[A-Z]/.test(p) && p.length >= 10) s++;
+                        if (/[^A-Za-z0-9]/.test(p) && p.length >= 12) s++;
+                        return <div key={i} style={{ flex: 1, height: "3px", borderRadius: "99px", background: i <= s ? ["#F87171", "#FCD34D", "#4ADE80", "#22D3EE"][s - 1] : "#1E293B", transition: "background .25s" }} />;
+                      })}
+                    </div>
+                    <p style={{ fontSize: "10px", fontWeight: 700, margin: 0, color: (() => { const p = pwForm.newPassword; let s = 0; if (p.length >= 6) s++; if (p.length >= 8) s++; if (/[A-Z]/.test(p) && p.length >= 10) s++; if (/[^A-Za-z0-9]/.test(p) && p.length >= 12) s++; return s > 0 ? ["#F87171", "#FCD34D", "#4ADE80", "#22D3EE"][s - 1] : "#64748B"; })() }}>
+                      {(() => { const p = pwForm.newPassword; let s = 0; if (p.length >= 6) s++; if (p.length >= 8) s++; if (/[A-Z]/.test(p) && p.length >= 10) s++; if (/[^A-Za-z0-9]/.test(p) && p.length >= 12) s++; return s > 0 ? ["Weak", "Fair", "Good", "Strong"][s - 1] : "Enter password"; })()} password
+                    </p>
                   </div>
                 )}
 
+                {pwForm.confirmPassword && (
+                  <p style={{ fontSize: "10px", fontWeight: 700, margin: "0 0 12px", color: pwForm.newPassword === pwForm.confirmPassword ? "#4ADE80" : "#F87171", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Ico size={11} stroke={pwForm.newPassword === pwForm.confirmPassword ? "#4ADE80" : "#F87171"}>
+                      {pwForm.newPassword === pwForm.confirmPassword
+                        ? <polyline points="20 6 9 17 4 12"/>
+                        : <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>}
+                    </Ico>
+                    {pwForm.newPassword === pwForm.confirmPassword ? "Passwords match" : "Passwords do not match"}
+                  </p>
+                )}
+
                 <button type="submit" disabled={pwLoading}
-                  style={{ width: "100%", marginTop: "14px", padding: "10px", background: "linear-gradient(135deg,#22D3EE,#06B6D4)", color: "#060D1A", fontSize: "12px", fontWeight: 800, borderRadius: "9px", border: "none", cursor: "pointer", opacity: pwLoading ? 0.7 : 1 }}>
+                  style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg,#22D3EE,#06B6D4)", color: "#060D1A", fontSize: "12px", fontWeight: 800, borderRadius: "9px", border: "none", cursor: "pointer", opacity: pwLoading ? 0.7 : 1 }}>
                   {pwLoading ? "Updating Password..." : "Update Password →"}
                 </button>
               </form>
+
+              <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid #1E293B", textAlign: "center" }}>
+                <a href="/forgot-password" style={{ color: "#64748B", fontSize: "11px", fontWeight: 600, textDecoration: "none", transition: "color .15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#22D3EE")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}>Forgot your current password?</a>
+              </div>
             </div>
 
           </div>

@@ -258,10 +258,91 @@ export default function StudentProfile() {
 
             <div style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: "14px", padding: "20px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-                <Inp label="Full Name"    name="fullName"  value={form.fullName}   onChange={handleChange} placeholder="Kasun Rajapaksha"/>
-                <Inp label="Email"        name="gmail"     value={form.gmail}      onChange={handleChange} type="email" placeholder="you@example.com"/>
-                <Inp label="Age"          name="age"       value={form.age}        onChange={handleChange} type="number" placeholder="22"/>
-                <Inp label="Phone Number" name="phoneNo"   value={form.phoneNo}    onChange={handleChange} placeholder="0771234567"/>
+                {/* Stat Cards with hover and smaller font */}
+                <div style={{
+                  background: "#1E293B",
+                  border: "1px solid #334155",
+                  borderRadius: "10px",
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  transition: "box-shadow .15s, border-color .15s",
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: "11px",
+                  color: "#F1F5F9",
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
+                >
+                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Full Name</span>
+                  {form.fullName || "Kasun Rajapaksha"}
+                </div>
+                <div style={{
+                  background: "#1E293B",
+                  border: "1px solid #334155",
+                  borderRadius: "10px",
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  transition: "box-shadow .15s, border-color .15s",
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: "11px",
+                  color: "#F1F5F9",
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
+                >
+                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Email</span>
+                  {form.gmail || "you@example.com"}
+                </div>
+                <div style={{
+                  background: "#1E293B",
+                  border: "1px solid #334155",
+                  borderRadius: "10px",
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  transition: "box-shadow .15s, border-color .15s",
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: "11px",
+                  color: "#F1F5F9",
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
+                >
+                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Age</span>
+                  {form.age || "22"}
+                </div>
+                <div style={{
+                  background: "#1E293B",
+                  border: "1px solid #334155",
+                  borderRadius: "10px",
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  transition: "box-shadow .15s, border-color .15s",
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: "11px",
+                  color: "#F1F5F9",
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
+                >
+                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Phone Number</span>
+                  {form.phoneNo || "0771234567"}
+                </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <Inp label="Address"    name="address"    value={form.address}    onChange={handleChange} placeholder="Colombo, Sri Lanka"/>
