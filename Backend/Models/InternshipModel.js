@@ -37,11 +37,15 @@ const InternshipSchema = new mongoose.Schema({
             message: 'Skills cannot start with a number'
         }
     },
+    status: {
+        type: String,
+        enum: ['Active', 'Expired'],
+        default: 'Active'
+    },
     deadline: {
         type: Date,
         required: true,
     },
-<<<<<<< HEAD
     mode: {
         type: String,
         enum: ['Online/Remote', 'Physical/On-site', 'Hybrid'],
@@ -61,8 +65,6 @@ const InternshipSchema = new mongoose.Schema({
             message: 'Description must contain letters'
         }
     },
-=======
->>>>>>> origin/CV-Builder
     status: {
         type: String,
         enum: ['Active', 'Expired'],

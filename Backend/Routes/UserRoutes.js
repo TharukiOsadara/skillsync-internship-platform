@@ -3,7 +3,6 @@ const router = express.Router();
 const { protect, adminOnly } = require('../Middleware/authMiddleware');
 const UserControllers = require('../Controllers/UserControllers');
 
-<<<<<<< HEAD
 // ── Public ────────────────────────────────────────────────────────────────────
 router.get("/emails",              UserControllers.getUserEmails);
 router.post("/register",           UserControllers.registerUser);
@@ -21,16 +20,6 @@ router.post("/:id/view-password", protect, adminOnly, UserControllers.viewUserPa
 router.put("/:id",    protect, UserControllers.updateUser);
 router.delete("/:id", protect, adminOnly, UserControllers.deleteUser);
 router.get("/:id",    protect, UserControllers.getUserById);
-=======
-router.get("/",     protect, adminOnly, UserControllers.getUsers);    // Admin only
-router.post("/:id/view-password", protect, adminOnly, UserControllers.viewUserPassword); // Admin only
-router.put("/:id",  protect, UserControllers.updateUser);  // Admin or self
-router.delete("/:id", protect, adminOnly, UserControllers.deleteUser); // Admin only
 
-// Public — no middleware needed
-router.post("/register", UserControllers.registerUser);
-router.post("/login",    UserControllers.loginUser);
-router.get("/:id",       protect, UserControllers.getUserById);
->>>>>>> origin/CV-Builder
 
 module.exports = router;

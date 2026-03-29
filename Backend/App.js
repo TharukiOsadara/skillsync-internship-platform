@@ -1,33 +1,24 @@
 //pw- UlXBiR5jYEmmFQSd
 const express = require('express');
 const mongoose = require('mongoose');
-<<<<<<< HEAD
-const cors = require('cors');//lead the web brower to access its resources from different origins (domains, ports, or protocols) than its own. 
-const router = require('./Routes/UserRoutes');
-const internshipRouter = require('./Routes/InternshipRoutes');
-=======
+
 const cors = require('cors');//lead the web brower to access its resources from different origins (domains, ports, or protocols) than its own.
 const router = require('./Routes/UserRoutes');
 const internshipRouter = require('./Routes/InternshipRoutes');
 const cvRouter = require('./Routes/CVRoutes');
->>>>>>> origin/CV-Builder
+
 
 const app = express();
 
 
 // Middleware to parse JSON bodies
 app.use(cors());
-<<<<<<< HEAD
-app.use(express.json());
-app.use("/users", router);
-app.use("/internships", internshipRouter);
-=======
+
 app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use("/users", router);
 app.use("/internships", internshipRouter);
 app.use("/cv", cvRouter);
->>>>>>> origin/CV-Builder
 
 mongoose.connect("mongodb+srv://admin:UlXBiR5jYEmmFQSd@cluster0.pa8q59u.mongodb.net/")
 .then(() => console.log("Connected to MongoDB"))

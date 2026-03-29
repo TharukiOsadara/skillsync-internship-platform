@@ -5,13 +5,8 @@ const Application = require('../Models/ApplicationModel');
 const hasLetter = (value = '') => /[A-Za-z]/.test(String(value));
 const startsWithDigit = (value = '') => /^\d/.test(String(value).trim());
 
-<<<<<<< HEAD
 const validateInternshipPayload = ({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description }) => {
     if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) {
-=======
-const validateInternshipPayload = ({ title, company, location, duration, skillsRequired, deadline }) => {
-    if (!title || !company || !location || !duration || !skillsRequired || !deadline) {
->>>>>>> origin/CV-Builder
         return 'All internship fields are required.';
     }
 
@@ -24,13 +19,10 @@ const validateInternshipPayload = ({ title, company, location, duration, skillsR
     if (!hasLetter(company)) return 'Company name must include letters.';
     if (!hasLetter(location)) return 'Location must include letters.';
     if (!hasLetter(skillsRequired)) return 'Skills required must include letters.';
-<<<<<<< HEAD
     if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) return 'Please select a valid work mode.';
     if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
     if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
     if (!hasLetter(description)) return 'Description cannot be only numbers.';
-=======
->>>>>>> origin/CV-Builder
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -52,27 +44,16 @@ const getInternships = async (req, res) => {
 
 // @desc    Add new Internship (Admin Input)
 const addInternship = async (req, res) => {
-<<<<<<< HEAD
     const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = req.body;
     let internship;
 
     const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
-=======
-    const { title, company, location, duration, skillsRequired, deadline } = req.body;
-    let internship;
-
-    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
->>>>>>> origin/CV-Builder
     if (validationError) {
         return res.status(400).json({ message: validationError });
     }
 
     try {
-<<<<<<< HEAD
         internship = new Internship({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
-=======
-        internship = new Internship({ title, company, location, duration, skillsRequired, deadline });
->>>>>>> origin/CV-Builder
         await internship.save();
     } catch (err) {
         return res.status(400).json({ message: 'Unable to add Internship', error: err.message });
@@ -82,15 +63,11 @@ const addInternship = async (req, res) => {
 
 // @desc    Update Internship
 const updateInternship = async (req, res) => {
-<<<<<<< HEAD
-    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = req.body;
 
-    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
-=======
     const { title, company, location, duration, skillsRequired, deadline } = req.body;
 
     const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
->>>>>>> origin/CV-Builder
+
     if (validationError) {
         return res.status(400).json({ message: validationError });
     }
@@ -98,11 +75,8 @@ const updateInternship = async (req, res) => {
     try {
         const internship = await Internship.findByIdAndUpdate(
             req.params.id,
-<<<<<<< HEAD
             { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description },
-=======
-            { title, company, location, duration, skillsRequired, deadline },
->>>>>>> origin/CV-Builder
+
             { new: true, runValidators: true }
         );
 
