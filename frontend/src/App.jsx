@@ -30,6 +30,7 @@ import CVBuilder from "./Pages/CVbuilder/CVBuilderPage";
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
   if (!isLoggedIn())    return <Navigate to="/login" replace />;
+
   const user = getUser();
   if (role && user?.role !== role) {
     return <Navigate to={user?.role === "Admin" ? "/admin/dashboard" : "/student/matches"} replace />;
@@ -41,7 +42,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
- 
         {/* ── Loader — full screen, no Layout wrapper ── */}
         <Route path="/" element={<LoaderPage />} />
 
@@ -64,7 +64,6 @@ export default function App() {
           <Route path="/admin/applications"       element={<ProtectedRoute role="Admin"><ApplicationsDashboard /></ProtectedRoute>} />
 
           <Route path="/admin/profile"            element={<ProtectedRoute role="Admin"><AdminProfilePage /></ProtectedRoute>} />
-
           {/* Student */}
           <Route path="/student"           element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
           <Route path="/student/dashboard" element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
@@ -75,6 +74,7 @@ export default function App() {
           <Route path="/student/notifications"       element={<ProtectedRoute role="Student"><StudentNotifications /></ProtectedRoute>} />
           <Route path="/student/profile"             element={<ProtectedRoute role="Student"><StudentProfile /></ProtectedRoute>} />
           <Route path="/student/cv-builder"         element={<ProtectedRoute role="Student"><CVBuilder /></ProtectedRoute>} />
+
 
           <Route path="*" element={<Navigate to="/homepage" replace />} />
         </Route>

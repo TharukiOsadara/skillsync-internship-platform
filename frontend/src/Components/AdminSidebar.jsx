@@ -17,7 +17,10 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   // Live counts fetched from backend
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
   const [userCount, setUserCount]         = useState(null);
   const [internCount, setInternCount]     = useState(null);
 
@@ -123,7 +126,10 @@ export default function AdminSidebar() {
         borderBottom: "1px solid rgba(255,255,255,0.07)",
         marginBottom: "4px",
       }}>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
         <div style={{
           width: "44px", height: "44px", flexShrink: 0,
           background: "linear-gradient(135deg,#0ea5e9,#22D3EE)",
@@ -187,7 +193,10 @@ export default function AdminSidebar() {
         <Ico size={13} stroke="#22D3EE">
           {collapsed
             ? <polyline points="9 18 15 12 9 6" />
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
             : <polyline points="15 18 9 12 15 6" />}
 
         </Ico>
@@ -230,7 +239,11 @@ export default function AdminSidebar() {
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Users</span>}
         {!collapsed && userCount !== null && <span style={S.badge}>{userCount}</span>}
       </Link>
+<<<<<<< HEAD
 
+=======
+      {/* Applications */}
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 
       <Link to="/admin/applications" style={S.navItem(active("/admin/applications"))}
         onMouseEnter={e => applyNavHoverIn(e, active("/admin/applications"))}
@@ -302,8 +315,11 @@ export default function AdminSidebar() {
         </div>
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Matching Engine</span>}
       </Link>
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
       {/* ── ACCOUNT section ── */}
       {!collapsed && <div style={S.secLabel}>Account</div>}
 
@@ -339,7 +355,10 @@ export default function AdminSidebar() {
         marginTop: "8px",
         transition: "padding 0.25s",
       }}>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
         <div style={{ position: "relative", flexShrink: 0 }}>
           <div style={{
             width: "36px", height: "36px",
@@ -362,7 +381,10 @@ export default function AdminSidebar() {
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user?.fullName || "Admin User"}
             </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               marginTop: "5px",
@@ -398,7 +420,10 @@ export default function AdminSidebar() {
           transition: "all .2s",
         }}
         onMouseEnter={e => {
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
           e.currentTarget.style.background  = "rgba(248,113,113,0.14)";
           e.currentTarget.style.borderColor = "rgba(248,113,113,0.3)";
           e.currentTarget.style.boxShadow   = "0 10px 22px rgba(248,113,113,0.15)";
@@ -418,9 +443,13 @@ export default function AdminSidebar() {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
             stroke="#F87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
 
+<<<<<<< HEAD
             {/* The "door" remains on the right side of the icon now */}
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
             {/* Arrow pointing left */}
+=======
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 
             <polyline points="10 17 5 12 10 7" />
             <line x1="5" y1="12" x2="15" y2="12" />

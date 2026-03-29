@@ -116,7 +116,6 @@ const registerUser = async (req, res) => {
         const payload = { id: user._id, role: user.role, gmail: user.gmail };
         const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
 
-
         return res.status(201).json({ success: true, user, token });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
@@ -170,13 +169,16 @@ const getUsers = async (req, res) => {
         return res.status(200).json({ users });
     } catch (err) {
         console.log(err);
+
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
 
+
 // @desc    Get single user
 const getUserById = async (req, res) => {
+
 
     try {
         const user = await User.findById(req.params.id);
@@ -259,6 +261,7 @@ const updateUser = async (req, res) => {
     }
 
 
+
     const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
     if (validationError) {
         return res.status(400).json({ success: false, message: validationError });
@@ -266,6 +269,7 @@ const updateUser = async (req, res) => {
 
     const updates = { updatedAt: new Date() };
     const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo'];
+
 
 
     allowedSelfFields.forEach((field) => {
@@ -300,6 +304,7 @@ const deleteUser = async (req, res) => {
         if (String(adminUser._id) === String(id)) return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
         const user = await User.findByIdAndDelete(id);
         if (!user) return res.status(404).json({ message: 'User not found' });
+
 
         return res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (err) {
@@ -432,3 +437,4 @@ exports.getUserEmails      = getUserEmails;
 exports.verifyForgotEmail  = verifyForgotEmail;
 exports.resetForgotPassword = resetForgotPassword;
 exports.changePassword     = changePassword;
+

@@ -3,6 +3,10 @@ const router = express.Router();
 const { protect, adminOnly } = require('../Middleware/authMiddleware');
 const UserControllers = require('../Controllers/UserControllers');
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 // ── Public ────────────────────────────────────────────────────────────────────
 router.get("/emails",              UserControllers.getUserEmails);
 router.post("/register",           UserControllers.registerUser);

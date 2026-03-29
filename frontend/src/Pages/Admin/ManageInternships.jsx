@@ -86,17 +86,27 @@ export default function ManageInternships() {
 
   const validateInternshipInput = (payload) => {
 
+<<<<<<< HEAD
     const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = payload;
     const startsWithDigit = (v) => /^\d/.test(String(v || "").trim());
     const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
     if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) return "All fields are mandatory.";
 
+=======
+    const { title, company, location, duration, skillsRequired, deadline } = payload;
+    const startsWithDigit = (v) => /^\d/.test(String(v || "").trim());
+    const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
+    if (!title || !company || !location || !duration || !skillsRequired || !deadline) return "All fields are mandatory.";
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
     if (startsWithDigit(title)) return "Title cannot start with a number.";
     if (startsWithDigit(company)) return "Company name cannot start with a number.";
     if (startsWithDigit(location)) return "Location cannot start with a number.";
     if (startsWithDigit(skillsRequired)) return "Skills cannot start with a number.";
     if (!hasLetter(title) || !hasLetter(company) || !hasLetter(location) || !hasLetter(skillsRequired)) return "Title, company, location and skills must include letters.";
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
     if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
     if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
     if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
@@ -117,7 +127,10 @@ export default function ManageInternships() {
       duration: item.duration || "",
       skillsRequired: item.skillsRequired || "",
       deadline: item.deadline ? new Date(item.deadline).toISOString().split("T")[0] : "",
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
       mode: item.mode || "",
       timePreference: item.timePreference || "",
       description: item.description || "",
@@ -301,6 +314,7 @@ export default function ManageInternships() {
                           )}
                         </div>
                       </td>
+<<<<<<< HEAD
 
                       <td className="px-4 py-3 text-slate-400 text-sm">
                         <span style={{background:item.mode==="Online/Remote"?"rgba(34,211,238,0.1)":item.mode==="Physical/On-site"?"rgba(74,222,128,0.1)":"rgba(167,139,250,0.1)",color:item.mode==="Online/Remote"?"#22D3EE":item.mode==="Physical/On-site"?"#4ADE80":"#A78BFA",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
@@ -318,6 +332,8 @@ export default function ManageInternships() {
                         </div>
                       </td>
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
                       <td className={`px-4 py-3 text-sm ${expired ? "text-red-400" : "text-slate-400"}`}>
                         {new Date(item.deadline).toLocaleDateString("en-GB")}
                       </td>
@@ -382,7 +398,10 @@ export default function ManageInternships() {
       {/* Edit modal */}
       {editItem && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
           <div className="card w-full mx-4" style={{ maxWidth: "42rem", maxHeight: "90vh", overflowY: "auto", padding: "32px" }}>
 
             <h3 className="text-slate-200 font-extrabold text-lg mb-5">Update Internship</h3>
@@ -408,7 +427,10 @@ export default function ManageInternships() {
                   className="input-field"
                 />
               </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
               <div className="flex flex-col gap-1.5">
                 <label className="text-slate-400 text-xs font-semibold">Work Mode *</label>
                 <select

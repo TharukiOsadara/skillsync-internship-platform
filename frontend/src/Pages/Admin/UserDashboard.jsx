@@ -34,6 +34,7 @@ const Ico = ({ stroke = "#22D3EE", size = 18, children }) => (
 
 const BackBtn = ({ onClick }) => (
   <button onClick={onClick}
+
     style={{ background: "none", border: "none", color: "#64748B", fontSize: "20px", cursor: "pointer", padding: 0, transition: "color .15s" }}
     onMouseEnter={e => (e.currentTarget.style.color = "#22D3EE")}
     onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}>←</button>
@@ -203,6 +204,7 @@ export default function UserDashboard() {
     } catch { setError("Server error while deleting."); }
   };
 
+
   const handleRevealPassword = async () => {
     setError(""); setSuccess("");
     if(!passwordAdminInput) return setError("Admin password is required.");
@@ -245,6 +247,7 @@ export default function UserDashboard() {
 
         {/* ── Page header ── */}
 
+
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", ...revealStyle(0) }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <BackBtn onClick={() => navigate(-1)} />
@@ -286,13 +289,13 @@ export default function UserDashboard() {
             <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px", color: "#94A3B8", fontSize: "11px" }}>
               <Ico size={12} stroke="#22D3EE"><circle cx="12" cy="12" r="9" /><polyline points="12 8 12 12 15 12" /></Ico>
 
+
               <span>Live: {liveTime.toLocaleTimeString()}</span>
             </div>
           </div>
         </div>
 
         {/* ── Stats ── */}
-
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px", marginBottom: "20px", ...revealStyle(70) }}>
           {[
             { label: "Total Users", value: animatedStats.total, color: "#22D3EE", border: "rgba(34,211,238,0.2)", filterKey: "All", hoverBg: "rgba(34,211,238,0.1)", icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></> },
@@ -309,6 +312,7 @@ export default function UserDashboard() {
                 <p style={{ color: "#64748B", fontSize: "11px", margin: 0 }}>{s.label}</p>
               </div>
               <p style={{ fontSize: "32px", fontWeight: 800, color: s.color, margin: "0 auto", textAlign: "center", width: "100%" }}>{s.value}</p>
+
 
             </div>
           ))}
@@ -333,6 +337,7 @@ export default function UserDashboard() {
         {loading ? (
           <div className="text-slate-400 text-sm animate-pulse py-10" style={revealStyle(250)}>Loading users...</div>
         ) : (
+
           <div className="admin-hover-surface" style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: "14px", overflow: "hidden", ...revealStyle(250) }}>
             <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 320px)" }}>
               <table className="w-full min-w-[1700px] border-collapse text-xs">
@@ -399,6 +404,7 @@ export default function UserDashboard() {
                             <button onClick={() => openEditModal(user)} className="text-cyan-400 text-xs font-bold bg-cyan-400/8 border border-cyan-400/15 px-2 py-1 rounded-lg hover:bg-cyan-400/15 transition-all cursor-pointer">Update</button>
                             <button onClick={() => setDeleteUserId(user._id)} className="text-red-400 text-xs font-bold bg-red-400/8 border border-red-400/15 px-2 py-1 rounded-lg hover:bg-red-400/15 transition-all cursor-pointer">Delete</button>
 
+
                           </div>
                         </td>
                       </tr>
@@ -406,6 +412,7 @@ export default function UserDashboard() {
                   })}
                   {filtered.length === 0 && (
                     <tr><td colSpan={16} className="text-center text-slate-400 text-sm py-10">{search ? "No users match your search." : "No users found."}</td></tr>
+
 
                   )}
                 </tbody>

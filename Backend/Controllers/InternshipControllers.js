@@ -5,8 +5,10 @@ const Application = require('../Models/ApplicationModel');
 const hasLetter = (value = '') => /[A-Za-z]/.test(String(value));
 const startsWithDigit = (value = '') => /^\d/.test(String(value).trim());
 
+
 const validateInternshipPayload = ({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description }) => {
     if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) {
+
         return 'All internship fields are required.';
     }
 
@@ -23,6 +25,7 @@ const validateInternshipPayload = ({ title, company, location, duration, skillsR
     if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
     if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
     if (!hasLetter(description)) return 'Description cannot be only numbers.';
+
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -48,12 +51,14 @@ const addInternship = async (req, res) => {
     let internship;
 
     const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
+
     if (validationError) {
         return res.status(400).json({ message: validationError });
     }
-
+  
     try {
         internship = new Internship({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
+
         await internship.save();
     } catch (err) {
         return res.status(400).json({ message: 'Unable to add Internship', error: err.message });
@@ -64,9 +69,11 @@ const addInternship = async (req, res) => {
 // @desc    Update Internship
 const updateInternship = async (req, res) => {
 
+
     const { title, company, location, duration, skillsRequired, deadline } = req.body;
 
     const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
+
 
     if (validationError) {
         return res.status(400).json({ message: validationError });

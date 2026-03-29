@@ -273,7 +273,10 @@ export default function StudentMatchers() {
                         {item.company} · {item.location}
                       </p>
                     </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
                     {/* Mode + Time Preference badges */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                       {item.mode && (

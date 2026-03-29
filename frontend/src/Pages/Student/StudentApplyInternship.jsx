@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
+<<<<<<< HEAD
+=======
+
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 import { authHeaders, getUser } from "../../Utils/auth";
 
 export default function StudentApplyInternship() {
@@ -75,7 +79,10 @@ export default function StudentApplyInternship() {
     <div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", fontFamily: "'DM Sans',sans-serif" }}>
       <StudentSidebar />
       <main style={{ flex: 1, padding: "32px", minWidth: 0, overflowY: "auto" }}>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "22px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ width: "42px", height: "42px", borderRadius: "12px", background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
