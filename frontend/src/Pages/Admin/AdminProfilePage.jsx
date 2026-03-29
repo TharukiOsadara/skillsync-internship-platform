@@ -397,7 +397,7 @@ export default function AdminProfilePage() {
                         type={showPw.current ? "text" : "password"}
                         value={pwForm.currentPassword}
                         onChange={e => { setPwForm(p => ({ ...p, currentPassword: e.target.value })); setPwError(""); }}
-                        placeholder={"..."}
+                        placeholder={"......"}
                         autoComplete="current-password"
                         style={{
                           background: "#1E293B",

@@ -400,7 +400,7 @@ export default function StudentProfile() {
                 <PwInput
                   label="Current Password"
                   field="current"
-                  placeholder="..."
+                  placeholder="......"
                   value={pwForm.currentPassword}
                   onChange={e => { setPwForm(p => ({ ...p, currentPassword: e.target.value })); setPwError(""); }}
                   showPw={showPw}
