@@ -1,3 +1,4 @@
+
 /* Changed font: DM Sans — professional, clean, modern sans-serif for web apps */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
@@ -200,3 +201,4 @@
     border: 1px solid rgba(var(--accent-rgb), 0.15);
   }
 }
+
