@@ -385,7 +385,7 @@ export default function AdminProfilePage() {
                 )}
 
                 <button type="submit" disabled={pwLoading}
-                  style={{ width: "100%", marginTop: "14px", padding: "10px", background: "linear-gradient(135deg,#A78BFA,#7C3AED)", color: "#fff", fontSize: "12px", fontWeight: 800, borderRadius: "9px", border: "none", cursor: "pointer", opacity: pwLoading ? 0.7 : 1 }}>
+                  style={{ width: "100%", marginTop: "14px", padding: "10px", background: "linear-gradient(135deg,#22D3EE,#06B6D4)", color: "#060D1A", fontSize: "12px", fontWeight: 800, borderRadius: "9px", border: "none", cursor: "pointer", opacity: pwLoading ? 0.7 : 1 }}>
                   {pwLoading ? "Updating Password..." : "Update Password →"}
                 </button>
               </form>

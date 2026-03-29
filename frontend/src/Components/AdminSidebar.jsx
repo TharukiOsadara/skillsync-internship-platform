@@ -17,8 +17,8 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   // Live counts fetched from backend
-  const [userCount, setUserCount]   = useState(null);
-  const [internCount, setInternCount] = useState(null);
+  const [userCount, setUserCount]         = useState(null);
+  const [internCount, setInternCount]     = useState(null);
   const [appUnreadCount, setAppUnreadCount] = useState(null);
 
   useEffect(() => {
@@ -43,21 +43,22 @@ export default function AdminSidebar() {
   const userInitial = (user?.fullName || "A").trim().charAt(0).toUpperCase();
   const handleLogout = () => { logout(); navigate("/homepage"); };
   const active = (path) => location.pathname === path;
+
   const applyNavHoverIn = (e, isActive) => {
     if (isActive) return;
-    e.currentTarget.style.background = "rgba(34,211,238,0.1)";
-    e.currentTarget.style.borderColor = "rgba(34,211,238,0.35)";
-    e.currentTarget.style.color = "#A5F3FC";
-    e.currentTarget.style.transform = "translateX(2px)";
-    e.currentTarget.style.boxShadow = "0 10px 22px rgba(34,211,238,0.14)";
+    e.currentTarget.style.background    = "rgba(34,211,238,0.1)";
+    e.currentTarget.style.borderColor   = "rgba(34,211,238,0.35)";
+    e.currentTarget.style.color         = "#A5F3FC";
+    e.currentTarget.style.transform     = "translateX(2px)";
+    e.currentTarget.style.boxShadow     = "0 10px 22px rgba(34,211,238,0.14)";
   };
   const applyNavHoverOut = (e, isActive) => {
     if (isActive) return;
-    e.currentTarget.style.background = "transparent";
-    e.currentTarget.style.borderColor = "transparent";
-    e.currentTarget.style.color = "#4E6785";
-    e.currentTarget.style.transform = "translateX(0)";
-    e.currentTarget.style.boxShadow = "none";
+    e.currentTarget.style.background    = "transparent";
+    e.currentTarget.style.borderColor   = "transparent";
+    e.currentTarget.style.color         = "#4E6785";
+    e.currentTarget.style.transform     = "translateX(0)";
+    e.currentTarget.style.boxShadow     = "none";
   };
 
   // ── Shared styles ──────────────────────────────────────────────────────────
@@ -118,7 +119,6 @@ export default function AdminSidebar() {
         borderBottom: "1px solid rgba(255,255,255,0.07)",
         marginBottom: "4px",
       }}>
-        {/* Icon */}
         <div style={{
           width: "44px", height: "44px", flexShrink: 0,
           background: "linear-gradient(135deg,#0ea5e9,#22D3EE)",
@@ -132,8 +132,6 @@ export default function AdminSidebar() {
             <path d="M2 12l10 5 10-5" />
           </svg>
         </div>
-
-        {/* Text */}
         {!collapsed && (
           <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
             <div style={{ fontSize: "17px", fontWeight: 800, color: "#F1F5F9",
@@ -167,22 +165,21 @@ export default function AdminSidebar() {
           width: "100%",
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = "rgba(34,211,238,0.12)";
-          e.currentTarget.style.borderColor = "rgba(34,211,238,0.28)";
-          e.currentTarget.style.boxShadow = "0 8px 20px rgba(34,211,238,0.12)";
+          e.currentTarget.style.background   = "rgba(34,211,238,0.12)";
+          e.currentTarget.style.borderColor  = "rgba(34,211,238,0.28)";
+          e.currentTarget.style.boxShadow    = "0 8px 20px rgba(34,211,238,0.12)";
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(34,211,238,0.04)";
-          e.currentTarget.style.borderColor = "rgba(34,211,238,0.08)";
-          e.currentTarget.style.boxShadow = "none";
+          e.currentTarget.style.background   = "rgba(34,211,238,0.04)";
+          e.currentTarget.style.borderColor  = "rgba(34,211,238,0.08)";
+          e.currentTarget.style.boxShadow    = "none";
         }}
       >
         {!collapsed && <span style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>Collapse</span>}
         <Ico size={13} stroke="#22D3EE">
           {collapsed
             ? <polyline points="9 18 15 12 9 6" />
-            : <polyline points="15 18 9 12 15 6" />
-          }
+            : <polyline points="15 18 9 12 15 6" />}
         </Ico>
       </button>
 
@@ -224,6 +221,7 @@ export default function AdminSidebar() {
         {!collapsed && userCount !== null && <span style={S.badge}>{userCount}</span>}
       </Link>
 
+      {/* Applications */}
       <Link to="/admin/applications" style={S.navItem(active("/admin/applications"))}
         onMouseEnter={e => applyNavHoverIn(e, active("/admin/applications"))}
         onMouseLeave={e => applyNavHoverOut(e, active("/admin/applications"))}
@@ -295,6 +293,25 @@ export default function AdminSidebar() {
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Matching Engine</span>}
       </Link>
 
+      {/* ── ACCOUNT section ── */}
+      {!collapsed && <div style={S.secLabel}>Account</div>}
+
+      {/* My Profile ← NEW */}
+      <Link to="/admin/profile" style={S.navItem(active("/admin/profile"))}
+        onMouseEnter={e => applyNavHoverIn(e, active("/admin/profile"))}
+        onMouseLeave={e => applyNavHoverOut(e, active("/admin/profile"))}
+        title={collapsed ? "My Profile" : ""}
+      >
+        {active("/admin/profile") && <span style={{ position:"absolute",left:0,top:"22%",bottom:"22%",width:"3px",background:"#22D3EE",borderRadius:"0 3px 3px 0" }} />}
+        <div style={S.ibox(active("/admin/profile"))}>
+          <Ico stroke={active("/admin/profile") ? "#22D3EE" : "#4E6785"}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </Ico>
+        </div>
+        {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>My Profile</span>}
+      </Link>
+
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
@@ -310,7 +327,6 @@ export default function AdminSidebar() {
         marginTop: "8px",
         transition: "padding 0.25s",
       }}>
-        {/* Avatar + green dot */}
         <div style={{ position: "relative", flexShrink: 0 }}>
           <div style={{
             width: "36px", height: "36px",
@@ -326,14 +342,12 @@ export default function AdminSidebar() {
             border: "2px solid #0A1628",
           }} />
         </div>
-
         {!collapsed && (
           <div style={{ overflow: "hidden" }}>
             <div style={{ fontSize: "12px", fontWeight: 700, color: "#F1F5F9",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user?.fullName || "Admin User"}
             </div>
-            {/* Shield + ADMIN role badge */}
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               marginTop: "5px",
@@ -369,14 +383,14 @@ export default function AdminSidebar() {
           transition: "all .2s",
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = "rgba(248,113,113,0.14)";
+          e.currentTarget.style.background  = "rgba(248,113,113,0.14)";
           e.currentTarget.style.borderColor = "rgba(248,113,113,0.3)";
-          e.currentTarget.style.boxShadow = "0 10px 22px rgba(248,113,113,0.15)";
+          e.currentTarget.style.boxShadow   = "0 10px 22px rgba(248,113,113,0.15)";
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(248,113,113,0.06)";
+          e.currentTarget.style.background  = "rgba(248,113,113,0.06)";
           e.currentTarget.style.borderColor = "rgba(248,113,113,0.12)";
-          e.currentTarget.style.boxShadow = "none";
+          e.currentTarget.style.boxShadow   = "none";
         }}
       >
         <div style={{
@@ -386,9 +400,7 @@ export default function AdminSidebar() {
         }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
             stroke="#F87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            {/* The "door" remains on the right side of the icon now */}
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-            {/* Arrow pointing left */}
             <polyline points="10 17 5 12 10 7" />
             <line x1="5" y1="12" x2="15" y2="12" />
           </svg>
