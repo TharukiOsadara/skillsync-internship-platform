@@ -62,26 +62,29 @@ const StatCard = ({ label, value, icon }) => {
         background: "#0F172A",
         border: `1px solid ${color}22`,
         borderRadius: "12px",
-        padding: "13px 14px",
+        padding: "8px 8px",
+        minWidth: 0,
+        maxWidth: "180px",
         display: "flex",
         alignItems: "center",
-        gap: "10px",
+        gap: "8px",
         fontFamily: "'DM Sans',sans-serif",
         fontSize: "11px",
         color: "#F1F5F9",
         fontWeight: 600,
         cursor: "pointer",
-        transition: "box-shadow .15s, border-color .15s"
+        transition: "box-shadow .15s, border-color .15s",
+        wordBreak: "break-word"
       }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#22D3EE22"; }}
     >
-      <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <Ico size={14} stroke={color}>{icon}</Ico>
+      <div style={{ width: "28px", height: "28px", borderRadius: "10px", background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <Ico size={12} stroke={color}>{icon}</Ico>
       </div>
       <div>
         <p style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, margin: 0 }}>{label}</p>
-        <p style={{ color: color, fontSize: "13px", fontWeight: 800, margin: "3px 0 0" }}>{value || "—"}</p>
+        <p style={{ color: color, fontSize: "11px", fontWeight: 800, margin: "3px 0 0", wordBreak: "break-word" }}>{value || "—"}</p>
       </div>
     </div>
   );
@@ -265,11 +268,9 @@ export default function AdminProfilePage() {
         </div>
 
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "24px", ...revealStyle(60) }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "12px", marginBottom: "24px", ...revealStyle(60) }}>
           <StatCard label="Role" value={user?.role} icon={<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /><path d="M9 12l2 2 4-4" /></>} />
           <StatCard label="Member Since" value={memberSince} icon={<><rect x="3" y="4" width="18" height="17" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>} />
-          <StatCard label="Last Login" value={lastLogin} icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>} />
-          <StatCard label="Live Time" value={liveTime.toLocaleTimeString()} icon={<><circle cx="12" cy="12" r="9" /><polyline points="12 8 12 12 15 12" /></>} />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", ...revealStyle(120) }}>
@@ -345,7 +346,7 @@ export default function AdminProfilePage() {
             {/* Account Info Card */}
             <div style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: "14px", padding: "18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-                <PageIcon color="#4ADE80" bg="rgba(74,222,128,0.08)" border="rgba(74,222,128,0.15)">
+                <PageIcon color="#22D3EE" bg="rgba(34,211,238,0.1)" border="rgba(34,211,238,0.2)">
                   <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                 </PageIcon>
                 <div>
@@ -354,18 +355,16 @@ export default function AdminProfilePage() {
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {[
-                  { label: "User ID", value: user?._id, color: "#22D3EE" },
-                  { label: "Email (Gmail)", value: user?.gmail, color: "#4ADE80" },
-                  { label: "Account Role", value: user?.role, color: "#A78BFA" },
-                  { label: "Member Since", value: memberSince, color: "#FCD34D" },
-                  { label: "Last Login", value: lastLogin, color: "#22D3EE" },
-                  { label: "Education", value: user?.education || "—", color: "#94A3B8" },
-                  { label: "Experience", value: user?.experience || "—", color: "#94A3B8" },
-                ].map(({ label, value, color }) => (
+                {[ 
+                  { label: "Email (Gmail)", value: user?.gmail },
+                  { label: "Account Role", value: user?.role },
+                  { label: "Member Since", value: memberSince },
+                  { label: "Education", value: user?.education || "—" },
+                  { label: "Experience", value: user?.experience || "—" },
+                ].map(({ label, value }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "8px", borderBottom: "1px solid #1E293B" }}>
                     <span style={{ color: "#64748B", fontSize: "11px", fontWeight: 600 }}>{label}</span>
-                    <span style={{ color, fontSize: "11px", fontWeight: 700, textAlign: "right", maxWidth: "60%", wordBreak: "break-all" }}>{value}</span>
+                    <span style={{ color: "#22D3EE", fontSize: "11px", fontWeight: 700, textAlign: "right", maxWidth: "60%", wordBreak: "break-all" }}>{value}</span>
                   </div>
                 ))}
               </div>

@@ -263,7 +263,9 @@ export default function StudentProfile() {
                   background: "#1E293B",
                   border: "1px solid #334155",
                   borderRadius: "10px",
-                  padding: "14px 12px",
+                  padding: "8px 8px",
+                  minWidth: 0,
+                  maxWidth: "180px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
@@ -272,19 +274,22 @@ export default function StudentProfile() {
                   fontSize: "11px",
                   color: "#F1F5F9",
                   fontWeight: 600,
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  wordBreak: "break-word"
                 }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
                 >
                   <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Full Name</span>
-                  {form.fullName || "Kasun Rajapaksha"}
+                  <span style={{ fontSize: "11px", fontWeight: 600, color: "#F1F5F9", wordBreak: "break-word" }}>{form.fullName || "Kasun Rajapaksha"}</span>
                 </div>
                 <div style={{
                   background: "#1E293B",
                   border: "1px solid #334155",
                   borderRadius: "10px",
-                  padding: "14px 12px",
+                  padding: "8px 8px",
+                  minWidth: 0,
+                  maxWidth: "180px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
@@ -293,13 +298,14 @@ export default function StudentProfile() {
                   fontSize: "11px",
                   color: "#F1F5F9",
                   fontWeight: 600,
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  wordBreak: "break-word"
                 }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
                 >
                   <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Email</span>
-                  {form.gmail || "you@example.com"}
+                  <span style={{ fontSize: "11px", fontWeight: 600, color: "#F1F5F9", wordBreak: "break-word" }}>{form.gmail || "you@example.com"}</span>
                 </div>
                 <div style={{
                   background: "#1E293B",
