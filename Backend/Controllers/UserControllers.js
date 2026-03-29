@@ -8,6 +8,7 @@ const digitsOnly = (value = '') => String(value).replace(/\D/g, '');
 const getAuthUser = async (req) => {
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ')) return null;
+
     const token = authHeader.split(' ')[1];
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET || 'skillsync_dev_secret');
@@ -27,31 +28,26 @@ const requireAdmin = async (req, res) => {
     return authUser;
 };
 
-
-const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience, mode, timePreference, description, role }) => {
+const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo, skills, education, experience }) => {
     if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
         return 'All required fields must be filled.';
     }
-    if (role === 'Student' && (!mode || !timePreference || !description)) {
-        return 'For Student role, Work Mode, Time Preference, and Description are required.';
-    }
+
     if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
+
     const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
+    if (!emailRx.test(String(gmail))) {
+        return 'Gmail must start with a letter and be a valid email.';
+    }
 
     if (!hasLetter(address)) return 'Address cannot be only numbers.';
     if (skills && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (!hasLetter(education)) return 'Education cannot be only numbers.';
     if (!hasLetter(experience)) return 'Experience cannot be only numbers.';
 
-    if (role === 'Student') {
-        if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) return 'Please select a valid work mode.';
-        if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
-        if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
-        if (!hasLetter(description)) return 'Description cannot be only numbers.';
-    }
     const phoneDigits = digitsOnly(phoneNo);
     if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
+
     if (Number(age) < 16 || Number(age) > 60) return 'Age must be between 16 and 60.';
     if (password.length < 6) return 'Password must be at least 6 characters.';
 
@@ -87,11 +83,55 @@ const validateSelfUpdatePayload = ({ fullName, gmail, age, address, phoneNo, ski
 // @route   POST /api/users/register
 const registerUser = async (req, res) => {
     try {
-        const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
+        const {
+            fullName,
+            gmail,
+            password,
+            age,
+            address,
+            phoneNo,
+            role,
+            skills,
+            education,
+            experience,
+            mode,
+            timePreference,
+            description
+        } = req.body;
 
-        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        const validationError = validateUserPayload({
+            fullName,
+            gmail,
+            password,
+            age,
+            address,
+            phoneNo,
+            skills,
+            education,
+            experience
+        });
+
         if (validationError) {
             return res.status(400).json({ success: false, message: validationError });
+        }
+
+        // 🔥 NEW: Validate student-specific fields
+        if (role === 'Student') {
+            if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) {
+                return res.status(400).json({ success: false, message: 'Please select a valid work mode.' });
+            }
+
+            if (!timePreference || !['Day', 'Night'].includes(timePreference)) {
+                return res.status(400).json({ success: false, message: 'Please select a valid time preference.' });
+            }
+
+            if (!description || String(description).trim().length < 10) {
+                return res.status(400).json({ success: false, message: 'Description must be at least 10 characters.' });
+            }
+
+            if (!hasLetter(description)) {
+                return res.status(400).json({ success: false, message: 'Description cannot be only numbers.' });
+            }
         }
 
         // Check if user already exists
@@ -103,27 +143,38 @@ const registerUser = async (req, res) => {
         const user = await User.create({
             fullName,
             gmail,
-            password, // Note: In a real app, hash this with bcrypt first!
+            password,
             age,
             address,
             phoneNo: digitsOnly(phoneNo),
             role,
             skills,
             education,
-            experience
+            experience,
+            mode: role === 'Student' ? mode : '',
+            timePreference: role === 'Student' ? timePreference : '',
+            description: role === 'Student' ? description : ''
         });
 
         const payload = { id: user._id, role: user.role, gmail: user.gmail };
-        const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
+        const token = jwt.sign(
+            payload,
+            process.env.JWT_SECRET || 'skillsync_dev_secret',
+            { expiresIn: '7d' }
+        );
 
-        return res.status(201).json({ success: true, user, token });
+        return res.status(201).json({
+            success: true,
+            user,
+            token
+        });
+
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
 // @desc    Login user
-
 // @route   POST /users/login
 const loginUser = async (req, res) => {
     try {
@@ -157,7 +208,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-
 // @desc    Get all users (Useful for Admin to see students)
 // @route   GET /api/users
 const getUsers = async (req, res) => {
@@ -169,17 +219,15 @@ const getUsers = async (req, res) => {
         return res.status(200).json({ users });
     } catch (err) {
         console.log(err);
-
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
-
-
-// @desc    Get single user
+// @desc    Get single user profile
+// @route   GET /api/users/:id
 const getUserById = async (req, res) => {
-
-
+    const id = req.params.id;
+    let user;
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -188,7 +236,6 @@ const getUserById = async (req, res) => {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
-
 
 
 //Data Insert
@@ -260,8 +307,6 @@ const updateUser = async (req, res) => {
         }
     }
 
-
-
     const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
     if (validationError) {
         return res.status(400).json({ success: false, message: validationError });
@@ -270,59 +315,77 @@ const updateUser = async (req, res) => {
     const updates = { updatedAt: new Date() };
     const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo'];
 
-
-
     allowedSelfFields.forEach((field) => {
         if (req.body[field] !== undefined) {
             updates[field] = field === 'phoneNo' ? digitsOnly(req.body[field]) : req.body[field];
         }
     });
 
-
-    if (Object.keys(updates).length === 1) return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
+    if (Object.keys(updates).length === 1) {
+        return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
+    }
 
     try {
         const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
-        if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
-
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
         return res.status(200).json({ success: true, data: user });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
-
-
-// @desc    Delete user
+//delete user
 const deleteUser = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
     if (!adminUser) return;
+
     const { adminPassword } = req.body || {};
-    if (!adminPassword) return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
-    if (adminPassword !== adminUser.password) return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
     const id = req.params.id;
+    let user;
     try {
-        if (String(adminUser._id) === String(id)) return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
-        const user = await User.findByIdAndDelete(id);
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (String(adminUser._id) === String(id)) {
+            return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
+        }
 
-
+        user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         return res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
-
-// @desc    View a user's password (admin only)
+// @desc    Reveal a user's password (admin only, with admin password confirmation)
+// @route   POST /users/:id/view-password
 const viewUserPassword = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
     if (!adminUser) return;
+
     const { adminPassword } = req.body || {};
-    if (!adminPassword) return res.status(400).json({ success: false, message: 'Admin password is required.' });
-    if (adminUser.password !== adminPassword) return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    if (!adminPassword) {
+        return res.status(400).json({ success: false, message: 'Admin password is required.' });
+    }
+
+    if (adminUser.password !== adminPassword) {
+        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
+    }
+
     try {
         const targetUser = await User.findById(req.params.id).select('+password');
-        if (!targetUser) return res.status(404).json({ success: false, message: 'User not found.' });
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
 
         return res.status(200).json({ success: true, password: targetUser.password });
     } catch (err) {
@@ -330,111 +393,13 @@ const viewUserPassword = async (req, res) => {
     }
 };
 
+exports.registerUser = registerUser;
+exports.loginUser = loginUser;
+exports.getUsers = getUsers;
+exports.getUserById = getUserById;
+exports.addUsers = addUsers;
+exports.updateUser = updateUser;
+exports.deleteUser = deleteUser;
+exports.viewUserPassword = viewUserPassword;
 
-// @desc    Get all user emails (for login suggestions)
-const getUserEmails = async (req, res) => {
-    try {
-        const users = await User.find({}, { gmail: 1, role: 1, _id: 0 });
-        return res.status(200).json({ emails: users });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// @desc    Forgot Password — Step 1: verify email exists and return role
-// @route   POST /users/forgot-password/verify
-// Frontend sends { gmail }
-// Backend checks if user exists → returns { exists: true, role: "Student"|"Admin" }
-// ─────────────────────────────────────────────────────────────────────────────
-const verifyForgotEmail = async (req, res) => {
-    try {
-        const { gmail } = req.body;
-        if (!gmail) return res.status(400).json({ success: false, message: 'Email is required.' });
-        const user = await User.findOne({ gmail });
-        if (!user) return res.status(404).json({ success: false, message: 'No account found with this email.' });
-        return res.status(200).json({ success: true, role: user.role, fullName: user.fullName });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// @desc    Forgot Password — Step 2: reset password (no auth required)
-// @route   POST /users/forgot-password/reset
-// Frontend sends { gmail, newPassword, confirmPassword }
-// Updates password in DB directly (plain text, matching existing system)
-// ─────────────────────────────────────────────────────────────────────────────
-const resetForgotPassword = async (req, res) => {
-    try {
-        const { gmail, newPassword, confirmPassword } = req.body;
-        if (!gmail || !newPassword || !confirmPassword) {
-            return res.status(400).json({ success: false, message: 'All fields are required.' });
-        }
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({ success: false, message: 'Passwords do not match.' });
-        }
-        if (newPassword.length < 6) {
-            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
-        }
-        const user = await User.findOne({ gmail }).select('+password');
-        if (!user) return res.status(404).json({ success: false, message: 'No account found with this email.' });
-        if (newPassword === user.password) {
-            return res.status(400).json({ success: false, message: 'New password must be different from the current password.' });
-        }
-        user.password = newPassword;
-        user.updatedAt = new Date();
-        await user.save();
-        return res.status(200).json({ success: true, message: 'Password reset successfully. You can now log in with your new password.' });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// @desc    Change Password (authenticated — for profile pages)
-// @route   POST /users/change-password
-// Requires Bearer token. Sends { currentPassword, newPassword, confirmPassword }
-// ─────────────────────────────────────────────────────────────────────────────
-const changePassword = async (req, res) => {
-    const authUser = await getAuthUser(req);
-    if (!authUser) return res.status(401).json({ success: false, message: 'Not authorized.' });
-    try {
-        const { currentPassword, newPassword, confirmPassword } = req.body;
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            return res.status(400).json({ success: false, message: 'All password fields are required.' });
-        }
-        if (currentPassword !== authUser.password) {
-            return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
-        }
-        if (newPassword.length < 6) {
-            return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
-        }
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({ success: false, message: 'New passwords do not match.' });
-        }
-        if (newPassword === currentPassword) {
-            return res.status(400).json({ success: false, message: 'New password must be different from the current password.' });
-        }
-        authUser.password = newPassword;
-        authUser.updatedAt = new Date();
-        await authUser.save();
-        return res.status(200).json({ success: true, message: 'Password changed successfully.' });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-exports.registerUser       = registerUser;
-exports.loginUser          = loginUser;
-exports.getUsers           = getUsers;
-exports.getUserById        = getUserById;
-exports.addUsers           = addUsers;
-exports.updateUser         = updateUser;
-exports.deleteUser         = deleteUser;
-exports.viewUserPassword   = viewUserPassword;
-exports.getUserEmails      = getUserEmails;
-exports.verifyForgotEmail  = verifyForgotEmail;
-exports.resetForgotPassword = resetForgotPassword;
-exports.changePassword     = changePassword;
 

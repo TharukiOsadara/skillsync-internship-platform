@@ -1,15 +1,16 @@
-
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
     fullName: {
         type: String,
         required: true,
+        trim: true
     },
     gmail: {
         type: String,
         required: true,
         unique: true,
+        trim: true,
         match: [
             /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
             'Gmail must start with a letter and be valid'
@@ -19,17 +20,18 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6,
-
-        select: false // This hides the password by default when fetching user data
-
+        select: false
     },
     age: {
         type: Number,
         required: true,
+        min: 16,
+        max: 60
     },
     address: {
         type: String,
         required: true,
+        trim: true
     },
     phoneNo: {
         type: String,
@@ -38,34 +40,42 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-
-        enum: ['Student', 'Admin'], // Only these two roles allowed
+        enum: ['Student', 'Admin'],
         default: 'Student'
     },
-    // For your matching engine, we store skills here
-    skills: {
-        type: String, 
 
-        default: ''
+    // Matching engine
+    skills: {
+        type: String,
+        default: '',
+        trim: true
     },
+
     education: {
         type: String,
         required: true,
+        trim: true
     },
+
     experience: {
         type: String,
         required: true,
+        trim: true
     },
+
+    // 🔥 NEW FIELDS (IMPORTANT)
     mode: {
         type: String,
-        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid', ''],
+        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid'],
         default: ''
     },
+
     timePreference: {
         type: String,
-        enum: ['Day', 'Night', ''],
+        enum: ['Day', 'Night'],
         default: ''
     },
+
     description: {
         type: String,
         default: ''
@@ -75,18 +85,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    },
+
     lastLoginAt: {
         type: Date,
         default: null
     }
-});
+
+}, { timestamps: true }); // ✅ replaces createdAt + updatedAt
 
 module.exports = mongoose.model('User', UserSchema);

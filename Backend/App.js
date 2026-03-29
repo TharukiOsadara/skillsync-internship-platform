@@ -1,29 +1,35 @@
-//pw- UlXBiR5jYEmmFQSd
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
-const cors = require('cors');//lead the web brower to access its resources from different origins (domains, ports, or protocols) than its own.
-const router = require('./Routes/UserRoutes');
-const internshipRouter = require('./Routes/InternshipRoutes');
-const cvRouter = require('./Routes/CVRoutes');
+const internshipRouter = require("./Routes/InternshipRoutes");
+const userRouter = require("./Routes/UserRoutes");
 
+dotenv.config();
 
 const app = express();
 
-
-// Middleware to parse JSON bodies
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use("/users", router);
+// Test route
+app.get("/", (req, res) => {
+  res.send("Backend is working ✅");
+});
+
+// Routes
 app.use("/internships", internshipRouter);
-app.use("/cv", cvRouter);
+app.use("/users", userRouter);
 
-
-mongoose.connect("mongodb+srv://admin:UlXBiR5jYEmmFQSd@cluster0.pa8q59u.mongodb.net/")
-.then(() => console.log("Connected to MongoDB"))
-.then(() => {
-  app.listen(5000, () => console.log("Server running on http://localhost:5000"));
-})
-.catch((err) => console.log("Failed to connect to MongoDB", err));
+// Database connection
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(process.env.PORT || 5000, () =>
+      console.log(`Server running on http://localhost:${process.env.PORT || 5000}`)
+    );
+  })
+  .catch((err) => console.log("Failed to connect to MongoDB", err));

@@ -30,17 +30,12 @@ const InternshipSchema = new mongoose.Schema({
         required: true,
     },
     skillsRequired: {
-        type: String, // Storing as string to match your User model
+        type: String,
         required: true,
         validate: {
             validator: (v) => !/^\d/.test(String(v).trim()),
             message: 'Skills cannot start with a number'
         }
-    },
-    status: {
-        type: String,
-        enum: ['Active', 'Expired'],
-        default: 'Active'
     },
     deadline: {
         type: Date,
@@ -48,22 +43,18 @@ const InternshipSchema = new mongoose.Schema({
     },
     mode: {
         type: String,
-        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid'],
         required: true,
+        enum: ['Online/Remote', 'Physical/On-site', 'Hybrid']
     },
     timePreference: {
         type: String,
-        enum: ['Day', 'Night'],
         required: true,
+        enum: ['Day', 'Night']
     },
     description: {
         type: String,
         required: true,
-        minlength: 10,
-        validate: {
-            validator: (v) => /[A-Za-z]/.test(String(v)),
-            message: 'Description must contain letters'
-        }
+        minlength: 10
     },
     status: {
         type: String,
