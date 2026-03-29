@@ -62,10 +62,7 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Invalid credentials.");
       saveAuth(data.token, data.user);
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
       navigate(data.user.role === "Admin" ? "/admin/dashboard" : "/student/matches", { replace: true });
     } catch { setError("Server error. Please try again."); }
     finally { setLoading(false); }

@@ -315,10 +315,7 @@ export default function AdminDashboard() {
                   {(showStudentsTable
                     ? ["#","Full Name","Gmail","Age","Last Login","Status"]
                     : ["#","Title","Company","Location","Mode","Time","Deadline","Status"]).map(h=>(
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
                     <th key={h} className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider px-5 py-3"
                       style={{borderBottom:"1px solid #1E293B",position:"sticky",top:0,background:"#0B1220",zIndex:2}}>{h}</th>
                   ))}
@@ -357,10 +354,7 @@ export default function AdminDashboard() {
                               {item.timePreference||"N/A"}
                             </span>
                           </td>
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
                           <td className={`px-5 py-3.5 text-sm ${expired?"text-red-400":"text-slate-400"}`}>{new Date(item.deadline).toLocaleDateString()}</td>
                           <td className="px-5 py-3.5"><span className={expired?"badge-expired":"badge-active"}>{expired?"Expired":"Active"}</span></td>
                         </tr>
@@ -371,10 +365,7 @@ export default function AdminDashboard() {
                 )}
                 {!showStudentsTable && tableInternships.length===0 && (
                   <tr><td colSpan={8} className="text-center text-slate-400 text-sm py-10">No internships found for this filter</td></tr>
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
                 )}
               </tbody>
             </table>

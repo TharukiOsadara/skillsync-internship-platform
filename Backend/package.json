@@ -12,13 +12,9 @@
     "start": "node App.js"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "bcryptjs": "^2.4.3",
-=======
 
     "bcryptjs": "^2.4.3",
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^5.2.1",

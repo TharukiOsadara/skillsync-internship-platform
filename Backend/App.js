@@ -19,10 +19,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use("/users", router);
 app.use("/internships", internshipRouter);
 app.use("/cv", cvRouter);
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 
 mongoose.connect("mongodb+srv://admin:UlXBiR5jYEmmFQSd@cluster0.pa8q59u.mongodb.net/")
 .then(() => console.log("Connected to MongoDB"))

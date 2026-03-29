@@ -13,10 +13,7 @@ const Ico = ({ size = 14, stroke = "currentColor", children }) => (
 
 export default function Register() {
   const navigate = useNavigate();
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
   const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "", mode: "", timePreference: "", description: "" });
 
   const [error, setError] = useState("");
@@ -189,10 +186,7 @@ export default function Register() {
                   {form.skills.split(",").map((s, i) => s.trim() ? <span key={i} className="skill-tag">{s.trim()}</span> : null)}
                 </div>
               )}
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
               {/* Conditionally show mode, timePreference, description for Student role */}
               {form.role === "Student" && (
                 <>

@@ -1,8 +1,5 @@
 import StudentSidebar from "../../Components/StudentSidebar";
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 
 
@@ -17,10 +14,7 @@ export default function StudentNotifications() {
 		<div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", fontFamily: "'DM Sans',sans-serif" }}>
 			<StudentSidebar />
 			<main style={{ flex: 1, padding: "32px", minWidth: 0, overflowY: "auto" }}>
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"12px", marginBottom:"24px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
           <PageIcon>

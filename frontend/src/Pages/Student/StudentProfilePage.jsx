@@ -118,10 +118,7 @@ export default function StudentProfile() {
     education:  user?.education  || "",
     experience: user?.experience || "",
   });
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
   const [photo, setPhoto]               = useState(user?.photo || null);
   const [profileError, setProfileError] = useState("");
   const [profileSuccess, setProfileSuccess] = useState("");

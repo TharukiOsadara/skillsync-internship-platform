@@ -29,10 +29,7 @@ export default function Layout() {
       className="min-h-screen text-slate-100 font-syne"
       style={{ background: "linear-gradient(to bottom right, #020617, #0f172a, #020617)" }}
     >
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
       <div className="mx-auto flex min-h-screen w-full max-w-[96rem] flex-col">
 
         <main className="flex-1 flex flex-col">

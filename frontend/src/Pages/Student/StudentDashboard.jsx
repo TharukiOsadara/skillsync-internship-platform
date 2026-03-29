@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
 import { getUser, authHeaders } from "../../Utils/auth";
 
 const PageIcon = ({ children }) => (

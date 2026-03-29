@@ -5,10 +5,7 @@ import { getUser, authHeaders } from "../../Utils/auth";
 
 export default function AddInternship() {
   const navigate = useNavigate();
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
   const [form, setForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
 
   const [error, setError] = useState("");
@@ -37,10 +34,7 @@ export default function AddInternship() {
     if (startsWithDigit(location)) return "Location cannot start with a number.";
     if (startsWithDigit(skillsRequired)) return "Skills cannot start with a number.";
     if (!hasLetter(title) || !hasLetter(company) || !hasLetter(location) || !hasLetter(skillsRequired)) return "Title, company, location and skills must include letters.";
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
     if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
     if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
     if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
@@ -73,10 +67,7 @@ export default function AddInternship() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Failed to add internship.");
       setSuccess("Internship published successfully!");
-<<<<<<< HEAD
 
-=======
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
       setForm({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
 
       setTimeout(() => navigate("/admin/manage-internships"), 1500);
@@ -233,10 +224,7 @@ export default function AddInternship() {
           <div className="admin-hover-surface mt-5 border rounded-2xl p-5" style={{ background: "rgba(34,211,238,0.04)", borderColor: "rgba(34,211,238,0.1)", ...revealStyle(170) }}>
             <p className="text-cyan-400 font-bold text-sm mb-2">📌 Business Rules Applied</p>
             <ul className="text-slate-400 text-xs leading-7 pl-4 m-0">
-<<<<<<< HEAD
-=======
 
->>>>>>> e0d674ae2f2f05615d90c73277f4a188ef08b8bc
               <li>All fields are mandatory including Work Mode, Time Preference, and Description</li>
               <li>Description must be at least 10 characters and contain letters</li>
               <li>Work Mode options: Online/Remote, Physical/On-site, or Hybrid</li>
