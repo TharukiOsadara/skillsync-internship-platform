@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const internshipRouter = require("./Routes/InternshipRoutes");
-const userRouter = require("./Routes/UserRoutes");
 
 dotenv.config();
 
@@ -21,7 +20,6 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/internships", internshipRouter);
-app.use("/users", userRouter);
 
 // Database connection
 mongoose
