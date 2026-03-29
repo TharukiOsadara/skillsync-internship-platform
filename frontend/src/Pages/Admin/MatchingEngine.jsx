@@ -144,11 +144,7 @@ export default function MatchingEngine() {
     return () => clearInterval(timer);
   }, [matches, matchLoading, selectedInternship]);
 
-<<<<<<< HEAD
   // Matching logic: find students whose skills overlap with internship skillsRequired AND mode/timePreference match
-=======
-  // Matching logic: find students whose skills overlap with internship skillsRequired
->>>>>>> origin/CV-Builder
   const runMatching = (internship) => {
     setMatchLoading(true);
     setSelectedInternship(internship);
@@ -171,7 +167,6 @@ export default function MatchingEngine() {
 
         return { ...student, matchedSkills: overlap, matchScore: overlap.length };
       })
-<<<<<<< HEAD
       .filter((s) => {
         // Filter by skill match (must have at least 1 matched skill)
         if (s.matchScore === 0) return false;
@@ -184,9 +179,6 @@ export default function MatchingEngine() {
         
         return true;
       })
-=======
-      .filter((s) => s.matchScore > 0)
->>>>>>> origin/CV-Builder
       .sort((a, b) => b.matchScore - a.matchScore);
 
     setTimeout(() => {
@@ -291,7 +283,6 @@ export default function MatchingEngine() {
                         </span>
                       </div>
                       <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>{item.company} · {item.location}</p>
-<<<<<<< HEAD
                       <div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"8px"}}>
                         {item.mode && (
                           <span style={{
@@ -314,8 +305,6 @@ export default function MatchingEngine() {
                           </span>
                         )}
                       </div>
-=======
->>>>>>> origin/CV-Builder
                       <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
                         {(item.skillsRequired||"").split(",").slice(0,3).map((s,i)=>
                           s.trim()?<TechBadgeME key={i} skill={s}/>:null
@@ -430,7 +419,6 @@ export default function MatchingEngine() {
                               <p style={{ color: "#94A3B8", fontSize: "12px", margin: "0 0 8px" }}>
                                 {student.gmail} · {student.education}
                               </p>
-<<<<<<< HEAD
                               {/* Mode and Time Preference Badges */}
                               <div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"8px"}}>
                                 {student.mode && (
@@ -454,8 +442,6 @@ export default function MatchingEngine() {
                                   </span>
                                 )}
                               </div>
-=======
->>>>>>> origin/CV-Builder
                               <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                                 {student.matchedSkills.map((skill, i) => (
                                   <TechBadgeME key={i} skill={"✓ "+skill}/>
@@ -484,16 +470,10 @@ export default function MatchingEngine() {
         <div className="admin-hover-surface" style={{...styles.rulesBox, ...revealStyle(220)}}>
           <p style={styles.rulesTitle}>📌 Matching Engine Rules</p>
           <ul style={styles.rulesList}>
-<<<<<<< HEAD
             <li>Student skills must overlap with internship required skills</li>
             <li>Student work mode preference must match internship mode requirement</li>
             <li>Student time preference must match internship time preference requirement</li>
             <li>Students are ranked by skill match score (highest overlap first)</li>
-=======
-            <li>Only students whose skill tags overlap with internship skill tags are shown</li>
-            <li>Students are ranked by match score (highest overlap first)</li>
-            <li>Matching triggers automatically when you click an internship</li>
->>>>>>> origin/CV-Builder
             <li>Match percentage = matched skills ÷ total required skills × 100</li>
           </ul>
         </div>

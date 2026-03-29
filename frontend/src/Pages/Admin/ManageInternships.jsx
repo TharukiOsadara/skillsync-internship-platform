@@ -45,11 +45,8 @@ export default function ManageInternships() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState(null);
   const [editItem, setEditItem] = useState(null);
-<<<<<<< HEAD
   const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "", mode: "", timePreference: "", description: "" });
-=======
-  const [editForm, setEditForm] = useState({ title: "", company: "", location: "", duration: "", skillsRequired: "", deadline: "" });
->>>>>>> origin/CV-Builder
+
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
   const [entered, setEntered] = useState(false);
@@ -88,29 +85,23 @@ export default function ManageInternships() {
   };
 
   const validateInternshipInput = (payload) => {
-<<<<<<< HEAD
+
     const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = payload;
     const startsWithDigit = (v) => /^\d/.test(String(v || "").trim());
     const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
     if (!title || !company || !location || !duration || !skillsRequired || !deadline || !mode || !timePreference || !description) return "All fields are mandatory.";
-=======
-    const { title, company, location, duration, skillsRequired, deadline } = payload;
-    const startsWithDigit = (v) => /^\d/.test(String(v || "").trim());
-    const hasLetter = (v) => /[A-Za-z]/.test(String(v || ""));
-    if (!title || !company || !location || !duration || !skillsRequired || !deadline) return "All fields are mandatory.";
->>>>>>> origin/CV-Builder
+
     if (startsWithDigit(title)) return "Title cannot start with a number.";
     if (startsWithDigit(company)) return "Company name cannot start with a number.";
     if (startsWithDigit(location)) return "Location cannot start with a number.";
     if (startsWithDigit(skillsRequired)) return "Skills cannot start with a number.";
     if (!hasLetter(title) || !hasLetter(company) || !hasLetter(location) || !hasLetter(skillsRequired)) return "Title, company, location and skills must include letters.";
-<<<<<<< HEAD
+
     if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
     if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
     if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
     if (!hasLetter(description)) return "Description cannot be only numbers.";
-=======
->>>>>>> origin/CV-Builder
+
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (new Date(deadline) <= today) return "Deadline must be a future date.";
     return null;
@@ -126,12 +117,11 @@ export default function ManageInternships() {
       duration: item.duration || "",
       skillsRequired: item.skillsRequired || "",
       deadline: item.deadline ? new Date(item.deadline).toISOString().split("T")[0] : "",
-<<<<<<< HEAD
+
       mode: item.mode || "",
       timePreference: item.timePreference || "",
       description: item.description || "",
-=======
->>>>>>> origin/CV-Builder
+
     });
   };
 
@@ -275,11 +265,8 @@ export default function ManageInternships() {
             <table className="w-full border-collapse">
               <thead>
                 <tr style={{ background: "#0B1220" }}>
-<<<<<<< HEAD
                   {["#", "Title", "Company", "Location", "Skills", "Mode", "Time", "Description", "Deadline", "Status", "Action"].map(h => (
-=======
-                  {["#", "Title", "Company", "Location", "Skills", "Deadline", "Status", "Action"].map(h => (
->>>>>>> origin/CV-Builder
+
                     <th key={h} className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3"
                       style={{ borderBottom: "1px solid #1E293B", position:"sticky", top:0, background:"#0B1220", zIndex:2 }}>
                       {h}
@@ -314,7 +301,7 @@ export default function ManageInternships() {
                           )}
                         </div>
                       </td>
-<<<<<<< HEAD
+
                       <td className="px-4 py-3 text-slate-400 text-sm">
                         <span style={{background:item.mode==="Online/Remote"?"rgba(34,211,238,0.1)":item.mode==="Physical/On-site"?"rgba(74,222,128,0.1)":"rgba(167,139,250,0.1)",color:item.mode==="Online/Remote"?"#22D3EE":item.mode==="Physical/On-site"?"#4ADE80":"#A78BFA",padding:"2px 8px",borderRadius:"6px",fontSize:"10px",fontWeight:700}}>
                           {item.mode||"N/A"}
@@ -330,8 +317,7 @@ export default function ManageInternships() {
                           {item.description||"N/A"}
                         </div>
                       </td>
-=======
->>>>>>> origin/CV-Builder
+
                       <td className={`px-4 py-3 text-sm ${expired ? "text-red-400" : "text-slate-400"}`}>
                         {new Date(item.deadline).toLocaleDateString("en-GB")}
                       </td>
@@ -396,11 +382,9 @@ export default function ManageInternships() {
       {/* Edit modal */}
       {editItem && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-<<<<<<< HEAD
+
           <div className="card w-full mx-4" style={{ maxWidth: "42rem", maxHeight: "90vh", overflowY: "auto", padding: "32px" }}>
-=======
-          <div className="card p-8 max-w-2xl w-full mx-4">
->>>>>>> origin/CV-Builder
+
             <h3 className="text-slate-200 font-extrabold text-lg mb-5">Update Internship</h3>
             <div className="grid grid-cols-2 gap-4">
               {["title", "company", "location", "duration", "skillsRequired"].map((field) => (
@@ -424,7 +408,7 @@ export default function ManageInternships() {
                   className="input-field"
                 />
               </div>
-<<<<<<< HEAD
+
               <div className="flex flex-col gap-1.5">
                 <label className="text-slate-400 text-xs font-semibold">Work Mode *</label>
                 <select
@@ -462,8 +446,7 @@ export default function ManageInternships() {
               {editForm.description && (
                 <span className="text-cyan-400 text-xs font-semibold">{editForm.description.length} characters</span>
               )}
-=======
->>>>>>> origin/CV-Builder
+
             </div>
             {actionError && <div className="bg-red-400/10 border border-red-400/30 text-red-400 px-4 py-3 rounded-xl text-sm mt-4">{actionError}</div>}
             <div className="flex gap-3 mt-6">

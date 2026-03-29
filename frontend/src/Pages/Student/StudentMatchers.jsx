@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
-<<<<<<< HEAD
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
-=======
->>>>>>> origin/CV-Builder
+
 import { getUser, authHeaders } from "../../Utils/auth";
 
 const Ico = ({ stroke = "#22D3EE", size = 14, children }) => (
@@ -101,11 +99,8 @@ export default function StudentMatchers() {
   return (
     <div className="bg-[#0B1220] min-h-screen font-syne">
       <Header />
-<<<<<<< HEAD
       <main className="max-w-6xl mx-auto px-8 py-10">
-=======
-      <main className="w-full px-8 py-10">
->>>>>>> origin/CV-Builder
+
 
         {/* ── Welcome card ── */}
         <div style={{
@@ -279,7 +274,6 @@ export default function StudentMatchers() {
                       </p>
                     </div>
 
-<<<<<<< HEAD
                     {/* Mode + Time Preference badges */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                       {item.mode && (
@@ -304,8 +298,7 @@ export default function StudentMatchers() {
                       )}
                     </div>
 
-=======
->>>>>>> origin/CV-Builder
+
                     {/* Match progress bar */}
                     <div style={{ height: "4px", background: "#1E293B", borderRadius: "99px", overflow: "hidden" }}>
                       <div style={{

@@ -20,7 +20,7 @@ export default function LoaderPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => navigate("/login", { replace: true }), 5000);
+    const timer = setTimeout(() => navigate("/homepage", { replace: true }), 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 

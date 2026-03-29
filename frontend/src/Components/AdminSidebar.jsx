@@ -17,13 +17,10 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   // Live counts fetched from backend
-<<<<<<< HEAD
+
   const [userCount, setUserCount]         = useState(null);
   const [internCount, setInternCount]     = useState(null);
-=======
-  const [userCount, setUserCount]   = useState(null);
-  const [internCount, setInternCount] = useState(null);
->>>>>>> origin/CV-Builder
+
   const [appUnreadCount, setAppUnreadCount] = useState(null);
 
   useEffect(() => {
@@ -48,7 +45,7 @@ export default function AdminSidebar() {
   const userInitial = (user?.fullName || "A").trim().charAt(0).toUpperCase();
   const handleLogout = () => { logout(); navigate("/homepage"); };
   const active = (path) => location.pathname === path;
-<<<<<<< HEAD
+
 
   const applyNavHoverIn = (e, isActive) => {
     if (isActive) return;
@@ -65,23 +62,7 @@ export default function AdminSidebar() {
     e.currentTarget.style.color         = "#4E6785";
     e.currentTarget.style.transform     = "translateX(0)";
     e.currentTarget.style.boxShadow     = "none";
-=======
-  const applyNavHoverIn = (e, isActive) => {
-    if (isActive) return;
-    e.currentTarget.style.background = "rgba(34,211,238,0.1)";
-    e.currentTarget.style.borderColor = "rgba(34,211,238,0.35)";
-    e.currentTarget.style.color = "#A5F3FC";
-    e.currentTarget.style.transform = "translateX(2px)";
-    e.currentTarget.style.boxShadow = "0 10px 22px rgba(34,211,238,0.14)";
-  };
-  const applyNavHoverOut = (e, isActive) => {
-    if (isActive) return;
-    e.currentTarget.style.background = "transparent";
-    e.currentTarget.style.borderColor = "transparent";
-    e.currentTarget.style.color = "#4E6785";
-    e.currentTarget.style.transform = "translateX(0)";
-    e.currentTarget.style.boxShadow = "none";
->>>>>>> origin/CV-Builder
+
   };
 
   // ── Shared styles ──────────────────────────────────────────────────────────
@@ -142,10 +123,7 @@ export default function AdminSidebar() {
         borderBottom: "1px solid rgba(255,255,255,0.07)",
         marginBottom: "4px",
       }}>
-<<<<<<< HEAD
-=======
-        {/* Icon */}
->>>>>>> origin/CV-Builder
+
         <div style={{
           width: "44px", height: "44px", flexShrink: 0,
           background: "linear-gradient(135deg,#0ea5e9,#22D3EE)",
@@ -159,11 +137,7 @@ export default function AdminSidebar() {
             <path d="M2 12l10 5 10-5" />
           </svg>
         </div>
-<<<<<<< HEAD
-=======
 
-        {/* Text */}
->>>>>>> origin/CV-Builder
         {!collapsed && (
           <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
             <div style={{ fontSize: "17px", fontWeight: 800, color: "#F1F5F9",
@@ -197,7 +171,7 @@ export default function AdminSidebar() {
           width: "100%",
         }}
         onMouseEnter={e => {
-<<<<<<< HEAD
+
           e.currentTarget.style.background   = "rgba(34,211,238,0.12)";
           e.currentTarget.style.borderColor  = "rgba(34,211,238,0.28)";
           e.currentTarget.style.boxShadow    = "0 8px 20px rgba(34,211,238,0.12)";
@@ -206,28 +180,16 @@ export default function AdminSidebar() {
           e.currentTarget.style.background   = "rgba(34,211,238,0.04)";
           e.currentTarget.style.borderColor  = "rgba(34,211,238,0.08)";
           e.currentTarget.style.boxShadow    = "none";
-=======
-          e.currentTarget.style.background = "rgba(34,211,238,0.12)";
-          e.currentTarget.style.borderColor = "rgba(34,211,238,0.28)";
-          e.currentTarget.style.boxShadow = "0 8px 20px rgba(34,211,238,0.12)";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(34,211,238,0.04)";
-          e.currentTarget.style.borderColor = "rgba(34,211,238,0.08)";
-          e.currentTarget.style.boxShadow = "none";
->>>>>>> origin/CV-Builder
+
         }}
       >
         {!collapsed && <span style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>Collapse</span>}
         <Ico size={13} stroke="#22D3EE">
           {collapsed
             ? <polyline points="9 18 15 12 9 6" />
-<<<<<<< HEAD
+
             : <polyline points="15 18 9 12 15 6" />}
-=======
-            : <polyline points="15 18 9 12 15 6" />
-          }
->>>>>>> origin/CV-Builder
+
         </Ico>
       </button>
 
@@ -269,10 +231,7 @@ export default function AdminSidebar() {
         {!collapsed && userCount !== null && <span style={S.badge}>{userCount}</span>}
       </Link>
 
-<<<<<<< HEAD
-      {/* Applications */}
-=======
->>>>>>> origin/CV-Builder
+
       <Link to="/admin/applications" style={S.navItem(active("/admin/applications"))}
         onMouseEnter={e => applyNavHoverIn(e, active("/admin/applications"))}
         onMouseLeave={e => applyNavHoverOut(e, active("/admin/applications"))}
@@ -344,7 +303,7 @@ export default function AdminSidebar() {
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>Matching Engine</span>}
       </Link>
 
-<<<<<<< HEAD
+
       {/* ── ACCOUNT section ── */}
       {!collapsed && <div style={S.secLabel}>Account</div>}
 
@@ -364,8 +323,7 @@ export default function AdminSidebar() {
         {!collapsed && <span style={{ fontSize: "13px", fontWeight: 600 }}>My Profile</span>}
       </Link>
 
-=======
->>>>>>> origin/CV-Builder
+
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
@@ -381,10 +339,7 @@ export default function AdminSidebar() {
         marginTop: "8px",
         transition: "padding 0.25s",
       }}>
-<<<<<<< HEAD
-=======
-        {/* Avatar + green dot */}
->>>>>>> origin/CV-Builder
+
         <div style={{ position: "relative", flexShrink: 0 }}>
           <div style={{
             width: "36px", height: "36px",
@@ -400,20 +355,14 @@ export default function AdminSidebar() {
             border: "2px solid #0A1628",
           }} />
         </div>
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/CV-Builder
         {!collapsed && (
           <div style={{ overflow: "hidden" }}>
             <div style={{ fontSize: "12px", fontWeight: 700, color: "#F1F5F9",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user?.fullName || "Admin User"}
             </div>
-<<<<<<< HEAD
-=======
-            {/* Shield + ADMIN role badge */}
->>>>>>> origin/CV-Builder
+
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               marginTop: "5px",
@@ -449,7 +398,7 @@ export default function AdminSidebar() {
           transition: "all .2s",
         }}
         onMouseEnter={e => {
-<<<<<<< HEAD
+
           e.currentTarget.style.background  = "rgba(248,113,113,0.14)";
           e.currentTarget.style.borderColor = "rgba(248,113,113,0.3)";
           e.currentTarget.style.boxShadow   = "0 10px 22px rgba(248,113,113,0.15)";
@@ -458,16 +407,7 @@ export default function AdminSidebar() {
           e.currentTarget.style.background  = "rgba(248,113,113,0.06)";
           e.currentTarget.style.borderColor = "rgba(248,113,113,0.12)";
           e.currentTarget.style.boxShadow   = "none";
-=======
-          e.currentTarget.style.background = "rgba(248,113,113,0.14)";
-          e.currentTarget.style.borderColor = "rgba(248,113,113,0.3)";
-          e.currentTarget.style.boxShadow = "0 10px 22px rgba(248,113,113,0.15)";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(248,113,113,0.06)";
-          e.currentTarget.style.borderColor = "rgba(248,113,113,0.12)";
-          e.currentTarget.style.boxShadow = "none";
->>>>>>> origin/CV-Builder
+
         }}
       >
         <div style={{
@@ -477,13 +417,11 @@ export default function AdminSidebar() {
         }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
             stroke="#F87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-<<<<<<< HEAD
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-=======
+
             {/* The "door" remains on the right side of the icon now */}
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
             {/* Arrow pointing left */}
->>>>>>> origin/CV-Builder
+
             <polyline points="10 17 5 12 10 7" />
             <line x1="5" y1="12" x2="15" y2="12" />
           </svg>

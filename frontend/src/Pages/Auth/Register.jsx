@@ -13,11 +13,9 @@ const Ico = ({ size = 14, stroke = "currentColor", children }) => (
 
 export default function Register() {
   const navigate = useNavigate();
-<<<<<<< HEAD
+
   const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "", mode: "", timePreference: "", description: "" });
-=======
-  const [form, setForm] = useState({ fullName: "", gmail: "", password: "", confirmPassword: "", age: "", address: "", phoneNo: "", role: "Student", skills: "", education: "", experience: "" });
->>>>>>> origin/CV-Builder
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,20 +34,13 @@ export default function Register() {
   };
 
   const validate = () => {
-<<<<<<< HEAD
     const { fullName, gmail, password, confirmPassword, age, address, phoneNo, skills, education, experience, mode, timePreference, description } = form;
     const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const hasLetter = (v) => /[A-Za-z]/.test(String(v));
     const phoneDigits = String(phoneNo).replace(/\D/g, "");
     if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) return "All basic fields are required.";
     if (form.role === "Student" && (!mode || !timePreference || !description)) return "For Student role, Work Mode, Time Preference, and Description are required.";
-=======
-    const { fullName, gmail, password, confirmPassword, age, address, phoneNo, skills, education, experience } = form;
-    const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    const hasLetter = (v) => /[A-Za-z]/.test(String(v));
-    const phoneDigits = String(phoneNo).replace(/\D/g, "");
-    if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) return "All fields are required.";
->>>>>>> origin/CV-Builder
+
     if (/\d/.test(fullName)) return "Full name cannot contain numbers.";
     if (!emailRx.test(gmail)) return "Email must start with a letter and be valid.";
     if (password.length < 6) return "Password must be at least 6 characters.";
@@ -60,15 +51,13 @@ export default function Register() {
     if (skills && !hasLetter(skills)) return "Skills cannot be only numbers.";
     if (!hasLetter(education)) return "Education cannot be only numbers.";
     if (!hasLetter(experience)) return "Experience cannot be only numbers.";
-<<<<<<< HEAD
     if (form.role === "Student") {
       if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return "Please select a valid work mode.";
       if (!timePreference || !["Day", "Night"].includes(timePreference)) return "Please select a valid time preference.";
       if (!description || description.trim().length < 10) return "Description must be at least 10 characters.";
       if (!hasLetter(description)) return "Description cannot be only numbers.";
     }
-=======
->>>>>>> origin/CV-Builder
+
     return null;
   };
 
@@ -198,7 +187,6 @@ export default function Register() {
                 </div>
               )}
 
-<<<<<<< HEAD
               {/* Conditionally show mode, timePreference, description for Student role */}
               {form.role === "Student" && (
                 <>
@@ -243,8 +231,7 @@ export default function Register() {
                 </>
               )}
 
-=======
->>>>>>> origin/CV-Builder
+
               <button type="submit" disabled={loading} className="btn-cyan w-full text-sm mt-1">
                 {loading ? "Creating account..." : "Create Account →"}
               </button>
