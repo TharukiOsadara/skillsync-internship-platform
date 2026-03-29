@@ -1,38 +1,3 @@
-// @route   POST /users/:id/reset-password
-// @desc    Student resets their password (must provide old password)
-const resetPassword = async (req, res) => {
-    const authUser = await getAuthUser(req);
-    if (!authUser) {
-        return res.status(401).json({ success: false, message: 'Not authorized.' });
-    }
-    const id = req.params.id;
-    const isSelf = String(authUser._id) === String(id);
-    if (!isSelf) {
-        return res.status(403).json({ success: false, message: 'Not authorized to reset this password.' });
-    }
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-        return res.status(400).json({ success: false, message: 'Old and new password are required.' });
-    }
-    if (oldPassword !== authUser.password) {
-        return res.status(401).json({ success: false, message: 'Old password is incorrect.' });
-    }
-    if (newPassword.length < 6) {
-        return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
-    }
-    try {
-        const user = await User.findById(id).select('+password');
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
-        user.password = newPassword;
-        await user.save();
-        return res.status(200).json({ success: true, message: 'Password reset successful.' });
-    } catch (err) {
-        return res.status(400).json({ success: false, message: err.message });
-    }
-};
-
 const User = require('../Models/UserModel');
 const jwt = require('jsonwebtoken');
 
@@ -43,7 +8,6 @@ const digitsOnly = (value = '') => String(value).replace(/\D/g, '');
 const getAuthUser = async (req) => {
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ')) return null;
-
     const token = authHeader.split(' ')[1];
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET || 'skillsync_dev_secret');
@@ -67,36 +31,26 @@ const validateUserPayload = ({ fullName, gmail, password, age, address, phoneNo,
     if (!fullName || !gmail || !password || !age || !address || !phoneNo || !education || !experience) {
         return 'All required fields must be filled.';
     }
-
     if (role === 'Student' && (!mode || !timePreference || !description)) {
         return 'For Student role, Work Mode, Time Preference, and Description are required.';
     }
-
     if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
-
     const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    if (!emailRx.test(String(gmail))) {
-        return 'Gmail must start with a letter and be a valid email.';
-    }
-
+    if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
     if (!hasLetter(address)) return 'Address cannot be only numbers.';
     if (skills && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (!hasLetter(education)) return 'Education cannot be only numbers.';
     if (!hasLetter(experience)) return 'Experience cannot be only numbers.';
-
     if (role === 'Student') {
-        if (!mode || !["Online/Remote", "Physical/On-site", "Hybrid"].includes(mode)) return 'Please select a valid work mode.';
-        if (!timePreference || !["Day", "Night"].includes(timePreference)) return 'Please select a valid time preference.';
+        if (!mode || !['Online/Remote', 'Physical/On-site', 'Hybrid'].includes(mode)) return 'Please select a valid work mode.';
+        if (!timePreference || !['Day', 'Night'].includes(timePreference)) return 'Please select a valid time preference.';
         if (!description || description.trim().length < 10) return 'Description must be at least 10 characters.';
         if (!hasLetter(description)) return 'Description cannot be only numbers.';
     }
-
     const phoneDigits = digitsOnly(phoneNo);
     if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
-
     if (Number(age) < 16 || Number(age) > 60) return 'Age must be between 16 and 60.';
     if (password.length < 6) return 'Password must be at least 6 characters.';
-
     return null;
 };
 
@@ -105,60 +59,37 @@ const validateSelfUpdatePayload = ({ fullName, gmail, age, address, phoneNo, ski
         if (!String(fullName).trim()) return 'Full name is required.';
         if (/\d/.test(String(fullName))) return 'Full name cannot contain numbers.';
     }
-
     if (gmail !== undefined) {
         const emailRx = /^[A-Za-z][A-Za-z0-9._-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
         if (!emailRx.test(String(gmail))) return 'Gmail must start with a letter and be a valid email.';
     }
-
     if (age !== undefined && (Number(age) < 16 || Number(age) > 60)) return 'Age must be between 16 and 60.';
     if (address !== undefined && !hasLetter(address)) return 'Address cannot be only numbers.';
     if (skills !== undefined && String(skills).trim() && !hasLetter(skills)) return 'Skills cannot be only numbers.';
     if (education !== undefined && !hasLetter(education)) return 'Education cannot be only numbers.';
     if (experience !== undefined && !hasLetter(experience)) return 'Experience cannot be only numbers.';
-
     if (phoneNo !== undefined) {
         const phoneDigits = digitsOnly(phoneNo);
         if (phoneDigits.length !== 10) return 'Phone number must be exactly 10 digits.';
     }
-
     return null;
 };
 
-// @desc    Register a new user (Student or Admin)
-// @route   POST /api/users/register
+// @desc    Register a new user
 const registerUser = async (req, res) => {
     try {
         const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, mode, timePreference, description } = req.body;
-
         const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience, mode, timePreference, description, role });
-        if (validationError) {
-            return res.status(400).json({ success: false, message: validationError });
-        }
-
-        // Check if user already exists
+        if (validationError) return res.status(400).json({ success: false, message: validationError });
         const userExists = await User.findOne({ gmail });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists with this gmail' });
-        }
-
+        if (userExists) return res.status(400).json({ message: 'User already exists with this gmail' });
         const user = await User.create({
-            fullName,
-            gmail,
-            password,
-            age,
-            address,
-            phoneNo: digitsOnly(phoneNo),
-            role,
-            skills,
-            education,
-            experience,
+            fullName, gmail, password, age, address,
+            phoneNo: digitsOnly(phoneNo), role, skills, education, experience,
             ...(role === 'Student' && { mode, timePreference, description })
         });
-
         const payload = { id: user._id, role: user.role, gmail: user.gmail };
         const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
-
         return res.status(201).json({ success: true, user, token });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
@@ -166,59 +97,39 @@ const registerUser = async (req, res) => {
 };
 
 // @desc    Login user
-// @route   POST /users/login
 const loginUser = async (req, res) => {
     try {
         const { gmail, password } = req.body;
-        if (!gmail || !password) {
-            return res.status(400).json({ success: false, message: 'gmail and password are required' });
-        }
-
+        if (!gmail || !password) return res.status(400).json({ success: false, message: 'gmail and password are required' });
         const user = await User.findOne({ gmail }).select('+password');
-        if (!user) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
-        }
-
-        // Compare plain text passwords
-        if (password !== user.password) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
-        }
-
+        if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        if (password !== user.password) return res.status(401).json({ success: false, message: 'Invalid credentials' });
         user.lastLoginAt = new Date();
         await user.save();
-
         const payload = { id: user._id, role: user.role, gmail: user.gmail };
         const token = jwt.sign(payload, process.env.JWT_SECRET || 'skillsync_dev_secret', { expiresIn: '7d' });
-
         const userObj = user.toObject();
         delete userObj.password;
-
         return res.status(200).json({ success: true, user: userObj, token });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
     }
 };
 
-// @desc    Get all users (Useful for Admin to see students)
-// @route   GET /api/users
+// @desc    Get all users
 const getUsers = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
     if (!adminUser) return;
-
     try {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
         return res.status(200).json({ users });
     } catch (err) {
-        console.log(err);
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
-// @desc    Get single user profile
-// @route   GET /api/users/:id
+// @desc    Get single user
 const getUserById = async (req, res) => {
-    const id = req.params.id;
-    let user;
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -228,78 +139,39 @@ const getUserById = async (req, res) => {
     }
 };
 
-
-//Data Insert
 const addUsers = async (req, res) => {
-    const { fullName, gmail, password, age, address,phoneNo, role, skills, education, experience } = req.body;
-    let user;
-
+    const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience } = req.body;
     const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
-    if (validationError) {
-        return res.status(400).json({ message: validationError });
-    }
-
+    if (validationError) return res.status(400).json({ message: validationError });
     try {
-        user = new User({fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience});
+        const user = new User({ fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience });
         await user.save();
-        console.log("User added successfully:", user);
+        return res.status(201).json({ user });
     } catch (err) {
-        console.error("Error adding user:", err);
         return res.status(400).json({ message: 'Unable to add User', error: err.message });
     }
-    if (!user) {
-        return res.status(404).json({ message: 'Unable to add User' });
-    }
-    return res.status(201).json({ user });
 };
-//update user
+
+// @desc    Update user (admin or self)
 const updateUser = async (req, res) => {
     const authUser = await getAuthUser(req);
-    if (!authUser) {
-        return res.status(401).json({ success: false, message: 'Not authorized.' });
-    }
-
+    if (!authUser) return res.status(401).json({ success: false, message: 'Not authorized.' });
     const id = req.params.id;
     const isAdmin = authUser.role === 'Admin';
     const isSelf = String(authUser._id) === String(id);
+    if (!isAdmin && !isSelf) return res.status(403).json({ success: false, message: 'Not authorized to update this user.' });
 
-    if (!isAdmin && !isSelf) {
-        return res.status(403).json({ success: false, message: 'Not authorized to update this user.' });
-    }
-
-    const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, photo, adminPassword } = req.body;
+    const { fullName, gmail, password, age, address, phoneNo, role, skills, education, experience, photo, adminPassword, mode, timePreference, description } = req.body;
 
     if (isAdmin && !isSelf) {
-        if (!adminPassword) {
-            return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
-        }
-
-        if (adminPassword !== authUser.password) {
-            return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
-        }
-
+        if (!adminPassword) return res.status(400).json({ success: false, message: 'Admin password is required to update users.' });
+        if (adminPassword !== authUser.password) return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
         const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
-        if (validationError) {
-            return res.status(400).json({ success: false, message: validationError });
-        }
-
+        if (validationError) return res.status(400).json({ success: false, message: validationError });
         try {
             const user = await User.findById(id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            user.fullName = fullName;
-            user.gmail = gmail;
-            user.password = password;
-            user.age = age;
-            user.address = address;
-            user.phoneNo = digitsOnly(phoneNo);
-            user.role = role;
-            user.skills = skills;
-            user.education = education;
-            user.experience = experience;
-            user.photo = photo;
-            user.updatedAt = new Date();
+            if (!user) return res.status(404).json({ message: 'User not found' });
+            Object.assign(user, { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() });
             await user.save();
             const userObj = user.toObject();
             delete userObj.password;
@@ -309,97 +181,64 @@ const updateUser = async (req, res) => {
         }
     }
 
+    // Self update (admin updating own profile OR student)
     const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
-    if (validationError) {
-        return res.status(400).json({ success: false, message: validationError });
-    }
+    if (validationError) return res.status(400).json({ success: false, message: validationError });
 
     const updates = { updatedAt: new Date() };
-    const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo'];
-
+    const allowedSelfFields = ['fullName', 'gmail', 'age', 'address', 'phoneNo', 'skills', 'education', 'experience', 'photo', 'mode', 'timePreference', 'description'];
     allowedSelfFields.forEach((field) => {
         if (req.body[field] !== undefined) {
             updates[field] = field === 'phoneNo' ? digitsOnly(req.body[field]) : req.body[field];
         }
     });
 
-    if (Object.keys(updates).length === 1) {
-        return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
-    }
+    if (Object.keys(updates).length === 1) return res.status(400).json({ success: false, message: 'No valid fields provided to update.' });
 
     try {
         const user = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
+        if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
         return res.status(200).json({ success: true, data: user });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
-//delete user
+
+// @desc    Delete user
 const deleteUser = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
     if (!adminUser) return;
-
     const { adminPassword } = req.body || {};
-    if (!adminPassword) {
-        return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
-    }
-
-    try {
-        if (adminPassword !== adminUser.password) {
-            return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
-        }
-    } catch (err) {
-        return res.status(401).json({ success: false, message: 'Error verifying admin password.' });
-    }
-
+    if (!adminPassword) return res.status(400).json({ success: false, message: 'Admin password is required to delete users.' });
+    if (adminPassword !== adminUser.password) return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
     const id = req.params.id;
-    let user;
     try {
-        if (String(adminUser._id) === String(id)) {
-            return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
-        }
-
-        user = await User.findByIdAndDelete(req.params.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (String(adminUser._id) === String(id)) return res.status(400).json({ success: false, message: 'Admin cannot delete own account.' });
+        const user = await User.findByIdAndDelete(id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
         return res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
 
-// @desc    Reveal a user's password (admin only, with admin password confirmation)
-// @route   POST /users/:id/view-password
+// @desc    View a user's password (admin only)
 const viewUserPassword = async (req, res) => {
     const adminUser = await requireAdmin(req, res);
     if (!adminUser) return;
-
     const { adminPassword } = req.body || {};
-    if (!adminPassword) {
-        return res.status(400).json({ success: false, message: 'Admin password is required.' });
-    }
-
-    if (adminUser.password !== adminPassword) {
-        return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
-    }
-
+    if (!adminPassword) return res.status(400).json({ success: false, message: 'Admin password is required.' });
+    if (adminUser.password !== adminPassword) return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
     try {
         const targetUser = await User.findById(req.params.id).select('+password');
-        if (!targetUser) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
-
+        if (!targetUser) return res.status(404).json({ success: false, message: 'User not found.' });
         return res.status(200).json({ success: true, password: targetUser.password });
     } catch (err) {
         return res.status(400).json({ success: false, message: err.message });
     }
 };
+
 // @desc    Get all user emails (for login suggestions)
-// @route   GET /users/emails
 const getUserEmails = async (req, res) => {
     try {
         const users = await User.find({}, { gmail: 1, role: 1, _id: 0 });
@@ -409,15 +248,99 @@ const getUserEmails = async (req, res) => {
     }
 };
 
-exports.registerUser = registerUser;
-exports.loginUser = loginUser;
-exports.getUsers = getUsers;
-exports.getUserById = getUserById;
-exports.addUsers = addUsers;
-exports.updateUser = updateUser;
-exports.resetPassword = resetPassword;
-exports.deleteUser = deleteUser;
-exports.viewUserPassword = viewUserPassword;
-exports.getUserEmails = getUserEmails;
+// ─────────────────────────────────────────────────────────────────────────────
+// @desc    Forgot Password — Step 1: verify email exists and return role
+// @route   POST /users/forgot-password/verify
+// Frontend sends { gmail }
+// Backend checks if user exists → returns { exists: true, role: "Student"|"Admin" }
+// ─────────────────────────────────────────────────────────────────────────────
+const verifyForgotEmail = async (req, res) => {
+    try {
+        const { gmail } = req.body;
+        if (!gmail) return res.status(400).json({ success: false, message: 'Email is required.' });
+        const user = await User.findOne({ gmail });
+        if (!user) return res.status(404).json({ success: false, message: 'No account found with this email.' });
+        return res.status(200).json({ success: true, role: user.role, fullName: user.fullName });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
 
+// ─────────────────────────────────────────────────────────────────────────────
+// @desc    Forgot Password — Step 2: reset password (no auth required)
+// @route   POST /users/forgot-password/reset
+// Frontend sends { gmail, newPassword, confirmPassword }
+// Updates password in DB directly (plain text, matching existing system)
+// ─────────────────────────────────────────────────────────────────────────────
+const resetForgotPassword = async (req, res) => {
+    try {
+        const { gmail, newPassword, confirmPassword } = req.body;
+        if (!gmail || !newPassword || !confirmPassword) {
+            return res.status(400).json({ success: false, message: 'All fields are required.' });
+        }
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+        }
+        const user = await User.findOne({ gmail }).select('+password');
+        if (!user) return res.status(404).json({ success: false, message: 'No account found with this email.' });
+        if (newPassword === user.password) {
+            return res.status(400).json({ success: false, message: 'New password must be different from the current password.' });
+        }
+        user.password = newPassword;
+        user.updatedAt = new Date();
+        await user.save();
+        return res.status(200).json({ success: true, message: 'Password reset successfully. You can now log in with your new password.' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
 
+// ─────────────────────────────────────────────────────────────────────────────
+// @desc    Change Password (authenticated — for profile pages)
+// @route   POST /users/change-password
+// Requires Bearer token. Sends { currentPassword, newPassword, confirmPassword }
+// ─────────────────────────────────────────────────────────────────────────────
+const changePassword = async (req, res) => {
+    const authUser = await getAuthUser(req);
+    if (!authUser) return res.status(401).json({ success: false, message: 'Not authorized.' });
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ success: false, message: 'All password fields are required.' });
+        }
+        if (currentPassword !== authUser.password) {
+            return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
+        }
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ success: false, message: 'New passwords do not match.' });
+        }
+        if (newPassword === currentPassword) {
+            return res.status(400).json({ success: false, message: 'New password must be different from the current password.' });
+        }
+        authUser.password = newPassword;
+        authUser.updatedAt = new Date();
+        await authUser.save();
+        return res.status(200).json({ success: true, message: 'Password changed successfully.' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.registerUser       = registerUser;
+exports.loginUser          = loginUser;
+exports.getUsers           = getUsers;
+exports.getUserById        = getUserById;
+exports.addUsers           = addUsers;
+exports.updateUser         = updateUser;
+exports.deleteUser         = deleteUser;
+exports.viewUserPassword   = viewUserPassword;
+exports.getUserEmails      = getUserEmails;
+exports.verifyForgotEmail  = verifyForgotEmail;
+exports.resetForgotPassword = resetForgotPassword;
+exports.changePassword     = changePassword;

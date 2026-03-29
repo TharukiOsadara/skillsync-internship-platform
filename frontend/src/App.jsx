@@ -6,6 +6,7 @@ import LoaderPage from "./Pages/Loader/LoaderPage";
 import HomePage from "./Pages/Home/HomePage";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
+import ForgotPassword from "./Pages/Auth/ForgotPassword";
 
 // Admin pages
 import AdminDashboard        from "./Pages/Admin/AdminDashboard";
@@ -14,6 +15,7 @@ import AddInternship         from "./Pages/Admin/AddInternship";
 import ManageInternships     from "./Pages/Admin/ManageInternships";
 import MatchingEngine        from "./Pages/Admin/MatchingEngine";
 import ApplicationsDashboard from "./Pages/Admin/ApplicationsDashboard";
+import AdminProfilePage      from "./Pages/Admin/AdminProfilePage";
 
 // Student pages
 import StudentMatches         from "./Pages/Student/StudentDashboard";
@@ -40,6 +42,9 @@ export default function App() {
         {/* ── Loader — full screen, no Layout wrapper ── */}
         <Route path="/" element={<LoaderPage />} />
 
+        {/* ── Forgot password — standalone, no Layout (has its own bg) ── */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
         {/* ── All other routes inside gradient Layout ── */}
         <Route element={<Layout />}>
           <Route path="/homepage" element={<HomePage />} />
@@ -53,6 +58,7 @@ export default function App() {
           <Route path="/admin/manage-internships" element={<ProtectedRoute role="Admin"><ManageInternships /></ProtectedRoute>} />
           <Route path="/admin/matching-engine"    element={<ProtectedRoute role="Admin"><MatchingEngine /></ProtectedRoute>} />
           <Route path="/admin/applications"       element={<ProtectedRoute role="Admin"><ApplicationsDashboard /></ProtectedRoute>} />
+          <Route path="/admin/profile"            element={<ProtectedRoute role="Admin"><AdminProfilePage /></ProtectedRoute>} />
 
           {/* Student */}
           <Route path="/student"           element={<ProtectedRoute role="Student"><Navigate to="/student/matches" replace /></ProtectedRoute>} />
