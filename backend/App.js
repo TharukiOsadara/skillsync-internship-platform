@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
-const internshipRouter = require("./Routes/InternshipRoutes");
+const internshipRouter = require("./Routes/StudentInternshipRoutes");
 
 dotenv.config();
 

@@ -4,7 +4,7 @@ const router = express.Router();
 const {
   getAllInternships,
   searchInternships
-} = require("../Controllers/InternshipController");
+} = require("../Controllers/StudentInternshipController");
 
 router.get("/", getAllInternships);
 router.get("/search", searchInternships);

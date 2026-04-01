@@ -1,4 +1,4 @@
-const Internship = require("../Models/InternshipModel");
+const Internship = require("../Models/StudentInternshipModel");
 
 // GET ALL INTERNSHIPS
 exports.getAllInternships = async (req, res) => {
