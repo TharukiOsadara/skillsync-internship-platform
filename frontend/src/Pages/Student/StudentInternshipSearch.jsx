@@ -57,27 +57,72 @@ export default function StudentInternshipSearch() {
     return filters.length > 0 ? filters.join(" · ") : "All internships";
   }, [location, role, duration, mode, timePreference]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
 
-    const queryString = buildSearchQuery();
+  const validateFilters = () => {
+  const trimmedLocation = location.trim();
+  const trimmedRole = role.trim();
 
-    showToast(`🔍 Searching: ${filtersSummary} — Redirecting to results...`, false);
-    setIsSubmitting(true);
+  const locationRegex = /^[A-Za-z\s,-]+$/;
+  const roleRegex = /^[A-Za-z\s/&-]+$/;
 
-    if (queryString) {
-      sessionStorage.setItem("lastInternshipSearch", queryString);
+  if (trimmedLocation) {
+    if (!locationRegex.test(trimmedLocation)) {
+      showToast(
+        "❌ Location can contain only letters, spaces, commas, and hyphens.",
+        true
+      );
+      return false;
     }
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    if (/^\d+$/.test(trimmedLocation)) {
+      showToast("❌ Location cannot contain only numbers.", true);
+      return false;
+    }
+  }
+
+  if (trimmedRole) {
+    if (!roleRegex.test(trimmedRole)) {
       showToast(
-        `✅ Filters saved! ${queryString ? "Custom filters active" : "Showing all internships"}`,
-        false
+        "❌ Role can contain only letters, spaces, /, &, and hyphens.",
+        true
       );
-      navigate(`/student/internship-results${queryString ? `?${queryString}` : ""}`);
-    }, 1500);
-  };
+      return false;
+    }
+
+    if (/^\d+$/.test(trimmedRole)) {
+      showToast("❌ Role cannot contain only numbers.", true);
+      return false;
+    }
+  }
+
+  return true;
+};
+
+  const handleSubmit = (e) => {
+  e.preventDefault();
+
+  const isValid = validateFilters();
+  if (!isValid) return;
+
+  const queryString = buildSearchQuery();
+
+  showToast(`🔍 Searching: ${filtersSummary} — Redirecting to results...`, false);
+  setIsSubmitting(true);
+
+  if (queryString) {
+    sessionStorage.setItem("lastInternshipSearch", queryString);
+  }
+
+  setTimeout(() => {
+    setIsSubmitting(false);
+    showToast(
+      `✅ Filters saved! ${queryString ? "Custom filters active" : "Showing all internships"}`,
+      false
+    );
+    navigate(`/student/internship-results${queryString ? `?${queryString}` : ""}`);
+  }, 1500);
+};
+
 
   const styles = {
     page: {
