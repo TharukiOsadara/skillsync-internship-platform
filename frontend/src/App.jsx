@@ -27,6 +27,10 @@ import StudentProfile         from "./Pages/Student/StudentProfilePage";
 import StudentApplyInternship from "./Pages/Student/StudentApplyInternship";
 import CVBuilder from "./Pages/CVbuilder/CVBuilderPage";
 import InternshipSearch from "./Pages/Student/StudentInternshipSearch";
+import StudentInternshipSearch from "./Pages/Student/StudentInternshipSearch";
+import StudentInternshipResults from "./Pages/Student/StudentInternshipResults";
+import StudentInternshipDetails from "./Pages/Student/StudentInternshipDetails";
+import StudentSavedInternships from "./Pages/Student/StudentSavedInternships";
 
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
@@ -72,6 +76,10 @@ function AppRoutes() {
         <Route path="/student/profile"             element={<ProtectedRoute role="Student"><StudentProfile /></ProtectedRoute>} />
         <Route path="/student/cv-builder"         element={<ProtectedRoute role="Student"><CVBuilder /></ProtectedRoute>} />
         <Route path="/student/internship-search"  element={<ProtectedRoute role="Student"><InternshipSearch /></ProtectedRoute>} />
+        <Route path="/student/internship-search" element={<StudentInternshipSearch />} />
+        <Route path="/student/internship-results" element={<StudentInternshipResults />} />
+        <Route path="/student/internship-details" element={<StudentInternshipDetails />} />
+        <Route path="/student/saved-internships" element={<StudentSavedInternships />} />
 
         <Route path="*" element={<Navigate to="/homepage" replace />} />
       </Route>
