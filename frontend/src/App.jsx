@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { isLoggedIn, getUser, isTokenExpired, logout } from "./Utils/auth";
 import { useEffect, useState } from "react";
 
-import Layout from "./Components/Layout";
+import MainLayout from "./Components/MainLayout";
+import LayoutNotification from "./Components/LayoutNotification";
 
 import LoaderPage from "./Pages/Loader/LoaderPage";
 import HomePage from "./Pages/Home/HomePage";
@@ -32,6 +33,14 @@ import StudentInternshipResults from "./Pages/Student/StudentInternshipResults";
 import StudentInternshipDetails from "./Pages/Student/StudentInternshipDetails";
 import StudentSavedInternships from "./Pages/Student/StudentSavedInternships";
 
+// Notification & Calendar pages
+import NotificationHome from "./Pages/Notification/NotificationHome";
+import CalendarPage from "./Pages/Notification/CalendarPage";
+import EventsPage from "./Pages/Notification/EventsPage";
+import RemindersPage from "./Pages/Notification/RemindersPage";
+
+
+
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
   if (!isLoggedIn())    return <Navigate to="/login" replace />;
@@ -53,7 +62,7 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* ── All other routes inside gradient Layout ── */}
-      <Route element={<Layout />}>
+      <Route element={<MainLayout />}>
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/login"    element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -83,6 +92,14 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/homepage" replace />} />
       </Route>
+
+      <Route element={<LayoutNotification />}>
+        <Route path="/notifications" element={<ProtectedRoute><NotificationHome /></ProtectedRoute>} />
+        <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+        <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
+        <Route path="/reminders" element={<ProtectedRoute><RemindersPage /></ProtectedRoute>} />
+      </Route>
+
     </Routes>
   );
 }
