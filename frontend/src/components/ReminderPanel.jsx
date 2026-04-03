@@ -12,7 +12,7 @@
  */
 
 import { useMemo } from 'react'
-import { REMINDER_OPTIONS } from '../utils/validation'
+import { REMINDER_OPTIONS } from '../Utils/validation'
 
 function ReminderPanel({ events }) {
   /**

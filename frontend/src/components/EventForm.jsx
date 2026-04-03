@@ -26,7 +26,7 @@ import {
   EVENT_TYPES,
   REMINDER_OPTIONS,
   formatDateLocal,
-} from '../utils/validation'
+} from '../Utils/validation'
 
 // Initial empty form state
 const INITIAL_FORM_STATE = {

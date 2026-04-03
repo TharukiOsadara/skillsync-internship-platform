@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { isLoggedIn, getUser, isTokenExpired, logout } from "./Utils/auth";
 import { useEffect, useState } from "react";
 
-import MainLayout from "./Components/MainLayout";
+import MainLayout from "./Components/Layout";
 import LayoutNotification from "./Components/LayoutNotification";
 
 import LoaderPage from "./Pages/Loader/LoaderPage";
@@ -90,15 +90,17 @@ function AppRoutes() {
         <Route path="/student/internship-details" element={<StudentInternshipDetails />} />
         <Route path="/student/saved-internships" element={<StudentSavedInternships />} />
 
-        <Route path="*" element={<Navigate to="/homepage" replace />} />
-      </Route>
 
-      <Route element={<LayoutNotification />}>
         <Route path="/notifications" element={<ProtectedRoute><NotificationHome /></ProtectedRoute>} />
         <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
         <Route path="/reminders" element={<ProtectedRoute><RemindersPage /></ProtectedRoute>} />
+
+        <Route path="*" element={<Navigate to="/homepage" replace />} />
       </Route>
+
+        
+      
 
     </Routes>
   );
