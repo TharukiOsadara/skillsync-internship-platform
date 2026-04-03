@@ -23,10 +23,10 @@ import AdminProfilePage      from "./Pages/Admin/AdminProfilePage";
 import StudentMatches         from "./Pages/Student/StudentDashboard";
 import StudentCvUpload        from "./Pages/Student/StudentCvUpload";
 import StudentNotifications   from "./Pages/Student/StudentNotifications";
-import StudentSuggestions     from "./Pages/Student/StudentSuggesstions";
 import StudentProfile         from "./Pages/Student/StudentProfilePage";
 import StudentApplyInternship from "./Pages/Student/StudentApplyInternship";
 import CVBuilder from "./Pages/CVbuilder/CVBuilderPage";
+import InternshipSearch from "./Pages/Student/StudentInternshipSearch";
 
 function ProtectedRoute({ children, role }) {
   if (isTokenExpired()) { logout(); return <Navigate to="/login" replace />; }
@@ -68,10 +68,10 @@ function AppRoutes() {
         <Route path="/student/matches"             element={<ProtectedRoute role="Student"><StudentMatches /></ProtectedRoute>} />
         <Route path="/student/apply/:internshipId" element={<ProtectedRoute role="Student"><StudentApplyInternship /></ProtectedRoute>} />
         <Route path="/student/cv-upload"           element={<ProtectedRoute role="Student"><StudentCvUpload /></ProtectedRoute>} />
-        <Route path="/student/suggestions"         element={<ProtectedRoute role="Student"><StudentSuggestions /></ProtectedRoute>} />
         <Route path="/student/notifications"       element={<ProtectedRoute role="Student"><StudentNotifications /></ProtectedRoute>} />
         <Route path="/student/profile"             element={<ProtectedRoute role="Student"><StudentProfile /></ProtectedRoute>} />
         <Route path="/student/cv-builder"         element={<ProtectedRoute role="Student"><CVBuilder /></ProtectedRoute>} />
+        <Route path="/student/internship-search"  element={<ProtectedRoute role="Student"><InternshipSearch /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/homepage" replace />} />
       </Route>

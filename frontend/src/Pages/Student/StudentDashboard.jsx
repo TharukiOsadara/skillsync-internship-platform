@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentSidebar from "../../Components/StudentSidebar";
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
-
 import { getUser, authHeaders } from "../../Utils/auth";
 
 const PageIcon = ({ children }) => (
@@ -27,18 +26,26 @@ export default function StudentDashboard() {
     const fetchSuggestions = async () => {
       if (!user?._id) { setLoading(false); return; }
       try {
-        const res  = await fetch(`http://localhost:5000/internships/suggestions/${user._id}`, { headers: authHeaders() });
+        const res  = await fetch("http://localhost:5000/internships");
         const data = await res.json();
-        const all  = data.suggestions || [];
+        const all  = data.internships || [];
+
         const userSkills = (user.skills || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-        const withScore = all.map(item => {
-          const required  = (item.skillsRequired || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-          const matched   = required.filter(r => userSkills.some(us => us.includes(r) || r.includes(us)));
-          const unmatched = required.filter(r => !matched.includes(r));
-          return { ...item, matchedSkills: matched, unmatchedSkills: unmatched,
-            matchPct: required.length > 0 ? Math.round((matched.length / required.length) * 100) : 0 };
-        }).filter((item) => new Date(item.deadline) >= new Date()).sort((a, b) => b.matchPct - a.matchPct);
-        setScored(withScore);
+
+        const withScore = all
+          .filter(item => item && item.status === 'Active' && new Date(item.deadline) > new Date())
+          .map(item => {
+            const required  = (item.skillsRequired || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+            const matched   = required.filter(r => userSkills.some(us => us.includes(r) || r.includes(us)));
+            const unmatched = required.filter(r => !matched.includes(r));
+            return { ...item, matchedSkills: matched, unmatchedSkills: unmatched,
+              matchPct: required.length > 0 ? Math.round((matched.length / required.length) * 100) : 0 };
+          })
+          .sort((a, b) => b.matchPct - a.matchPct);
+
+        // Show only internships with match percentage above 25%
+        const filtered = withScore.filter(i => (i.matchPct || 0) > 25);
+        setScored(filtered);
       } catch (err) { console.error(err); }
       setLoading(false);
     };
@@ -114,12 +121,7 @@ export default function StudentDashboard() {
               <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Internships matched to your skill profile</p>
             </div>
           </div>
-
-          {!loading && (
-            <span style={{ background:"rgba(34,211,238,0.1)", border:"1px solid rgba(34,211,238,0.2)", color:"#22D3EE", fontSize:"11px", fontWeight:700, padding:"5px 16px", borderRadius:"99px" }}>
-              {animatedMatchCount} match{animatedMatchCount !== 1 ? "es" : ""} found
-            </span>
-          )}
+          <StudentWelcomeBack/>
         </div>
 
         {/* Info banner */}
@@ -148,7 +150,6 @@ export default function StudentDashboard() {
               </span>
             )}
           </div>
-
         </div>
 
         {/* Cards */}

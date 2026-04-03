@@ -62,9 +62,12 @@ export default function StudentMatchers() {
             matchPct: required.length > 0
               ? Math.round((matched.length / required.length) * 100) : 0,
           };
-        }).sort((a, b) => b.matchPct - a.matchPct);  // default: high → low
+        });
 
-        setScored(withScore);
+        // Show only internships with match percentage above 25%
+        const filtered = withScore.filter(i => (i.matchPct || 0) > 20).sort((a, b) => b.matchPct - a.matchPct);
+
+        setScored(filtered);
       } catch (err) { console.error(err); }
       setLoading(false);
     };

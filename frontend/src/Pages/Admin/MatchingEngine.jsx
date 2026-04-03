@@ -145,7 +145,6 @@ export default function MatchingEngine() {
   }, [matches, matchLoading, selectedInternship]);
 
   // Matching logic: find students whose skills overlap with internship skillsRequired AND mode/timePreference match
-
   const runMatching = (internship) => {
     setMatchLoading(true);
     setSelectedInternship(internship);
@@ -168,7 +167,6 @@ export default function MatchingEngine() {
 
         return { ...student, matchedSkills: overlap, matchScore: overlap.length };
       })
-
       .filter((s) => {
         // Filter by skill match (must have at least 1 matched skill)
         if (s.matchScore === 0) return false;
@@ -181,7 +179,6 @@ export default function MatchingEngine() {
         
         return true;
       })
-
       .sort((a, b) => b.matchScore - a.matchScore);
 
     setTimeout(() => {
@@ -308,7 +305,6 @@ export default function MatchingEngine() {
                           </span>
                         )}
                       </div>
-
                       <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
                         {(item.skillsRequired||"").split(",").slice(0,3).map((s,i)=>
                           s.trim()?<TechBadgeME key={i} skill={s}/>:null
@@ -478,7 +474,6 @@ export default function MatchingEngine() {
             <li>Student work mode preference must match internship mode requirement</li>
             <li>Student time preference must match internship time preference requirement</li>
             <li>Students are ranked by skill match score (highest overlap first)</li>
-
             <li>Match percentage = matched skills ÷ total required skills × 100</li>
           </ul>
         </div>

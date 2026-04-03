@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import StudentSidebar from "../../Components/StudentSidebar";
 
 export default function StudentInternshipSearch() {
   const navigate = useNavigate();
@@ -414,8 +415,10 @@ export default function StudentInternshipSearch() {
   ];
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
+    <div style={{ display: "flex", minHeight: "100vh", background: styles.page.background, fontFamily: styles.page.fontFamily, color: styles.page.color }}>
+      <StudentSidebar />
+      <main style={{ flex: 1, padding: "32px", minWidth: 0, overflowY: "auto" }}>
+        <div style={styles.container}>
         <div style={styles.navbar}>
           <div style={styles.logoArea}>
             <div style={styles.logo}>
@@ -626,12 +629,13 @@ export default function StudentInternshipSearch() {
           <i className="fas fa-sync-alt" style={{ color: "#22D3EE" }} /> Skill
           Sync Internships — bridging Sri Lankan talent with intelligent matching
         </footer>
-      </div>
+        </div>
 
-      <div style={styles.toast}>
-        <i className="fas fa-check-circle" />
-        <span>{toast.message}</span>
-      </div>
+        <div style={styles.toast}>
+          <i className="fas fa-check-circle" />
+          <span>{toast.message}</span>
+        </div>
+      </main>
     </div>
   );
 }

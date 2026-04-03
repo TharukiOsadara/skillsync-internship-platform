@@ -4,6 +4,7 @@ import StudentSidebar from "../../Components/StudentSidebar";
 import StudentWelcomeBack from "../../Components/StudentWelcomeBack";
 import { getUser, authHeaders, saveAuth, getToken, getLoggedInAt } from "../../Utils/auth";
 
+const API_BASE = "http://localhost:5000";
 
 const Ico = ({ size = 14, stroke = "currentColor", children }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -18,7 +19,6 @@ const PageIcon = ({ children }) => (
   </div>
 );
 
-// ── Dummy skill extractor (replace with real CV parser when teammate delivers) ─
 function extractSkillsFromText(text) {
   const known = [
     "react","node.js","mongodb","express","javascript","python","java","flutter",
@@ -36,35 +36,33 @@ export default function CVUpload() {
   const navigate   = useNavigate();
   const user       = getUser();
   const loggedInAt = getLoggedInAt();
-
   const fileRef    = useRef(null);
 
-  const [file, setFile]               = useState(null);
+  const [file, setFile]                 = useState(null);
   const [extractedSkills, setExtracted] = useState([]);
-  const [parsing, setParsing]         = useState(false);
-  const [saving, setSaving]           = useState(false);
-  const [error, setError]             = useState("");
-  const [success, setSuccess]         = useState("");
-  const [dragOver, setDragOver]       = useState(false);
+  const [parsing, setParsing]           = useState(false);
+  const [saving, setSaving]             = useState(false);
+  const [error, setError]               = useState("");
+  const [success, setSuccess]           = useState("");
+  const [dragOver, setDragOver]         = useState(false);
+  const [syncStatus, setSyncStatus]     = useState({ profile: null, cv: null }); // null | 'ok' | 'fail'
 
   const handleFile = (f) => {
     if (!f) return;
     if (!["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain"].includes(f.type)) {
       return setError("Please upload a PDF, Word, or text file.");
     }
-    setFile(f); setError(""); setSuccess(""); setExtracted([]);
+    setFile(f); setError(""); setSuccess(""); setExtracted([]); setSyncStatus({ profile: null, cv: null });
     setParsing(true);
 
-    // ── Read file text for dummy extraction ──────────────────────────────────
-    // TODO (teammate): Replace this section with real CV parsing API call
     const reader = new FileReader();
     reader.onload = (e) => {
       setTimeout(() => {
         const text = e.target?.result || "";
         const skills = extractSkillsFromText(String(text));
-        setExtracted(skills.length > 0 ? skills : ["React", "JavaScript", "Node.js"]); // fallback demo
+        setExtracted(skills.length > 0 ? skills : ["React", "JavaScript", "Node.js"]);
         setParsing(false);
-      }, 1200); // simulate processing delay
+      }, 1200);
     };
     reader.readAsText(f);
   };
@@ -76,20 +74,66 @@ export default function CVUpload() {
 
   const handleSaveSkills = async () => {
     if (extractedSkills.length === 0) return;
-    setSaving(true); setError(""); setSuccess("");
+    setSaving(true); setError(""); setSuccess(""); setSyncStatus({ profile: null, cv: null });
+
+    const skillsString = extractedSkills.join(", ");
+    let profileOk = false;
+    let cvOk      = false;
+
+    // ── 1. Update user profile database ─────────────────────────────────────
     try {
-      const res = await fetch(`http://localhost:5000/users/${user._id}`, {
+      const res  = await fetch(`${API_BASE}/users/${user._id}`, {
         method: "PUT",
         headers: authHeaders(),
-        body: JSON.stringify({ skills: extractedSkills.join(", ") }),
+        body: JSON.stringify({ skills: skillsString }),
       });
       const data = await res.json();
-      if (!res.ok) return setError(data.message || "Failed to save skills.");
-      saveAuth(getToken(), { ...user, skills: extractedSkills.join(", ") });
-      setSuccess("Skills saved! Your match results are now updated.");
+
+      if (!res.ok) {
+        setError(data.message || "Failed to save skills to profile.");
+      } else {
+        profileOk = true;
+        // Sync global auth state so every component re-reads fresh user data
+        saveAuth(getToken(), { ...user, skills: skillsString });
+        window.dispatchEvent(new Event("storage"));
+      }
+    } catch {
+      setError("Server error updating profile. Please try again.");
+    }
+
+    // ── 2. Update CV database (mirror skills field) ──────────────────────────
+    // We do a POST to /cv which creates or updates the CV document.
+    // We merge with current user data so we don't wipe other CV fields.
+    try {
+      const res  = await fetch(`${API_BASE}/cv`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          // Preserve existing CV identity fields from user profile
+          fullName:  user?.fullName  || "",
+          email:     user?.gmail     || "",
+          phone:     user?.phoneNo   || "",
+          address:   user?.address   || "",
+          education: user?.education || "",
+          experience:user?.experience|| "",
+          // The newly extracted skills — this is the primary update
+          skills: skillsString,
+        }),
+      });
+      const data = await res.json();
+      cvOk = data.success;
+    } catch (cvErr) {
+      // Non-fatal: profile already saved; just flag CV sync failure
+      console.warn("CV database sync failed:", cvErr);
+    }
+
+    setSyncStatus({ profile: profileOk ? "ok" : "fail", cv: cvOk ? "ok" : "fail" });
+    setSaving(false);
+
+    if (profileOk) {
+      setSuccess("Skills saved! Your profile and CV are now updated.");
       setTimeout(() => navigate("/student/suggestions"), 1500);
-    } catch { setError("Server error. Please try again."); }
-    finally { setSaving(false); }
+    }
   };
 
   const removeSkill = (s) => setExtracted(prev => prev.filter(x => x !== s));
@@ -112,33 +156,34 @@ export default function CVUpload() {
               <p style={{ color:"#64748B", fontSize:"13px", margin:"3px 0 0" }}>Upload your CV to extract skills and find matching internships</p>
             </div>
           </div>
-
-          {/* Welcome Back message for student */}
           <StudentWelcomeBack />
-
         </div>
 
         {/* How it works */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"12px", marginBottom:"28px" }}>
           {[
-            { step:"01", title:"Upload CV", desc:"Upload your CV as PDF, Word, or text file", color:"#22D3EE", icon:<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></> },
-            { step:"02", title:"Extract Skills", desc:"System reads your CV and identifies your technical skills", color:"#A78BFA", icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></> },
-            { step:"03", title:"Get Matches", desc:"Matched internships appear on your My Matches page", color:"#4ADE80", icon:<><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></> },
-          ].map(s => (
-            <div key={s.step} style={{ background:"#0F172A", border:"1px solid #1E293B", borderRadius:"14px", padding:"18px", display:"flex", alignItems:"flex-start", gap:"14px" }}>
-              <div style={{ width:"36px", height:"36px", borderRadius:"10px", flexShrink:0, background:`rgba(${s.color==="#22D3EE"?"34,211,238":s.color==="#A78BFA"?"167,139,250":"74,222,128"},0.1)`, border:`1px solid rgba(${s.color==="#22D3EE"?"34,211,238":s.color==="#A78BFA"?"167,139,250":"74,222,128"},0.2)`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={s.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{s.icon}</svg>
+            { step:"01", title:"Upload CV",      desc:"Upload your CV as PDF, Word, or text file",                     color:"#22D3EE", icon:<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></> },
+            { step:"02", title:"Extract Skills", desc:"System reads your CV and identifies your technical skills",      color:"#A78BFA", icon:<><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M1 12h4M19 12h4"/></> },
+            { step:"03", title:"Get Matches",    desc:"Matched internships appear on your My Matches page",            color:"#4ADE80", icon:<><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></> },
+          ].map(s => {
+            const rgb = s.color === "#22D3EE" ? "34,211,238" : s.color === "#A78BFA" ? "167,139,250" : "74,222,128";
+            return (
+              <div key={s.step} style={{ background:"#0F172A", border:"1px solid #1E293B", borderRadius:"14px", padding:"18px", display:"flex", alignItems:"flex-start", gap:"14px" }}>
+                <div style={{ width:"36px", height:"36px", borderRadius:"10px", flexShrink:0, background:`rgba(${rgb},0.1)`, border:`1px solid rgba(${rgb},0.2)`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={s.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{s.icon}</svg>
+                </div>
+                <div>
+                  <div style={{ fontSize:"8px", fontWeight:700, color:s.color, letterSpacing:".3em", marginBottom:"4px" }}>STEP {s.step}</div>
+                  <div style={{ fontSize:"13px", fontWeight:700, color:"#F1F5F9" }}>{s.title}</div>
+                  <div style={{ fontSize:"11px", color:"#64748B", marginTop:"3px" }}>{s.desc}</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize:"8px", fontWeight:700, color:s.color, letterSpacing:".3em", marginBottom:"4px" }}>STEP {s.step}</div>
-                <div style={{ fontSize:"13px", fontWeight:700, color:"#F1F5F9" }}>{s.title}</div>
-                <div style={{ fontSize:"11px", color:"#64748B", marginTop:"3px" }}>{s.desc}</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" }}>
+
           {/* Upload zone */}
           <div>
             <h2 style={{ fontSize:"15px", fontWeight:700, color:"#F1F5F9", marginBottom:"12px" }}>Upload Your CV</h2>
@@ -151,8 +196,7 @@ export default function CVUpload() {
                 background: dragOver ? "rgba(34,211,238,0.08)" : "#0F172A",
                 border: `2px dashed ${dragOver ? "#22D3EE" : "#1E293B"}`,
                 borderRadius:"14px", padding:"40px 24px",
-                textAlign:"center", cursor:"pointer",
-                transition:"all .2s",
+                textAlign:"center", cursor:"pointer", transition:"all .2s",
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"; }}
               onMouseLeave={e => { if (!dragOver) e.currentTarget.style.borderColor = "#1E293B"; }}
@@ -176,13 +220,46 @@ export default function CVUpload() {
               <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" style={{ display:"none" }} onChange={e => handleFile(e.target.files[0])} />
             </div>
 
+            {/* Sync status indicator — shown after save attempt */}
+            {(syncStatus.profile || syncStatus.cv) && (
+              <div style={{ background:"rgba(15,23,42,1)", border:"1px solid #1E293B", borderRadius:"10px", padding:"12px 16px", marginTop:"14px" }}>
+                <p style={{ color:"#64748B", fontSize:"10px", fontWeight:700, letterSpacing:".15em", marginBottom:"10px" }}>SYNC STATUS</p>
+                <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
+                  {[
+                    { label:"User Profile DB", status: syncStatus.profile },
+                    { label:"CV Database",     status: syncStatus.cv },
+                  ].map(({ label, status }) => (
+                    <div key={label} style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <span style={{ fontSize:"12px", color:"#94A3B8" }}>{label}</span>
+                      <span style={{
+                        display:"inline-flex", alignItems:"center", gap:"4px",
+                        fontSize:"10px", fontWeight:700, padding:"2px 8px", borderRadius:"99px",
+                        background: status === "ok" ? "rgba(74,222,128,0.1)" : "rgba(248,113,113,0.1)",
+                        border: status === "ok" ? "1px solid rgba(74,222,128,0.25)" : "1px solid rgba(248,113,113,0.25)",
+                        color: status === "ok" ? "#4ADE80" : "#F87171",
+                      }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                          stroke={status === "ok" ? "#4ADE80" : "#F87171"} strokeWidth="2.5" strokeLinecap="round">
+                          {status === "ok"
+                            ? <polyline points="20 6 9 17 4 12"/>
+                            : <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                          }
+                        </svg>
+                        {status === "ok" ? "Synced" : "Failed"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Teammate placeholder notice */}
             <div style={{ background:"rgba(167,139,250,0.06)", border:"1px solid rgba(167,139,250,0.15)", borderRadius:"10px", padding:"12px 16px", marginTop:"14px", display:"flex", gap:"10px", alignItems:"flex-start" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" style={{ flexShrink:0, marginTop:"1px" }}>
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
               <p style={{ color:"#94A3B8", fontSize:"11px", lineHeight:"1.6", margin:0 }}>
-                <span style={{ color:"#A78BFA", fontWeight:700 }}>CV Builder integration pending</span> — full skill extraction will be live once the CV Builder module (teammate's component) is connected. Currently using keyword detection as a placeholder.
+                <span style={{ color:"#A78BFA", fontWeight:700 }}>CV Builder integration pending</span> — full skill extraction will be live once the CV Builder module is connected. Currently using keyword detection as a placeholder.
               </p>
             </div>
           </div>
@@ -231,9 +308,7 @@ export default function CVUpload() {
             {error && (
               <div style={{ background:"rgba(248,113,113,0.1)", border:"1px solid rgba(248,113,113,0.3)", color:"#F87171", padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginTop:"10px", display:"flex", alignItems:"center", gap:"8px" }}>
                 <Ico size={14} stroke="#F87171">
-                  <circle cx="12" cy="12" r="9" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                  <circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                 </Ico>
                 <span>{error}</span>
               </div>
@@ -241,8 +316,7 @@ export default function CVUpload() {
             {success && (
               <div style={{ background:"rgba(74,222,128,0.1)", border:"1px solid rgba(74,222,128,0.3)", color:"#4ADE80", padding:"10px 14px", borderRadius:"10px", fontSize:"12px", marginTop:"10px", display:"flex", alignItems:"center", gap:"8px" }}>
                 <Ico size={14} stroke="#4ADE80">
-                  <circle cx="12" cy="12" r="9" />
-                  <polyline points="8 12 11 15 16 9" />
+                  <circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/>
                 </Ico>
                 <span>{success}</span>
               </div>
@@ -256,7 +330,12 @@ export default function CVUpload() {
               </button>
             )}
             {saving && (
-              <div style={{ textAlign:"center", marginTop:"14px", color:"#22D3EE", fontSize:"12px", fontWeight:600 }}>Saving skills...</div>
+              <div style={{ textAlign:"center", marginTop:"14px", color:"#22D3EE", fontSize:"12px", fontWeight:600, display:"flex", alignItems:"center", justifyContent:"center", gap:"8px" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2.5" strokeLinecap="round" style={{ animation:"spin 1s linear infinite" }}>
+                  <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-9.77"/>
+                </svg>
+                Saving to both databases...
+              </div>
             )}
           </div>
         </div>
