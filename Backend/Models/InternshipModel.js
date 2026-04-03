@@ -65,11 +65,6 @@ const InternshipSchema = new mongoose.Schema({
             message: 'Description must contain letters'
         }
     },
-    status: {
-        type: String,
-        enum: ['Active', 'Expired'],
-        default: 'Active'
-    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -34,6 +34,57 @@ const validateInternshipPayload = ({ title, company, location, duration, skillsR
     return null;
 };
 
+// @desc    Search Internships with filters
+// @route   GET /internships/search
+const searchInternships = async (req, res) => {
+    try {
+        const { location, duration, keyword, mode, timePreference, skills } = req.query;
+
+        let query = { status: 'Active', deadline: { $gt: new Date() } };
+
+        if (location) {
+            query.location = { $regex: location, $options: "i" };
+        }
+
+        if (duration) {
+            query.duration = { $regex: duration, $options: "i" };
+        }
+
+        if (mode) {
+            query.mode = mode;
+        }
+
+        if (timePreference) {
+            query.timePreference = timePreference;
+        }
+
+        if (keyword) {
+            query.$or = [
+                { title: { $regex: keyword, $options: "i" } },
+                { company: { $regex: keyword, $options: "i" } },
+                { description: { $regex: keyword, $options: "i" } }
+            ];
+        }
+
+        if (skills) {
+            const skillList = skills.split(",").map(s => s.trim()).filter(Boolean);
+            const skillConditions = skillList.map(skill => ({
+                skillsRequired: { $regex: skill, $options: 'i' }
+            }));
+            query.$and = query.$and || [];
+            query.$and.push({ $or: skillConditions });
+        }
+
+        const internships = await Internship.find(query)
+            .sort({ createdAt: -1 })
+            .limit(50);
+
+        return res.status(200).json({ internships });
+    } catch (err) {
+        return res.status(400).json({ message: err.message });
+    }
+};
+
 // @desc    Get all Internships
 const getInternships = async (req, res) => {
     let internships;
@@ -107,37 +158,161 @@ const deleteInternship = async (req, res) => {
 
 // @desc    Skill-Based Suggestions
 // @route   GET /internships/suggestions/:userId
-// Splits user.skills by comma and uses $or so ANY individual skill match
-// returns that internship — not the whole string at once.
-// e.g. "React, Node.js, MongoDB" -> finds internships with React OR Node.js OR MongoDB
+// Enhanced matching algorithm that considers:
+// 1. Skill matching from CV database (primary) or user profile (fallback)
+// 2. Work mode preference
+// 3. Time preference
+// 4. Location preference
 const getSuggestions = async (req, res) => {
     const id = req.params.userId;
     try {
-        const user = await User.findById(id);
+        // Force fresh user data fetch (no caching) - same as refresh endpoint
+        const user = await User.findById(id).lean(); // .lean() prevents Mongoose caching
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        const skillList = (user.skills || "")
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean);
-
-        if (skillList.length === 0) {
-            return res.status(200).json({ suggestions: [] });
+        // Force fresh CV data fetch (no caching) - same as refresh endpoint
+        const cv = await CV.findOne({ userId: user._id }).lean();
+        
+        let skillList = [];
+        let skillSource = 'user profile';
+        
+        if (cv && cv.skills && cv.skills.trim()) {
+            // Use CV database skills if available
+            skillList = cv.skills.split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+            skillSource = 'CV database';
+        } else {
+            // Fallback to user profile skills (fresh data)
+            skillList = (user.skills || "")
+                .split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+            skillSource = 'user profile';
         }
 
-        const orConditions = skillList.map(skill => ({
+        if (skillList.length === 0) {
+            return res.status(200).json({ 
+                suggestions: [],
+                skillSource,
+                message: 'No skills found for matching'
+            });
+        }
+
+        // Build skill matching conditions
+        const skillConditions = skillList.map(skill => ({
             skillsRequired: { $regex: skill, $options: 'i' }
         }));
 
-        const suggestions = await Internship.find({ $or: orConditions });
+        // Base query with skill matching
+        let query = {
+            $and: [
+                { $or: skillConditions }, // Must match at least one skill
+                { status: 'Active' }, // Only active internships
+                { deadline: { $gt: new Date() } } // Only future deadlines
+            ]
+        };
 
-        return res.status(200).json({ suggestions });
+        // Add optional preference filters
+        const preferenceFilters = [];
+        
+        if (user.mode && user.mode !== 'Any') {
+            preferenceFilters.push({ mode: user.mode });
+        }
+        
+        if (user.timePreference && user.timePreference !== 'Any') {
+            preferenceFilters.push({ timePreference: user.timePreference });
+        }
+        
+        if (user.address && user.address.trim()) {
+            preferenceFilters.push({ 
+                location: { $regex: user.address.trim(), $options: 'i' } 
+            });
+        }
+
+        // If user has preferences, add them to the query
+        if (preferenceFilters.length > 0) {
+            query.$and.push({ $or: preferenceFilters });
+        }
+
+        const suggestions = await Internship.find(query)
+            .sort({ createdAt: -1 }) // Most recent first
+            .limit(20); // Limit results
+
+        // Calculate match score and percentage for each suggestion
+        const suggestionsWithScore = suggestions.map(internship => {
+            let score = 0;
+            let matchedSkills = [];
+            
+            // Skill matching score (higher priority)
+            const internshipSkills = internship.skillsRequired.toLowerCase();
+            skillList.forEach(skill => {
+                if (internshipSkills.includes(skill.toLowerCase())) {
+                    score += 10;
+                    matchedSkills.push(skill);
+                }
+            });
+            
+            // Preference matching score
+            if (user.mode && internship.mode === user.mode) score += 3;
+            if (user.timePreference && internship.timePreference === user.timePreference) score += 2;
+            if (user.address && internship.location.toLowerCase().includes(user.address.toLowerCase())) score += 2;
+            
+            // Calculate maximum possible score for percentage
+            const maxSkillScore = skillList.length * 10;
+            const maxPreferenceScore = 7; // 3 + 2 + 2 for all preferences
+            const maxPossibleScore = maxSkillScore + maxPreferenceScore;
+            
+            // Calculate match percentage
+            const matchPercentage = Math.round((score / maxPossibleScore) * 100);
+            
+            // Determine match level
+            let matchLevel = 'Low';
+            if (matchPercentage >= 80) matchLevel = 'Excellent';
+            else if (matchPercentage >= 60) matchLevel = 'Good';
+            else if (matchPercentage >= 40) matchLevel = 'Fair';
+            
+            return {
+                ...internship.toObject(),
+                matchScore: score,
+                matchPercentage,
+                matchLevel,
+                matchedSkills,
+                totalSkills: skillList.length,
+                whyMatched: {
+                    skills: matchedSkills.length > 0 ? `Matches ${matchedSkills.length} of your ${skillList.length} skills` : 'No skill match',
+                    preferences: [
+                        user.mode && internship.mode === user.mode ? 'Work mode matches' : null,
+                        user.timePreference && internship.timePreference === user.timePreference ? 'Time preference matches' : null,
+                        user.address && internship.location.toLowerCase().includes(user.address.toLowerCase()) ? 'Location matches' : null
+                    ].filter(Boolean)
+                }
+            };
+        });
+
+        // Sort by match score (highest first) and filter out 0% matches
+        const filteredSuggestions = suggestionsWithScore
+            .filter(suggestion => suggestion.matchPercentage > 0)
+            .sort((a, b) => b.matchScore - a.matchScore);
+
+        return res.status(200).json({ 
+            suggestions: filteredSuggestions,
+            totalFound: filteredSuggestions.length,
+            userSkills: skillList,
+            skillSource, // NEW: indicates if skills came from CV or user profile
+            dataFreshness: 'real-time', // NEW: indicates fresh data fetch
+            matchingCriteria: {
+                skillWeight: '10 points per matched skill',
+                workModeWeight: '3 points',
+                timePreferenceWeight: '2 points',
+                locationWeight: '2 points'
+            }
+        });
     } catch (err) {
         return res.status(400).json({ message: err.message });
     }
 };
 
-// @desc    Public homepage stats — internship count, student count, unique company count
 // @route   GET /internships/stats
 // No auth required — this is a public endpoint used by the homepage
 const getStats = async (req, res) => {
@@ -156,7 +331,161 @@ const getStats = async (req, res) => {
     }
 };
 
-// @desc    Student applies to an internship
+// @desc    Refresh User Data and Get Matches (Real-time updates)
+// @route   GET /internships/refresh-matches/:userId
+// This endpoint forces fresh data fetch and returns updated matches
+const refreshMatches = async (req, res) => {
+    const id = req.params.userId;
+    try {
+        // Force fresh user data fetch (no caching)
+        const user = await User.findById(id).lean(); // .lean() prevents Mongoose caching
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Force fresh CV data fetch (no caching)
+        const cv = await CV.findOne({ userId: user._id }).lean();
+        
+        let skillList = [];
+        let skillSource = 'user profile';
+        
+        if (cv && cv.skills && cv.skills.trim()) {
+            // Use CV database skills if available
+            skillList = cv.skills.split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+            skillSource = 'CV database';
+        } else {
+            // Fallback to user profile skills (fresh data)
+            skillList = (user.skills || "")
+                .split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+            skillSource = 'user profile';
+        }
+
+        if (skillList.length === 0) {
+            return res.status(200).json({ 
+                suggestions: [],
+                totalFound: 0,
+                userSkills: skillList,
+                skillSource,
+                message: 'No skills found for matching',
+                dataFreshness: 'real-time'
+            });
+        }
+
+        // Build skill matching conditions
+        const skillConditions = skillList.map(skill => ({
+            skillsRequired: { $regex: skill, $options: 'i' }
+        }));
+
+        // Base query with skill matching
+        let query = {
+            $and: [
+                { $or: skillConditions }, // Must match at least one skill
+                { status: 'Active' }, // Only active internships
+                { deadline: { $gt: new Date() } } // Only future deadlines
+            ]
+        };
+
+        // Add optional preference filters (using fresh user data)
+        const preferenceFilters = [];
+        
+        if (user.mode && user.mode !== 'Any') {
+            preferenceFilters.push({ mode: user.mode });
+        }
+        
+        if (user.timePreference && user.timePreference !== 'Any') {
+            preferenceFilters.push({ timePreference: user.timePreference });
+        }
+        
+        if (user.address && user.address.trim()) {
+            preferenceFilters.push({ 
+                location: { $regex: user.address.trim(), $options: 'i' } 
+            });
+        }
+
+        // If user has preferences, add them to the query
+        if (preferenceFilters.length > 0) {
+            query.$and.push({ $or: preferenceFilters });
+        }
+
+        const suggestions = await Internship.find(query)
+            .sort({ createdAt: -1 }) // Most recent first
+            .limit(20);
+
+        // Calculate match score and percentage for each suggestion
+        const suggestionsWithScore = suggestions.map(internship => {
+            let score = 0;
+            let matchedSkills = [];
+            
+            // Skill matching score (higher priority)
+            const internshipSkills = internship.skillsRequired.toLowerCase();
+            skillList.forEach(skill => {
+                if (internshipSkills.includes(skill.toLowerCase())) {
+                    score += 10;
+                    matchedSkills.push(skill);
+                }
+            });
+            
+            // Preference matching score
+            if (user.mode && internship.mode === user.mode) score += 3;
+            if (user.timePreference && internship.timePreference === user.timePreference) score += 2;
+            if (user.address && internship.location.toLowerCase().includes(user.address.toLowerCase())) score += 2;
+            
+            // Calculate maximum possible score for percentage
+            const maxSkillScore = skillList.length * 10;
+            const maxPreferenceScore = 7; // 3 + 2 + 2 for all preferences
+            const maxPossibleScore = maxSkillScore + maxPreferenceScore;
+            
+            // Calculate match percentage
+            const matchPercentage = Math.round((score / maxPossibleScore) * 100);
+            
+            // Determine match level
+            let matchLevel = 'Low';
+            if (matchPercentage >= 80) matchLevel = 'Excellent';
+            else if (matchPercentage >= 60) matchLevel = 'Good';
+            else if (matchPercentage >= 40) matchLevel = 'Fair';
+            
+            return {
+                ...internship.toObject(),
+                matchScore: score,
+                matchPercentage,
+                matchLevel,
+                matchedSkills,
+                totalSkills: skillList.length,
+                whyMatched: {
+                    skills: matchedSkills.length > 0 ? `Matches ${matchedSkills.length} of your ${skillList.length} skills` : 'No skill match',
+                    preferences: [
+                        user.mode && internship.mode === user.mode ? 'Work mode matches' : null,
+                        user.timePreference && internship.timePreference === user.timePreference ? 'Time preference matches' : null,
+                        user.address && internship.location.toLowerCase().includes(user.address.toLowerCase()) ? 'Location matches' : null
+                    ].filter(Boolean)
+                }
+            };
+        });
+
+        // Sort by match score (highest first) and filter out 0% matches
+        const filteredSuggestions = suggestionsWithScore
+            .filter(suggestion => suggestion.matchPercentage > 0)
+            .sort((a, b) => b.matchScore - a.matchScore);
+
+        return res.status(200).json({ 
+            suggestions: filteredSuggestions,
+            totalFound: filteredSuggestions.length,
+            userSkills: skillList,
+            skillSource,
+            dataFreshness: 'real-time', // NEW: indicates this is fresh data
+            matchingCriteria: {
+                skillWeight: '10 points per matched skill',
+                workModeWeight: '3 points',
+                timePreferenceWeight: '2 points',
+                locationWeight: '2 points'
+            }
+        });
+    } catch (err) {
+        return res.status(400).json({ message: err.message });
+    }
+};
 // @route   POST /internships/:id/apply
 const applyToInternship = async (req, res) => {
     try {
@@ -226,10 +555,12 @@ const markApplicationRead = async (req, res) => {
 };
 
 exports.getInternships  = getInternships;
+exports.searchInternships = searchInternships;
 exports.addInternship   = addInternship;
 exports.updateInternship = updateInternship;
 exports.deleteInternship = deleteInternship;
 exports.getSuggestions  = getSuggestions;
+exports.refreshMatches = refreshMatches; // NEW: real-time refresh endpoint
 exports.getStats        = getStats;
 exports.applyToInternship = applyToInternship;
 exports.getApplications = getApplications;
