@@ -36,21 +36,10 @@ function CalendarPage() {
   const upcomingEvents = events.filter(e => e.date >= today)
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
-          <StudentSidebar />
-          <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
-    <div
-      className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100"
-      style={{ height: '100vh', overflow: 'hidden' }}
-    >
-      <div
-        className="mx-auto flex w-full max-w-[96rem] flex-col px-3 py-6 sm:px-5 lg:px-6"
-        style={{ height: '100%', overflow: 'hidden' }}
-      >
-        
-
-        {/* ── Page Content ── */}
-        <main className="flex-1 flex flex-col" style={{ overflowY: 'auto' }}>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 font-syne">
+      <StudentSidebar />
+      <main className="flex-1 overflow-y-auto" style={{minWidth:0}}>
+        <div className="mx-auto w-full max-w-[96rem] px-3 py-6 sm:px-5 lg:px-6">
           {loading ? (
             <div className="flex flex-1 items-center justify-center">
               <div className="text-center">
@@ -141,10 +130,8 @@ function CalendarPage() {
               </div>
             </div>
           )}
-        </main>
-      </div>
-    </div>
-          </main>
+        </div>
+      </main>
     </div>
   )
 }

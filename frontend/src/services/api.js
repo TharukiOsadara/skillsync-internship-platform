@@ -5,11 +5,14 @@
  * This provides a clean interface for frontend components to call backend APIs.
  *
  * Usage:
- * import { eventAPI } from '../services/api'
+ * import { eventAPI } from './services/api'
  * const events = await eventAPI.getAll()
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+// Import the comprehensive event API
+export { eventAPI, calendarAPI, reminderAPI } from './eventAPI'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 
 /**
  * Handle API response and errors
@@ -29,9 +32,10 @@ async function handleResponse(response) {
 }
 
 /**
- * Event API Service
+ * Legacy Event API Service (for backward compatibility)
+ * @deprecated Use eventAPI from eventAPI.js instead
  */
-export const eventAPI = {
+export const legacyEventAPI = {
   /**
    * Get all events
    * @returns {Promise} Array of events
@@ -133,7 +137,7 @@ export const eventAPI = {
 export const healthAPI = {
   async check() {
     try {
-      const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`)
+      const response = await fetch(`${API_BASE_URL}/health`)
       const result = await response.json()
       return result
     } catch (error) {
@@ -141,4 +145,10 @@ export const healthAPI = {
       throw error
     }
   },
+}
+
+// Default export for backward compatibility
+export default {
+  eventAPI: legacyEventAPI,
+  healthAPI
 }
