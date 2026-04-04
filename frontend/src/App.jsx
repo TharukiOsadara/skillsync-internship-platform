@@ -3,7 +3,7 @@ import { isLoggedIn, getUser, isTokenExpired, logout } from "./Utils/auth";
 import { useEffect, useState } from "react";
 
 import MainLayout from "./Components/Layout";
-import LayoutNotification from "./Components/LayoutNotification";
+
 
 import LoaderPage from "./Pages/Loader/LoaderPage";
 import HomePage from "./Pages/Home/HomePage";

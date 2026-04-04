@@ -1,9 +1,13 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+import StudentSidebar from "../../Components/StudentSidebar";
 
 function NotificationHome() {
   const navigate = useNavigate()
 
-  return (
+  return (   
+    <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
+          <StudentSidebar />
+          <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
     <div
       className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100"
       style={{ height: '100vh', overflow: 'hidden' }}
@@ -12,36 +16,6 @@ function NotificationHome() {
         className="mx-auto flex w-full max-w-[96rem] flex-col px-3 py-6 sm:px-5 lg:px-6"
         style={{ height: '100%', overflow: 'hidden' }}
       >
-        {/* ── Navbar ── */}
-        <header className="mb-8 flex-shrink-0 rounded-3xl border border-white/10 bg-white/5 px-5 py-4 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.8)] backdrop-blur-xl sm:px-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-            {/* Left: Back button + Title */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/student/matches')}
-                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/10 hover:text-white"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-cyan-400">SkillSync Internships</p>
-                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">Calendar & Notification Management</h1>
-              </div>
-            </div>
-
-            {/* Right: Nav links */}
-            <nav className="flex flex-wrap gap-2">
-              <NavLink to="/notifications" className={({ isActive }) => `rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'}`}>Home</NavLink>
-              <NavLink to="/calendar"      className={({ isActive }) => `rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'}`}>Calendar</NavLink>
-              <NavLink to="/events"        className={({ isActive }) => `rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-slate-950 shadow-lg shadow-green-500/25' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'}`}>Events</NavLink>
-              <NavLink to="/reminders"     className={({ isActive }) => `rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-lg shadow-amber-500/25' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'}`}>Reminders</NavLink>
-            </nav>
-          </div>
-        </header>
 
         {/* ── Page Content ── */}
         <main className="flex-1 flex flex-col" style={{ overflowY: 'auto' }}>
@@ -104,6 +78,8 @@ function NotificationHome() {
           </section>
         </main>
       </div>
+    </div>
+    </main>
     </div>
   )
 }

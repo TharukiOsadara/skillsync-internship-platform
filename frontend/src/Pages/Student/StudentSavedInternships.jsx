@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import StudentSidebar from "../../Components/StudentSidebar";
 
 export default function SavedInternships() {
   const navigate = useNavigate();
@@ -129,6 +130,10 @@ export default function SavedInternships() {
   }
 
   return (
+    <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
+          <StudentSidebar />
+          <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
+    
     <div
       style={{
         minHeight: "100vh",
@@ -507,6 +512,8 @@ export default function SavedInternships() {
         <span>❤</span>
         <span>{toast.message}</span>
       </div>
+    </div>
+    </main>
     </div>
   );
 }

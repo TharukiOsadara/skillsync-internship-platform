@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import StudentSidebar from "../../Components/StudentSidebar";
 
 export default function StudentInternshipDetails() {
   const navigate = useNavigate();
@@ -268,6 +269,9 @@ export default function StudentInternshipDetails() {
 
   if (loading) {
     return (
+      <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
+            <StudentSidebar />
+            <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
       <div
         style={{
           minHeight: "100vh",
@@ -282,11 +286,16 @@ export default function StudentInternshipDetails() {
       >
         Loading internship details...
       </div>
+      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
+      <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
+            <StudentSidebar />
+            <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
       <div
         style={{
           minHeight: "100vh",
@@ -303,6 +312,8 @@ export default function StudentInternshipDetails() {
       >
         {error}
       </div>
+      </main>
+      </div>
     );
   }
 
@@ -312,6 +323,9 @@ export default function StudentInternshipDetails() {
   const isUrgent = daysRemaining !== "Expired" && daysRemaining !== "Today";
 
   return (
+    <div style={{ display:"flex", minHeight:"100vh", background:"#0B1220", fontFamily:"'DM Sans',sans-serif" }}>
+          <StudentSidebar />
+          <main style={{ flex:1, padding:"32px", overflowY:"auto", minWidth:0 }}>
     <div style={styles.page}>
       <div style={styles.container}>
         <div style={styles.navBar}>
@@ -530,6 +544,8 @@ export default function StudentInternshipDetails() {
         <i className="fas fa-heart" />
         <span>{toast.message}</span>
       </div>
+    </div>
+    </main>
     </div>
   );
 }

@@ -134,7 +134,7 @@ export default function CVUpload() {
       setSuccess("Skills saved! Your profile and CV are now updated.");
       setTimeout(() => navigate("/student/suggestions"), 1500);
     }
-  };
+  };  
 
   const removeSkill = (s) => setExtracted(prev => prev.filter(x => x !== s));
 

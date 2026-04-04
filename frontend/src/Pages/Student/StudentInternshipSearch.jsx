@@ -419,19 +419,7 @@ export default function StudentInternshipSearch() {
       <StudentSidebar />
       <main style={{ flex: 1, padding: "32px", minWidth: 0, overflowY: "auto" }}>
         <div style={styles.container}>
-        <div style={styles.navbar}>
-          <div style={styles.logoArea}>
-            <div style={styles.logo}>
-              skill<span style={styles.logoSpan}>sync</span> internships
-            </div>
-            <div style={styles.tagline}>
-              <i className="fas fa-map-marker-alt" /> Sri Lanka · Match Engine
-            </div>
-          </div>
-          <div style={styles.navBadge}>
-            <i className="fas fa-chart-line" /> Launch your career
-          </div>
-        </div>
+        
 
         <div style={styles.hero}>
           <div style={styles.heroBadge}>
