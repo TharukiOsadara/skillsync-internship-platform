@@ -178,5 +178,8 @@ Backend default: `http://localhost:5000`
 
 ## Author
 
-- Tharuki Osadara
+- Tharuki 
+- Harindie
+- Shashini
+- Ayesha
 
