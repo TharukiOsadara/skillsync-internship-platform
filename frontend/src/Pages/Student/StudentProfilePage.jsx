@@ -106,6 +106,7 @@ const PwInput = ({ label, field, placeholder, value, onChange, showPw, setShowPw
 export default function StudentProfile() {
   const navigate = useNavigate();
   const user     = getUser();
+  const [profile, setProfile] = useState(() => user || {});
   const fileRef  = useRef(null);
 
   const [form, setForm] = useState({
@@ -169,7 +170,9 @@ export default function StudentProfile() {
       });
       const data = await res.json();
       if (!res.ok) return setProfileError(data.message || "Update failed.");
-      saveAuth(getToken(), { ...user, ...form, photo });
+      const updatedProfile = { ...profile, ...form, photo };
+      saveAuth(getToken(), updatedProfile);
+      setProfile(updatedProfile);
       setProfileSuccess("Profile updated successfully! Your matches will reflect the new skills.");
     } catch { setProfileError("Server error. Please try again."); }
     finally { setLoading(false); }
@@ -198,7 +201,7 @@ export default function StudentProfile() {
     finally { setPwLoading(false); }
   };
 
-  const initial = (form.fullName || "S").trim().charAt(0).toUpperCase();
+  const initial = (profile?.fullName || "S").trim().charAt(0).toUpperCase();
 
   const strengthScore = (() => {
     const p = pwForm.newPassword;
@@ -248,8 +251,8 @@ export default function StudentProfile() {
               </div>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhoto}/>
               <div>
-                <p style={{ color: "#F1F5F9", fontWeight: 700, fontSize: "15px", margin: "0 0 4px" }}>{form.fullName || "Your Name"}</p>
-                <p style={{ color: "#64748B", fontSize: "11px", margin: "0 0 8px" }}>{form.gmail}</p>
+                <p style={{ color: "#F1F5F9", fontWeight: 700, fontSize: "15px", margin: "0 0 4px" }}>{profile?.fullName || "Your Name"}</p>
+                <p style={{ color: "#64748B", fontSize: "11px", margin: "0 0 8px" }}>{profile?.gmail}</p>
                 <button type="button" onClick={() => fileRef.current?.click()}
                   style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.2)", color: "#22D3EE", fontSize: "11px", fontWeight: 700, padding: "5px 14px", borderRadius: "99px", cursor: "pointer" }}>
                   Upload new photo
@@ -261,98 +264,11 @@ export default function StudentProfile() {
             <Alert type="success" msg={profileSuccess} />
 
             <div style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: "14px", padding: "20px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-                {/* Stat Cards with hover and smaller font */}
-                <div style={{
-                  background: "#1E293B",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  padding: "8px 8px",
-                  minWidth: 0,
-                  maxWidth: "180px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  transition: "box-shadow .15s, border-color .15s",
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: "11px",
-                  color: "#F1F5F9",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  wordBreak: "break-word"
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
-                >
-                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Full Name</span>
-                  <span style={{ fontSize: "11px", fontWeight: 600, color: "#F1F5F9", wordBreak: "break-word" }}>{form.fullName || "Kasun Rajapaksha"}</span>
-                </div>
-                <div style={{
-                  background: "#1E293B",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  padding: "8px 8px",
-                  minWidth: 0,
-                  maxWidth: "180px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  transition: "box-shadow .15s, border-color .15s",
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: "11px",
-                  color: "#F1F5F9",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  wordBreak: "break-word"
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
-                >
-                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Email</span>
-                  <span style={{ fontSize: "11px", fontWeight: 600, color: "#F1F5F9", wordBreak: "break-word" }}>{form.gmail || "you@example.com"}</span>
-                </div>
-                <div style={{
-                  background: "#1E293B",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  padding: "14px 12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  transition: "box-shadow .15s, border-color .15s",
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: "11px",
-                  color: "#F1F5F9",
-                  fontWeight: 600,
-                  cursor: "pointer"
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
-                >
-                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Age</span>
-                  {form.age || "22"}
-                </div>
-                <div style={{
-                  background: "#1E293B",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  padding: "14px 12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  transition: "box-shadow .15s, border-color .15s",
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: "11px",
-                  color: "#F1F5F9",
-                  fontWeight: 600,
-                  cursor: "pointer"
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(34,211,238,0.10)"; e.currentTarget.style.borderColor = "#22D3EE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "#334155"; }}
-                >
-                  <span style={{ color: "#64748B", fontSize: "10px", fontWeight: 700, marginBottom: "2px" }}>Phone Number</span>
-                  {form.phoneNo || "0771234567"}
-                </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "14px", marginBottom: "14px" }}>
+                <Inp label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Kasun Rajapaksha" />
+                <Inp label="Email" name="gmail" value={form.gmail} onChange={handleChange} type="email" placeholder="you@example.com" />
+                <Inp label="Age" name="age" value={form.age} onChange={handleChange} type="number" placeholder="22" />
+                <Inp label="Phone Number" name="phoneNo" value={form.phoneNo} onChange={handleChange} placeholder="0771234567" />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <Inp label="Address"    name="address"    value={form.address}    onChange={handleChange} placeholder="Colombo, Sri Lanka"/>
@@ -461,11 +377,15 @@ export default function StudentProfile() {
             </form>
 
             <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid #1E293B", textAlign: "center" }}>
-              <a href="/forgot-password" style={{ color: "#64748B", fontSize: "11px", fontWeight: 600, textDecoration: "none", transition: "color .15s" }}
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                style={{ background: "none", border: "none", padding: 0, color: "#64748B", fontSize: "11px", fontWeight: 600, textDecoration: "none", cursor: "pointer", transition: "color .15s" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#22D3EE")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}>
+                onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}
+              >
                 Forgot your current password?
-              </a>
+              </button>
             </div>
           </div>
         </div>
