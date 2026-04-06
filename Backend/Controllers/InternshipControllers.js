@@ -121,9 +121,9 @@ const addInternship = async (req, res) => {
 const updateInternship = async (req, res) => {
 
 
-    const { title, company, location, duration, skillsRequired, deadline } = req.body;
+    const { title, company, location, duration, skillsRequired, deadline, mode, timePreference, description } = req.body;
 
-    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline });
+    const validationError = validateInternshipPayload({ title, company, location, duration, skillsRequired, deadline, mode, timePreference, description });
 
 
     if (validationError) {

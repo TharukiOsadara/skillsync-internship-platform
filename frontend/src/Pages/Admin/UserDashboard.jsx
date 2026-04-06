@@ -149,6 +149,7 @@ export default function UserDashboard() {
 
   const openEditModal = (user) => {
     setEditUser(user); setModalError(""); setSuccess("");
+    setAdminPassword("");
     setForm({
       fullName: user.fullName || "", gmail: user.gmail || "",
       age: user.age || "", address: user.address || "", phoneNo: user.phoneNo || "",
@@ -162,9 +163,14 @@ export default function UserDashboard() {
     const err = validateUser(form);
     if (err) return setModalError(err);
     try {
+      let payload = { ...form };
+      if (currentUser && currentUser.role === "Admin" && currentUser._id !== editUser._id) {
+        if (!adminPassword) return setModalError("Admin password is required to update users.");
+        payload.adminPassword = adminPassword;
+      }
       const res = await fetch(`http://localhost:5000/users/${editUser._id}`, {
         method: "PUT", headers: authHeaders(),
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) return setModalError(data.message || "Update failed.");
@@ -468,6 +474,17 @@ export default function UserDashboard() {
                   <span style={{ color: '#F87171', fontSize: '11px', marginTop: '2px' }}>{fieldErrors.role}</span>
                 )}
               </div>
+              {currentUser && currentUser.role === "Admin" && currentUser._id !== editUser._id && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-slate-400 text-xs">Admin Password</label>
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={e => setAdminPassword(e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+              )}
             </div>
             {modalError && (
               <div style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)", color: "#F87171", padding: "9px 13px", borderRadius: "9px", fontSize: "12px", marginTop: "14px", display: "flex", alignItems: "center", gap: "8px" }}>

@@ -240,15 +240,17 @@ const updateUser = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Admin password is incorrect.' });
         }
 
-        const validationError = validateUserPayload({ fullName, gmail, password, age, address, phoneNo, skills, education, experience });
+        const validationError = validateSelfUpdatePayload({ fullName, gmail, age, address, phoneNo, skills, education, experience });
         if (validationError) {
             return res.status(400).json({ success: false, message: validationError });
         }
 
         try {
+            const updates = { fullName, gmail, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() };
+            if (password !== undefined && String(password).trim()) updates.password = password;
             const user = await User.findByIdAndUpdate(
                 id,
-                { fullName, gmail, password, age, address, phoneNo: digitsOnly(phoneNo), role, skills, education, experience, photo, updatedAt: new Date() },
+                updates,
                 { new: true, runValidators: true }
             );
             if (!user) {
