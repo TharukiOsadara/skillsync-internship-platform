@@ -228,6 +228,17 @@ export default function AdminProfilePage() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        /* Hide built-in browser password reveal button */
+        .skillsync-admin-password::-ms-reveal,
+        .skillsync-admin-password::-ms-clear {
+          display: none;
+        }
+        .skillsync-admin-password::-webkit-credentials-auto-fill-button {
+          visibility: hidden;
+          pointer-events: none;
+        }
+      `}</style>
       <AdminSidebar />
       <main style={{ flex: 1, padding: "32px", overflowY: "auto", minWidth: 0, height: "100vh", overscrollBehavior: "contain" }}>
 
@@ -403,6 +414,7 @@ export default function AdminProfilePage() {
                         onChange={e => { setPwForm(p => ({ ...p, currentPassword: e.target.value })); setPwError(""); }}
                         placeholder={"......"}
                         autoComplete="current-password"
+                        className="skillsync-admin-password"
                         style={{
                           background: "#1E293B",
                           border: "1px solid #334155",
@@ -442,6 +454,7 @@ export default function AdminProfilePage() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
+                        className="skillsync-admin-password"
                         style={{
                           background: "#1E293B",
                           border: "1px solid #334155",
@@ -481,6 +494,7 @@ export default function AdminProfilePage() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
+                        className="skillsync-admin-password"
                         style={{
                           background: "#1E293B",
                           border: "1px solid #334155",

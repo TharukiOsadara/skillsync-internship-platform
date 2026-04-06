@@ -70,6 +70,7 @@ const PwInput = ({ label, field, placeholder, value, onChange, showPw, setShowPw
           placeholder={placeholder}
           autoComplete={autoComplete}
           {...(field !== "current" ? { "data-lpignore": "true", "data-form-type": "other" } : {})}
+          className="skillsync-student-password"
           style={{
             background: "#1E293B",
             border: "1px solid #334155",
@@ -217,6 +218,17 @@ export default function StudentProfile() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#0B1220", fontFamily: "'DM Sans',sans-serif" }}>
+      <style>{`
+        /* Hide built-in browser password reveal button */
+        .skillsync-student-password::-ms-reveal,
+        .skillsync-student-password::-ms-clear {
+          display: none;
+        }
+        .skillsync-student-password::-webkit-credentials-auto-fill-button {
+          visibility: hidden;
+          pointer-events: none;
+        }
+      `}</style>
       <StudentSidebar />
       <main style={{ flex: 1, padding: "32px", overflowY: "auto", minWidth: 0 }}>
 
