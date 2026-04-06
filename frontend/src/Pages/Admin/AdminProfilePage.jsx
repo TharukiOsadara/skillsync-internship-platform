@@ -94,11 +94,12 @@ const StatCard = ({ label, value, icon }) => {
 export default function AdminProfilePage() {
   const navigate = useNavigate();
   const user = getUser();
+  const [profile, setProfile] = useState(() => user || {});
   const loggedInAt = getLoggedInAt();
   const fileRef = useRef(null);
   const [entered, setEntered] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     fullName: user?.fullName || "",
     gmail: user?.gmail || "",
     age: user?.age || "",
@@ -106,8 +107,8 @@ export default function AdminProfilePage() {
     phoneNo: user?.phoneNo || "",
     education: user?.education || "",
     experience: user?.experience || "",
-  });
-  const [photo, setPhoto] = useState(user?.photo || null);
+  }));
+  const [photo, setPhoto] = useState(() => user?.photo || null);
   const [profileError, setProfileError] = useState("");
   const [profileSuccess, setProfileSuccess] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
@@ -163,7 +164,9 @@ export default function AdminProfilePage() {
       });
       const data = await res.json();
       if (!res.ok) return setProfileError(data.message || "Update failed.");
-      saveAuth(getToken(), { ...user, ...form, photo });
+      const updatedProfile = { ...profile, ...form, photo };
+      saveAuth(getToken(), updatedProfile);
+      setProfile(updatedProfile);
       setProfileSuccess("Profile updated successfully!");
     } catch { setProfileError("Server error. Please try again."); }
     finally { setProfileLoading(false); }
@@ -192,8 +195,8 @@ export default function AdminProfilePage() {
     finally { setPwLoading(false); }
   };
 
-  const initial = (form.fullName || "A").trim().charAt(0).toUpperCase();
-  const memberSince = user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" }) : "—";
+  const initial = (profile?.fullName || "A").trim().charAt(0).toUpperCase();
+  const memberSince = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" }) : "—";
   const lastLogin = loggedInAt ? loggedInAt.toLocaleString() : "—";
 
   // Shared password input renderer
@@ -252,7 +255,7 @@ export default function AdminProfilePage() {
               </div>
               <div style={{ lineHeight: 1.1 }}>
                 <p style={{ color: "#67E8F9", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em", margin: 0, textTransform: "uppercase" }}>Welcome Back</p>
-                <p style={{ color: "#F1F5F9", fontSize: "13px", fontWeight: 700, margin: "4px 0 0" }}>{user?.fullName}</p>
+                <p style={{ color: "#F1F5F9", fontSize: "13px", fontWeight: 700, margin: "4px 0 0" }}>{profile?.fullName}</p>
               </div>
             </div>
             {loggedInAt && (
@@ -270,7 +273,7 @@ export default function AdminProfilePage() {
 
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "12px", marginBottom: "24px", ...revealStyle(60) }}>
-          <StatCard label="Role" value={user?.role} icon={<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /><path d="M9 12l2 2 4-4" /></>} />
+          <StatCard label="Role" value={profile?.role} icon={<><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /><path d="M9 12l2 2 4-4" /></>} />
           <StatCard label="Member Since" value={memberSince} icon={<><rect x="3" y="4" width="18" height="17" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>} />
         </div>
 
@@ -300,7 +303,7 @@ export default function AdminProfilePage() {
                 </div>
                 <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhoto} />
                 <div>
-                  <p style={{ color: "#F1F5F9", fontWeight: 700, fontSize: "14px", margin: "0 0 2px" }}>{form.fullName || "Admin"}</p>
+                  <p style={{ color: "#F1F5F9", fontWeight: 700, fontSize: "14px", margin: "0 0 2px" }}>{profile?.fullName || "Admin"}</p>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.25)", color: "#A78BFA", fontSize: "9px", fontWeight: 700, padding: "2px 8px", borderRadius: "99px" }}>
                     <Ico size={9} stroke="#A78BFA"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z" /></Ico>
                     ADMIN
@@ -325,7 +328,7 @@ export default function AdminProfilePage() {
                   <Inp label="Address" name="address" value={form.address} onChange={handleChange} placeholder="Colombo, Sri Lanka" />
                   <Inp label="Education" name="education" value={form.education} onChange={handleChange} placeholder="BSc Computer Science" />
                   <Inp label="Experience" name="experience" value={form.experience} onChange={handleChange} placeholder="5 years in System Administration" />
-                  <Inp label="Role (read-only)" name="role" value={user?.role || "Admin"} onChange={() => {}} readOnly />
+                  <Inp label="Role (read-only)" name="role" value={profile?.role || "Admin"} onChange={() => {}} readOnly />
                 </div>
                 <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
                   <button type="button" onClick={() => navigate(-1)}
@@ -357,11 +360,11 @@ export default function AdminProfilePage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {[ 
-                  { label: "Email (Gmail)", value: user?.gmail },
-                  { label: "Account Role", value: user?.role },
+                  { label: "Email (Gmail)", value: profile?.gmail },
+                  { label: "Account Role", value: profile?.role },
                   { label: "Member Since", value: memberSince },
-                  { label: "Education", value: user?.education || "—" },
-                  { label: "Experience", value: user?.experience || "—" },
+                  { label: "Education", value: profile?.education || "—" },
+                  { label: "Experience", value: profile?.experience || "—" },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "8px", borderBottom: "1px solid #1E293B" }}>
                     <span style={{ color: "#64748B", fontSize: "11px", fontWeight: 600 }}>{label}</span>
@@ -546,9 +549,15 @@ export default function AdminProfilePage() {
               </form>
 
               <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid #1E293B", textAlign: "center" }}>
-                <a href="/forgot-password" style={{ color: "#64748B", fontSize: "11px", fontWeight: 600, textDecoration: "none", transition: "color .15s" }}
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  style={{ background: "none", border: "none", padding: 0, color: "#64748B", fontSize: "11px", fontWeight: 600, textDecoration: "none", cursor: "pointer", transition: "color .15s" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#22D3EE")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}>Forgot your current password?</a>
+                  onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}
+                >
+                  Forgot your current password?
+                </button>
               </div>
             </div>
 

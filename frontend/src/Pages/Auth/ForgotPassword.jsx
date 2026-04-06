@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { logout } from "../../Utils/auth";
 
 // Particle animation config (from HomePage)
 const HERO_PARTICLES = [
@@ -161,15 +162,28 @@ export default function ForgotPassword() {
           50% { transform: translateY(14px) scale(0.92); }
           100% { transform: translateY(0) scale(1); }
         }
+        /* Hide built-in browser password reveal button */
+        .skillsync-forgot-password-input::-ms-reveal,
+        .skillsync-forgot-password-input::-ms-clear {
+          display: none;
+        }
+        .skillsync-forgot-password-input::-webkit-credentials-auto-fill-button {
+          visibility: hidden;
+          pointer-events: none;
+        }
       `}</style>
 
         {/* Back to login */}
-        <Link to="/login" style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#64748B", fontSize: "12px", fontWeight: 600, textDecoration: "none", marginBottom: "24px", transition: "color .15s" }}
+        <button
+          type="button"
+          onClick={() => { logout(); navigate("/login", { replace: true }); }}
+          style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#64748B", fontSize: "12px", fontWeight: 600, background: "none", border: "none", padding: 0, marginBottom: "24px", cursor: "pointer", transition: "color .15s" }}
           onMouseEnter={e => (e.currentTarget.style.color = "#22D3EE")}
-          onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}>
+          onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}
+        >
           <Ico size={12} stroke="currentColor"><polyline points="15 18 9 12 15 6" /></Ico>
           Back to Login
-        </Link>
+        </button>
 
         {/* Logo / Brand */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "28px" }}>
@@ -276,6 +290,7 @@ export default function ForgotPassword() {
                       <label style={{ fontSize: "10px", color: "#64748B", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</label>
                       <div style={{ position: "relative" }}>
                         <input type={show ? "text" : "password"} value={val} onChange={e => { set(e.target.value); setError(""); }} placeholder={ph}
+                          className="skillsync-forgot-password-input"
                           style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: "10px", padding: "10px 38px 10px 12px", color: "#F1F5F9", fontSize: "13px", width: "100%", fontFamily: "'DM Sans',sans-serif", outline: "none", transition: "border-color .15s, box-shadow .15s", boxSizing: "border-box" }}
                           onFocus={e => { e.target.style.borderColor = "#A78BFA"; e.target.style.boxShadow = "0 0 0 3px rgba(167,139,250,0.1)"; }}
                           onBlur={e => { e.target.style.borderColor = "#334155"; e.target.style.boxShadow = "none"; }}
@@ -364,7 +379,13 @@ export default function ForgotPassword() {
         {step !== 3 && (
           <p style={{ textAlign: "center", color: "#334155", fontSize: "11px", marginTop: "18px" }}>
             Remember your password?{" "}
-            <Link to="/login" style={{ color: "#22D3EE", fontWeight: 700, textDecoration: "none" }}>Sign in</Link>
+            <button
+              type="button"
+              onClick={() => { logout(); navigate("/login", { replace: true }); }}
+              style={{ color: "#22D3EE", fontWeight: 700, textDecoration: "none", background: "none", border: "none", padding: 0, cursor: "pointer" }}
+            >
+              Sign in
+            </button>
           </p>
         )}
       </div>

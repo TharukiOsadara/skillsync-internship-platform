@@ -175,6 +175,15 @@ export default function Login() {
             }
             @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             @keyframes fade-in { from { opacity: 0; transform: translateY(-50%) scale(0.85); } to { opacity: 1; transform: translateY(-50%) scale(1); } }
+            /* Hide built-in browser password reveal button */
+            #skillsync-login-password::-ms-reveal,
+            #skillsync-login-password::-ms-clear {
+              display: none;
+            }
+            #skillsync-login-password::-webkit-credentials-auto-fill-button {
+              visibility: hidden;
+              pointer-events: none;
+            }
           `}</style>
           {/* Brand */}
           <div style={{ textAlign:"center", marginBottom:"32px", ...revealStyle(0) }}>
